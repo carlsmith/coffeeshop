@@ -1,0 +1,34 @@
+application: shell-cosh
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /scripts
+  static_dir: scripts
+  secure: always
+
+- url: /styles
+  static_dir: styles
+  secure: always
+
+- url: /images
+  static_dir: images
+  secure: always
+
+- url: /fonts
+  static_dir: fonts
+  secure: always
+
+- url: /docs
+  static_dir: docs
+  secure: always
+
+- url: .*
+  script: main.app
+  secure: always
+
+libraries:
+- name: webapp2
+  version: "2.5.1"

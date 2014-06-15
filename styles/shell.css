@@ -1,0 +1,175 @@
+* { font-family: Droid Mono; outline-color: #4D774A; }
+
+::-webkit-scrollbar { display: none }
+
+body {
+    margin: 0;
+    color: #E6E0B9;
+    font-size: 12px;
+    width: 640px;
+    background-color: #1A1816;
+    }
+
+a { color: #B2D019 }
+a:active { color: blue }
+a:hover { color: #FFBAF4; cursor: pointer }
+
+xmp, .error { margin: 0 0 16px 0 }
+
+img, video { max-height: 256px; max-width: 642px; padding: 16px 14px; }
+
+iframe { height: 315px; width: 642px }
+
+pre:hover { background-color: rgba(47, 75, 64, 0.28); cursor: pointer }
+
+#banner {
+    color: #999;
+    cursor: default;
+    background: #1A1A1A;
+    padding: 4px 0 6px 4px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #3A3A3A;
+    position: fixed; right: 0; left: 0; top: 0;
+    z-index: 2 }
+
+#shell-links { position: absolute; left: 326px; visibility: hidden }
+
+#editor-links {
+    position: absolute; left: 696px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    visibility: hidden }
+
+#filename { color: #B2D019 }
+
+#file_description { color: #4D774A; padding-right: 8px; outline: none }
+#file_description:before { content: '# '; color: #3A3A3A }
+#file_description:hover { color: #B2D019; cursor: text }
+#file_description:focus { color: #B2D019; cursor: text }
+
+.banner-link { font-style: normal; text-decoration: none }
+
+#fade {
+    background: linear-gradient(to left, #181818, rgba(0, 0, 0, 0));
+    position: fixed; top: 0; right: 0;
+    width: 50px; height: 26px }
+
+#slate { max-width: 648px; visibility: hidden }
+
+#footer { padding: 0 4px 2px 4px; color: #4D774A; width: 686px; visibility: hidden }
+
+#spacer, #footer { cursor: text }
+
+#clock { float: right }
+
+.slate_counter { color: #4D774A }
+.slate_counter:before { content: '⇧'; margin: 0 -2px 0 -3px }
+
+#editor {
+    background-color: #1A1816;
+    border-left: 1px solid #3A3A3A;
+    visibility: hidden;
+    position: fixed;
+    top: 27px;
+    bottom: 0;
+    left: 651px;
+    right: 0; }
+
+#board {
+    padding: 0 4px;
+    margin-top: 27px;
+    word-wrap: break-word;
+    width: 650px; }
+
+#board a { color: #B2D019 }
+
+#board p { margin: 16px 0; }
+
+#board strong { color: #E18243; font-weight: 100 }
+
+#board code { color: #EBBB00 }
+
+#board h1, #board h2, #board h3,
+#board h4, #board h5, #board h6 { font-size: 12px; font-weight: 100 }
+#board h1, #board h2 { color: #4DBDBD }
+#board h3 { color: #FFCC00 }
+#board h1, #board h2, #board h3 { margin: 0 0 16px 0 }
+#board h4, #board h5, #board h6 { margin: 0 }
+#board h1:before, #board h2:before { color: #E18243; content: '::: ' }
+
+#board ul { list-style: none; padding: 0; margin: 0 11px 16px }
+
+#board li { padding-left: 1em; text-indent: -.7em }
+
+#board li:before { color: #E18243; content: "+ " }
+
+#board blockquote { margin: 0 28px; color: #999; font-style: italic }
+
+#board hr {
+    border: 1px dashed #E18243;
+    margin-bottom: 16px;
+    margin-right: 7px; }
+
+#board pre { padding-left: 28px; margin: 0 0 16px 0 }
+
+#board input[type=text], #board input[type=password],
+#board input[type=submit], #board textarea, #board select, #board button {
+    width: 644px;
+    margin-top: 4px;
+    margin-bottom: 16px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    display: block;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    color: white;
+    font-size: 12px;
+    padding: 7px;
+    padding-left: 6px }
+
+#board input[type=submit], #board button
+{ width: auto; margin: 0; margin-bottom: 16px }
+
+#board input[type=checkbox] { margin: 0 1px 0 0 }
+
+#board button, #board input[type=submit] { display: inline }
+
+#board textarea { resize: none; height: 128px }
+
+#board button, #board input { color: #E18243 }
+
+#board button:hover, #board input[type=submit]:hover {
+    color: white;
+    background: #4D774A;
+    border: 1px solid #4D774A;
+    cursor: pointer; }
+
+#board input[type=text], #board textarea { color: #E6E0B9 }
+
+/* Stacktrace Elements...
+*/
+.error { color: #999999 }
+
+.error_missing_char { border-bottom: 1px dotted #E18243 }
+
+.error_location { color: #999; font-style: italic }
+
+.error_location:before { content: '# '}
+
+/* Loose Ends...
+*/
+.cut:before { content: '|' } /* the bar between links in the banner */
+
+.chit { margin: -16px 0 16px 0 } /* tuck output under input line */
+
+.bail:before { content: "bailed: "; color: #E18243 }
+
+.pprint {}
+
+iframe, .banner { background: #141414 } /* almost black background */
+
+.bold, .cut:before, blockquote:before, blockquote:after,
+#board input[type=password], #board input[type=submit]
+{ color: #E18243 }

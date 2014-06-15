@@ -1,0 +1,113 @@
+<!DOCTYPE html> <meta charset=UTF-8> <!--
+
+    CoffeeShop - Copyright (C) 2014 Carl Smith
+
+This application's JavaScript, CoffeeScript and CSS code, as well as all
+of the included documentation, is free software: you can redistribute it
+and/or modify it under the terms of the GNU General Public License as it
+is published by the Free Software Foundation. You are free to use either
+version 3 of the License, or any later version.
+
+This software is distributed WITHOUT ANY WARRANTY, not even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+* GNU GPL License: http://www.gnu.org/licenses/gpl-3.0.html
+* CoffeeShop Source Code: https://github.com/carlsmith/coffeeshop
+
+This software uses, modifies and derives from other software that is
+published by third parties.
+
+Much of this project's documentation is derived from the Little Book
+on CoffeeScript by Alex MacCaw and his contributors.
+
+This project also uses the openly licensed portion of the Droid Sans
+Mono font, designed by Steve Matteson of Ascender Corp, and licensed
+with the Android Software Development Kit.
+
+A [hopefully complete] list of third party projects we use code from
+follows:
+
+CoffeeScript Programming Language (http://coffeescript.org)
+    2014 Jeremy Ashkenas
+
+SugarJS (http://sugarjs.com)
+    2014 Andrew Plummer
+
+Toastr (https://github.com/CodeSeven/toastr)
+    2014 Hans Fjällemark and John Papa
+
+jQuery (http://jquery.com)
+    2014 The jQuery Foundation
+
+Ace (http://ace.c9.io)
+    2010 Ajax.org B.V.
+
+Marked, Markdown Compiler (https://github.com/chjj/marked)
+    2014 Christopher Jeffrey
+
+Require, Module Loader (http://requirejs.org)
+    2014 The Dojo Foundation
+
+Require CoffeeScript Shim (https://github.com/requirejs/require-cs)
+    2011 The Dojo Foundation
+
+Source Map (https://github.com/mozilla/source-map)
+    2011 Mozilla Foundation and contributors
+
+jsDump, Pretty Printer (http://nv.github.io/jsDump)
+    2008 Ariel Flesler
+
+Stacktrace Parser (https://github.com/errwischt/stacktrace-parser)
+    2014 Georg Tavonius
+
+-->
+
+<title> cosh </title>
+
+<link id=favicon rel=icon type=image/png href=/images/skull.png>
+
+<link rel=stylesheet href=/fonts/droid_sans_mono/stylesheet.css>
+<link rel=stylesheet href=/styles/shell.css>
+<link rel="stylesheet" href="/scripts/lib/toastr/toastr.css">
+<link rel="stylesheet" href="/scripts/lib/toastr/toastr-responsive.css">
+
+<script src=/scripts/lib/sugar.js></script>
+<script> Object.extend() // fully sugar </script>
+<script src=/scripts/lib/jquery.js></script>
+<script src=/scripts/lib/ace/ace.js></script>
+<script src="/scripts/lib/toastr/toastr.js"></script>
+<script data-main="scripts/boot" src="/scripts/lib/require.js"></script>
+
+<body>
+
+<div id=banner>
+    <span id=brand>compiling...</span>
+    <span id=shell-links>
+        <a id=home-link class=banner-link>home</a>
+        <span class=cut></span>
+        <a id=auth-link class=banner-link>auth</a>
+        <span class=cut></span>
+        <a id=book-link class=banner-link>book</a>
+        <span class=cut></span>
+        <a href=https://gist.github.com target=_blank class=banner-link>gist</a>
+        <span class=cut></span>
+        <a href=https://github.com/carlsmith/coffeeshop target=_blank class=banner-link>repo</a>
+        <span class=cut></span>
+        <a href=https://github.com/carlsmith/coffeeshop/issues target=_blank class=banner-link>bugs</a>
+        <span class=cut></span>
+        <a id=more-link class=banner-link>more</a>
+    </span>
+    <span id=editor-links>
+        <span id=filename></span>
+        <span id=file_description contenteditable></span>
+    </span>
+    <div id=fade></div>
+</div>
+
+<div id=board></div>
+<div id=slate style=height:16px></div>
+<div id=footer>
+    <span id=slate_count class=slate_counter>1</span>
+    <span id=clock></span>
+</div>
+<div id=editor></div>
