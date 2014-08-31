@@ -91,7 +91,7 @@ define ["cs!core", "pprint"], (_, pprint) ->
         $tree
 
     window.peg = (args...) ->
-        append(args...).addClass "chit"
+        append(args...)?.addClass "chit"
         undefined
 
     window.load = (path, async=false) ->
