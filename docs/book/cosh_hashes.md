@@ -73,4 +73,7 @@ or a key string for such a hash in storage. It executes the hash's content.
 
     run "foo.coffee"
 
+The `run` function supports Literate CoffeeScript automatically if the hash's
+key ends with `.coffee.md` or `.litcoffee`.
+
 Next Page: [Hashes as Gists](/docs/book/cosh_gists.md)

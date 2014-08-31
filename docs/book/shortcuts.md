@@ -1,6 +1,8 @@
 # Keyboard Shortcuts
 
-A few new terms: The shell's input field is called the *slate*; the output area above the slate, where this doc is rendered, is called the *board*, and the text editor on the right is just called the *editor*.
+A few new terms: The shell's input field is called the *slate*; the output area above the
+slate, where this doc is rendered, is called the *board*, and the text editor on the right
+is just called the *editor*.
 
 Note: The *Meta* key refers to the *Cmd* key on OS X and the *Ctrl* key on everything else.
 
@@ -14,10 +16,13 @@ Note: The *Meta* key refers to the *Cmd* key on OS X and the *Ctrl* key on every
 
 ## Editor Keybindings
 
-- `Meta.Enter`: Execute the contents of the editor
-- `Meta.S`: Save the file
+- `Meta.Enter`: Execute the editor content or selected text
+- `Meta.S`: Set the hash to local storage
+- `Meta.M`: Render the editor content or selected text as Markdown
 - `Meta.Dot`: Focus the slate
 
-Note: When executing the contents of the editor, if some source is selected, only that source will be executed.
+When executing the editor content, the source will be treated as Literate CoffeeScript if
+the hash key ends with `.coffee.md` or `.litcoffee`.
 
-Beyond these keyboard shortcuts, you control everything using a little API. If you're new to CoffeeShop, you should look at the [Builtins](/docs/book/builtins.md) doc next.
+Beyond these keyboard shortcuts, you control everything using a little API. If you're new
+to CoffeeShop, you should look at the [Builtins](/docs/book/builtins.md) doc next.

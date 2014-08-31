@@ -22,6 +22,11 @@ define ->
         exec: -> editor.run()
 
     editor.commands.addCommand
+        name: "render_page"
+        bindKey: win: "Ctrl-M", mac: "Cmd-M"
+        exec: -> editor.render()
+
+    editor.commands.addCommand
         name: "set_hash"
         bindKey: win: "Ctrl-s", mac: "Cmd-s"
         exec: -> editor.set()
@@ -45,14 +50,24 @@ define ->
         source = editor.getCopyText() or editor.getValue()
         cosh.execute source, currentFile.coshKey
 
+    editor.render = ->
+
+        source = editor.getCopyText() or editor.getValue()
+        append source.compile "md"
+
     editor.edit = (target) ->
 
         item = if target.isString?() then get target else target
         return toastr.error "Nothing at #{target}.", "Cosh API" if not item
 
+        if item.coshKey.endsWith(".coffee.md") or item.coshKey.endsWith(".litcoffee")
+            mode = "ace/mode/markdown"
+        else mode = "ace/mode/coffee"
+
         currentFile = item
         $nameDiv.text currentFile.coshKey
         $descriptionDiv.text currentFile.description
+        editor.session.setMode mode
         editor.setValue currentFile.content
         editor.updateStatus()
         editor.clearSelection 1

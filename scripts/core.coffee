@@ -132,8 +132,11 @@ define [
 
     cosh.execute = (source, url) ->
 
-        if url then shell = false else shell = true
         options = bare: true, sourceMap: true
+
+        shell = if url then false else true
+        if url?.endsWith(".coffee.md") or url?.endsWith(".litcoffee")
+            options.literate = true
 
         try code = coffee.compile source, options
         catch error
