@@ -160,7 +160,7 @@ define [
             inputCount++
             slate.updateHistory source
             url = "slate#{inputCount}.js"
-            jQuery("#input_count").html inputCount + 1
+            jQuery("#slate_count").html inputCount + 1
             slate.setValue ""
 
         inputs[url] =
