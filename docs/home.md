@@ -2,9 +2,9 @@
 
 Welcome to **CoffeeShop**, a better [CoffeeScript][1] shell.
 
-Note that the shell depends on Blink, so it'll only work in Chromium based
-browsers, like [Google Chrome][3] and [Opera][3], but you can publish scripts
-that'll work in any modern browser.
+Note that the shell depends on Blink, so it'll only work in Chromium based browsers, like
+[Google Chrome][2] and [Opera][3], but you can publish scripts that'll work in any modern
+browser.
 
 See [the Book](/docs/book/front.md) to get started.
 

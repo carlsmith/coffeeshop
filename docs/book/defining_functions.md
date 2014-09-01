@@ -1,46 +1,45 @@
 # Defining Functions
 
-CoffeeScript has no `function` statement. It uses a thin arrow (`->`) instead.
-Functions can be one-liners or indented on multiple lines.
+CoffeeScript has no `function` statement; it uses a thin arrow, `->`, instead. There are
+no function definitions either, only function expressions. If you want to 'define' a
+function, you assign the function expression to a name.
 
-The last expression evaluated is implicitly returned unless the `return`
-statement is used to return from the function abruptly. Also note that, you do
-not need to write empty parenthesis for a function with no arguments.
-
-    hi = -> "hello world"
-
-## Arguments
-
-You specify any arguments in parentheses *before* the arrow.
+    getAuth = -> get "coshGitHubAuth"
 
     square = (x) -> x * x
 
-CoffeeScript supports default arguments too, for example:
+The `square` function here takes an argument, `x`. Arguments are named in parenthesis
+before the arrow. The body of the function follows the arrow, on the same line or
+indented on multiple lines.
 
-    times = (x, y=2) -> x * y
+The last expression evaluated will be implicitly returned, unless the `return` statement is
+used to return from the function immediately instead.
 
-You can also use 'splats' [`...`] to gather arguments into an array.
+    size = (x, y, z=1) ->
+        for dimension in [x, y, z]
+            return NaN if dimension < 0
+        x * y * z
+
+    put size 5, 10
+    put size 5, 10, 20
+
+Note that the argument `z` is given a default value of `1` in the example above. You can
+also use splats (`...`) to gather arguments into an array.
 
     sum = (args...) ->
         tally = 0
-        args.forEach (n) -> tally += n
+        args.forEach (x) -> tally += x
         tally
 
     put sum 1, 2, 3, 4, 5
 
 > Note that `args` is not a JavaScript `arguments` object; it's just an array.
 
-In the example above, `args` is an array of all the arguments passed to the
-function. You could also do something like the following to gather *spare
-arguments*.
+You can also gather spare arguments.
 
     f = (x, args...) -> args.forEach (y) -> put x * y
 
-
-## Inline Function Expressions
-
-Functions are often used inline, as callbacks and so on. CoffeeScript uses the
-exact same syntax for this case.
+CoffeeScript's function syntax is especially elegant when you just need a lambda.
 
     jQuery.get "/docs/home.md", (doc) -> put doc
 
