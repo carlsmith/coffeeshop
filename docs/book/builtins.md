@@ -32,8 +32,8 @@ name, then opens it in the editor.
 
     edit set clone "98f97a41924ca81c9863"
 
-The shell functions are listed below. Hashes are used like files and are
-explained properly later.
+The shell functions are listed below. chits are basically hashes and are
+explained properly later. For now, just think of them as files.
 
 [Output Functions](/docs/book/cosh_output.md)
 
@@ -45,18 +45,18 @@ explained properly later.
 
 [Storage Functions](/docs/book/cosh_storage.md)
 
-- `set` Sets a JSON value, which could be a hash, to localStorage, then returns it.
-- `get` Gets a JSON value from localStorage , then returns it.
-- `pop` Removes a JSON value from localStorage, then returns it.
+- `set` Sets a value to localStorage, then returns it.
+- `get` Gets a value from localStorage , then returns it.
+- `pop` Removes a value from localStorage, then returns it.
 
-[Hash Functions](/docs/book/cosh_hashes.md)
+[Chit Functions](/docs/book/cosh_chits.md)
 
-- `hash` Creates a hash from its arguments.
-- `edit` Open a hash in the editor.
-- `run` Runs a hash as a shell script.
-- `clone` Creates a hash populated from a GitHub Gist.
-- `publish` Publishes a hash as a Gist on GitHub.
-- `push` Updates a published Gist from a hash.
+- `chit` Creates a chit from its arguments.
+- `edit` Open a chit in the editor.
+- `run` Runs a chit as a shell script.
+- `clone` Creates a chit populated from a GitHub Gist.
+- `publish` Publishes a chit as a Gist on GitHub.
+- `push` Updates a published Gist from a chit.
 
 ## Shell Components
 
@@ -66,8 +66,8 @@ methods. A couple of extras have been added.
 - `slate` The slate's ACE instance.
     - `slate.reset` Resets the input history.
     - `slate.push`  Pushes a string to the slate.
-- `editor` The hash editor's ACE instance.
-    - `editor.set` Set the current hash to storage.
+- `editor` The chit editor's ACE instance.
+    - `editor.set` Set the current chit to storage.
     - `editor.run` Run the highlighted code or all the code.
 
 ## Builtin Libraries

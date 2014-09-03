@@ -10,8 +10,8 @@ Welcome to the Book, currently alpha quality. Contributions are welcome.
 - [Builtins](/docs/book/builtins.md) The Builtin Libraries and Methods.
 - [Output Funtions](/docs/book/cosh_output.md) Using `put`, `peg`, `append`, `load` and `clear`.
 - [Storage Functions](/docs/book/cosh_storage.md) Using `set`, `get`, and `nuke`.
-- [Introducing Hashes](/docs/book/cosh_hashes.md) Working with hashes using `hash`, `edit` and `run`.
-- [Hashes as Gists](/docs/book/cosh_gists.md) Using `clone`, `publish` and `push`.
+- [Introducing Chits](/docs/book/cosh_chits.md) Working with chits using `chit`, `edit` and `run`.
+- [Chits and Gists](/docs/book/cosh_gists.md) Using `clone`, `publish` and `push`.
 - [Publishing](/docs/book/cosh_publishing.md) Sharing public Gists as scripts and webapps.
 
 ## The Core CoffeeScript Programming Language
@@ -20,7 +20,6 @@ Welcome to the Book, currently alpha quality. Contributions are welcome.
 - [Scope](/docs/book/scope.md) Variables and Scope.
 - [Defining Functions](/docs/book/defining_functions.md) Defining Functions.
 - [Invoking Functions](/docs/book/invoking_functions.md) Invoking Functions.
-- [Function Context](/docs/book/function_context.md) Managing Context & Fat Arrow Functions.
 - [Containers](/docs/book/containers.md) Defining Objects and Arrays.
 - [Control Flow](/docs/book/control_flow.md) Conditional Execution and Branch Logic.
 - [String Formatting](/docs/book/string_formatting.md) The String Interpolation Syntax.

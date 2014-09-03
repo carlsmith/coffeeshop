@@ -32,14 +32,13 @@ pre:hover { background-color: rgba(47, 75, 64, 0.28); cursor: pointer }
     position: fixed; right: 0; left: 0; top: 0;
     z-index: 2 }
 
-#shell-links { position: absolute; left: 326px; visibility: hidden }
+#shell-links { position: absolute; left: 326px }
 
 #editor-links {
     position: absolute; left: 696px;
     text-overflow: ellipsis;
     white-space: nowrap;
-    overflow: hidden;
-    visibility: hidden }
+    overflow: hidden; }
 
 #filename { color: #B2D019 }
 
@@ -55,9 +54,9 @@ pre:hover { background-color: rgba(47, 75, 64, 0.28); cursor: pointer }
     position: fixed; top: 0; right: 0;
     width: 50px; height: 26px }
 
-#slate { max-width: 648px; visibility: hidden }
+#slate { height: 16px; max-width: 648px }
 
-#footer { padding: 0 4px 2px 4px; color: #4D774A; width: 686px; visibility: hidden }
+#footer { padding: 0 4px 2px 4px; color: #4D774A; width: 686px }
 
 #spacer, #footer { cursor: text }
 
@@ -69,7 +68,6 @@ pre:hover { background-color: rgba(47, 75, 64, 0.28); cursor: pointer }
 #editor {
     background-color: #1A1816;
     border-left: 1px solid #3A3A3A;
-    visibility: hidden;
     position: fixed;
     top: 27px;
     bottom: 0;
@@ -162,7 +160,7 @@ pre:hover { background-color: rgba(47, 75, 64, 0.28); cursor: pointer }
 */
 .cut:before { content: '|' } /* the bar between links in the banner */
 
-.chit { margin: -16px 0 16px 0 } /* tuck output under input line */
+.unspaced { margin: -16px 0 16px 0 }
 
 .bail:before { content: "bailed: "; color: #E18243 }
 

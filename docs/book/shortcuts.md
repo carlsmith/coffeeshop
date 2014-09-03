@@ -17,12 +17,12 @@ Note: The *Meta* key refers to the *Cmd* key on OS X and the *Ctrl* key on every
 ## Editor Keybindings
 
 - `Meta.Enter`: Execute the editor content or selected text
-- `Meta.S`: Set the hash to local storage
+- `Meta.S`: Set the chit [the current file] to local storage
 - `Meta.M`: Render the editor content or selected text as Markdown
 - `Meta.Dot`: Focus the slate
 
 When executing the editor content, the source will be treated as Literate CoffeeScript if
-the hash key ends with `.coffee.md` or `.litcoffee`.
+the chit key ends with `.coffee.md` or `.litcoffee`.
 
 Beyond these keyboard shortcuts, you control everything using a little API. If you're new
 to CoffeeShop, you should look at the [Builtins](/docs/book/builtins.md) doc next.

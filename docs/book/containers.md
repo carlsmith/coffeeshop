@@ -1,41 +1,45 @@
 # Containers
 
-Object literals can be specified exactly as in JavaScript, with a pair of braces and key/value statements. However, like with function invocation, CoffeeScript makes the braces optional. In fact, you can also use indentation and new lines instead of comma separation.
+CoffeeScript has two core container types, `Object`s and `Array`s. To avoid ambiguity,
+raw objects are often referred to as hashes or chits. In these docs, they're referred
+to as hashes, and are called chits if they're JSON serialisable.
 
-    object = {one: 1, two: 2}
-    object = one: 1, two: 2
-    object = 
-      one: 1
-      two: 2
+## Hashes
 
-Of course, this works with arguments to function calls too.
+Hashes can be specified exactly as in JavaScript, with key:value pairs wrapped in curly
+braces. However, like with function invocation, CoffeeScript makes the braces optional.
 
-    User.create({name: "John"})
-    User.create(name: "John")
+    put one: 1, two: 2
 
-Likewise, arrays can use whitespace instead of comma separators, although the square brackets (`[]`) are still required.
+You can also use indentation and new lines instead of comma separation.
 
-    array = [1, 2, 3]
-    
-    array = [
-      1
-      2
-      3
-    ]
-    
-The following examples are valid too. CoffeeScript will strip the trailing comma in the first assignment, and add them in for the second.
+    object =
+        one: 1
+        two: 2
 
-    array = [
-      1,
-      2,
-      3,
-    ]
-    
-    array = [
-      1, 2, 3
-      4, 5, 6
-      7, 8, 9
-    ]
+You can pass a hash as the last argument to a function by indenting it. This is a nice
+syntax for passing an options argument.
+
+    jQuery.ajax
+        url: "/docs/home.md"
+        success: (response) -> put response
+
+## Arrays
+
+Arrays are also able to be written with whitespace instead of commas, although the square
+brackets are always required. CoffeeScript will fix trailing commas for you, both extra
+and missing ones.
+
+    bools = [
+        "foo",
+        "bar",
+        ]
+
+    tictactoe = [
+        1, 1, 2
+        0, 2, 1
+        2, 1, 2
+        ]
 
 ---
 

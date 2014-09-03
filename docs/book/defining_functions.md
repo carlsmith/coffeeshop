@@ -20,8 +20,8 @@ used to return from the function immediately instead.
             return NaN if dimension < 0
         x * y * z
 
-    put size 5, 10
-    put size 5, 10, 20
+    put(size(5, 10))
+    put(size(5, 10, 20))
 
 Note that the argument `z` is given a default value of `1` in the example above. You can
 also use splats (`...`) to gather arguments into an array.
@@ -31,11 +31,10 @@ also use splats (`...`) to gather arguments into an array.
         args.forEach (x) -> tally += x
         tally
 
-    put sum 1, 2, 3, 4, 5
+    sum(1, 2, 3, 4, 5)
 
-> Note that `args` is not a JavaScript `arguments` object; it's just an array.
-
-You can also gather spare arguments.
+Note that `args` is not a funky JavaScript `arguments` object; it's just an array. You
+can also use splats to gather spare arguments.
 
     f = (x, args...) -> args.forEach (y) -> put x * y
 

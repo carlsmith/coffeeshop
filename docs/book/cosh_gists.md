@@ -1,25 +1,15 @@
-# Hashes as Gists
-
-Hashes used as files will have at least three properties, named `coshKey`,
-`description` and `content`. These properties map to [gists][1], where the
-cosh key is the gist's filename.
+# Chits as Gists
 
 There are three functions for managing gists.
 
-- `clone` Creates a hash populated from a GitHub Gist.
-- `publish` Publishes a hash as a Gist on GitHub.
-- `push` Updates a published Gist from a hash.
+- `clone` Creates a gist chit populated from a GitHub Gist.
+- `publish` Publishes a file chit as a Gist on GitHub.
+- `push` Updates a published Gist from a gist chit.
 
-## Function: `clone`
-
-The `clone` function works a lot like `hash`, but simply accepts a Gist ID as
-a string, then returns a hash populated with data from the gist. Because it
-returns a hash, it can be piped with calls to `set`, `edit` and `run`.
-
-    set clone "98f97a41924ca81c9863"
-
-Note that a cloned hash includes three extra keys, named `gistId`, `owner` and
-`galleryURL`.
+File chits always have at least three string properties, named `coshKey`, `description`
+and `content`. These properties map to [gists][1], where the cosh key is used the gist's
+filename. Gist chits extend the file kind, adding three extra, required string properties,
+named `gistId`, `owner` and `galleryURL`. An example gist chit:
 
     {
      "coshKey": "foo.coffee",
@@ -30,14 +20,21 @@ Note that a cloned hash includes three extra keys, named `gistId`, `owner` and
      "galleryURL": "https://gallery-cosh.appspot.com/#98f97a41924ca81c9863"
     }
 
+## Function: `clone`
+
+The `clone` function works like `chit`, but simply accepts a Gist ID as a string.
+It returns a gist chit populated with data from GitHub.
+
+    run clone "98f97a41924ca81c9863"
+
 ## Function: `publish`
 
-The `publish` function takes a file hash or gist hash, or a key string for
-either, and publishes the hash as a gist on GitHub.
+The `publish` function takes a file chit, or a key string for one, and publishes
+the chit as a gist on GitHub.
 
-The `publish` function returns a hash, equal to what `clone` would return for
-the newly published gist, which can be piped. The following line would first
-publish `foo.coffee`, then overwrite it in storage with the gist data.
+The `publish` function returns a gist chit, equal to what `clone` would return for
+the newly published gist. The following line would first publish `foo.coffee`, then
+overwrite it in storage with the gist chit that `publish` returns.
 
     set publish "foo.coffee"
 
@@ -45,16 +42,14 @@ You could rename the gist with:
 
     set "bar.coffee", publish "foo.coffee"
 
-Note that you must set the gist hash returned to local storage if you want to
-`push` that hash later. If you forget, clone your published gist.
+Note that you must set the chit returned to local storage if you want to `push` to that
+gist later. If you forget, just clone your published gist.
 
 ## Function: `push`
 
-The `push` function takes a gist hash, or a keystring for one, and uses it to
-update the published version on GitHub Gist. The hash must have a `gistId`
-for a published gist that belongs to you.
-
-It returns the gist as a hash, etc.
+The `push` function takes a gist chit, or a keystring for one, and uses it to update the
+published version on GitHub Gist. The published gist must belong to you too. It returns
+the gist chit.
 
 ## Authorisation
 
