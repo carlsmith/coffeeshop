@@ -16,7 +16,8 @@ require ([
         var stale = (
             !coshSource                                         ||
             !coshVersion                                        ||
-            launchCode in ["build", "safemode"]                 ||
+            launchCode == "build"                               ||
+            launchCode == "safemode"                            ||
             Date.create(coshVersion) < Date.create("12 hours ago")
             )
 

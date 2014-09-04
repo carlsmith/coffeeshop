@@ -1,18 +1,36 @@
-# Intro
+# Introduction
 
-CoffeeScript is a modern language that compiles to JavaScript. The syntax is inspired by Ruby and Python, and CoffeeScript has many features from those languages. The Book is designed to help you learn and explore CoffeeScript.
+CoffeeScript's a modern, highly expressive language that compiles to JavaScript. It looks
+like Ruby or Python, and CoffeeScript has many features from those languages, but it isn't
+actually anything like those languages. At its heart, CoffeeScript is just JavaScript.
 
-So, why is CoffeeScript better than writing pure JavaScript? Well for a start, JavaScript just looks a mess. CoffeeScript is pretty. The language uses Pythonic whitespace to delimit code, so you basicaly replace curly brackets and semicolons with indentation. It also has powerful features, such as comprehensions and classes, that allow you compose much cleaner code than you ever could in JavaScript. And JavaScript has a lot of *Bad Parts* that CoffeeScript hides from you.
+CoffeeScript doesn't try to replace JavaScript; it's more Zen than that. All the semantics,
+the environments, the thriving JavaScript ecosystem, Douglas Crockford... That stuff's all
+the same. The only difference is that you now have a beautiful language to program in.
 
-Note that CoffeeScript is not a superset of JavaScript; the CoffeeScript compiler will choke on JavaScript code. That said, you can very naturally use JavaScript libraries *from* CoffeeScript, as CoffeeScript compiles to pure JavaScript.
+It's not just that JavaScript syntax looks a bit of a mess though. CoffeeScript syntax is
+specifically designed to elegantly express the JavaScript idioms that work, and those that
+exist as time honoured workarounds for JavaScripts's many shortcomings. Features, such as
+array comprehensions and classical classes, without the usual boilerplate and JavaScript's
+archaic punctuation, just make it a lot easier to express yourself clearly with your code.
+And then there's JavaScript's infamous *Bad Parts*; CoffeeScript just left that shit on the
+side of the plate.
 
-> The golden rule of CoffeeScript is: "It's just JavaScript".
+---
 
-The Book is derived, under an open license, from *The Little Book on CoffeeScript*.
+This Book's designed to help experienced hackers learn CoffeeScript, and includes a crash
+course on using this shell for the same audience.
 
-*The Little Book on CoffeeScript* was authored by [Alex MacCaw][1] ([@maccman][2]), with contributions from [David Griffiths][3], [Satoshi Murakami][4] and [Jeremy Ashkenas][5]. MacCaw, with O'Reilly, has also published [a revised edition][6] of *The Little Book on CoffeeScript*.
+---
 
-This version, known only as the Book, is maintained as a component of CoffeeShop. If you have any input, please open a ticket on this project's [Issues Page][7].
+The Book is derived under open license from *The Little Book on CoffeeScript*. The original
+work was authored by [Alex MacCaw][1] ~ known as [@maccman][2] on Twitter ~ with
+contributions from [David Griffiths][3], [Satoshi Murakami][4] and [Jeremy Ashkenas][5].
+Alex MacCaw has also published a [revised edition][6] of *The Little Book on
+CoffeeScript* with O'Reilly.
+
+This version, just known as *the Book*, is maintained as part of CoffeeShop. If you have any
+contributions or feedback, it's all welcome at [CoffeeShop Issues][7].
 
 ---
 

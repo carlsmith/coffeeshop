@@ -6,7 +6,10 @@ window.indexedDB = \
     webkitIndexedDB or
     msIndexedDB
 
-window.cosh = uniquePin: 0
+window.cosh =
+    uniquePin: 0
+    coffeeVersion: coffee.VERSION
+
 window.uniquePin = -> cosh.uniquePin++
 
 window.galleryMode = location.host in [
@@ -793,7 +796,7 @@ if not galleryMode
     run "config.coffee" if launchCode isnt "safemode"
 
 jQuery("#favicon").attr href: "/images/skull_up.png"
-toastr.success "A Better CoffeeScript Shell", "CoffeeShop"
+toastr.success "Powered by CoffeeScript (#{coffee.VERSION})", "CoffeeShop Beta"
 slate.focus()
 
 `//# sourceURL=/cosh/main.js`
