@@ -20,12 +20,13 @@ window.galleryMode = location.host in [
 jQuery.ajaxSetup cache: false
 marked.setOptions sanitize: false
 
-String::compile = (lang, args...) ->
+String::compile = (lang, options={}) ->
 
     if lang in ["cs", "coffee", "coffeescript"]
-        return coffee.compile this, args...
+        options.merge bare: true if options.bare is undefined
+        return coffee.compile this, options
     if lang in ["md", "markdown"]
-        return marked this, args...
+        return marked this, options
 
 $brand = jQuery "#brand"
 $slate = jQuery "#slate"

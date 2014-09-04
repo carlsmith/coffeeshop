@@ -13,11 +13,11 @@ The are five output functions. Four append stuff to the board; one clears it.
 The `put` function takes a single argument, any object, and pretty prints it.
 Strings are printed in green; everything else is cyan.
 
-When you enter code in the shell, the last value to be evaluated is put
-automatically, so you don't need to call `put` yourself.
-
     put key for key of localStorage
     2 ** 8
+
+When you enter code in the shell, the last value to be evaluated is put
+automatically, so you don't need to call `put` yourself.
 
 ## Function: `peg`
 
@@ -39,7 +39,7 @@ The first argument is internally normalised to a jQuery object. If you pass a
 function as the second argument, the jQuery object is passed to your function,
 which must return a jQuery object, which will then be appended.
 
-    peg "hello world", (node) -> node.css color: "hotpink"
+    peg "*hello world*", (element) -> element.css color: "hotpink"
 
 You can pass a string as the second argument, instead of a function, and the
 string is simply added to any CSS classes the rendered object has.
@@ -53,10 +53,10 @@ This magic's helpful when you're hacking interactively ~ you never even think
 about it ~ but can be confusing in a script.
 
 The `append` function also returns the jQuery object it appends, where `put` and
-`peg` return `undefined`.
+`peg` return `undefined`, and only the thing that was put or pegged is rendered.
 
-    $foo = append "Here is a jQuery object..."
-    .css color: "hotpink"
+    $foo = append "This *Markdown* is converted to the following jQuery object:"
+    .css color: "tomato"
 
 Use `append` when you need a generic function for appending stuff to the board,
 and use `put` and `peg` when working interactively.
