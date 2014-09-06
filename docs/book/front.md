@@ -21,7 +21,7 @@ Welcome to the Book, currently alpha quality. Contributions are welcome.
 - [Defining Functions](/docs/book/defining_functions.md) Defining Functions.
 - [Invoking Functions](/docs/book/invoking_functions.md) Invoking Functions.
 - [Containers](/docs/book/containers.md) Defining Objects and Arrays.
-- [Control Flow](/docs/book/control_flow.md) Conditional Execution and Branch Logic.
+- [Conditionals](/docs/book/conditionals.md) Conditional Expressions and Branch Logic.
 - [String Formatting](/docs/book/string_formatting.md) The String Interpolation Syntax.
 - [Iteration](/docs/book/iteration.md) Loops, Iteration and Comprehensions.
 - [Slicing](/docs/book/slicing.md) Slicing Sequences and Using Ranges.

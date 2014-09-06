@@ -6,11 +6,8 @@ body {
     margin: 0;
     color: #E6E0B9;
     font-size: 12px;
-    width: 640px;
-    background-color: #1A1816;
-    }
+    width: 640px }
 
-a { color: #B2D019 }
 a:active { color: blue }
 a:hover { color: #FFBAF4; cursor: pointer }
 
@@ -20,7 +17,7 @@ img, video { max-height: 256px; max-width: 642px; padding: 16px 14px; }
 
 iframe { height: 315px; width: 642px }
 
-pre:hover { background-color: rgba(47, 75, 64, 0.28); cursor: pointer }
+pre:hover { background: rgba(47, 75, 64, 0.28); cursor: pointer }
 
 #banner {
     color: #999;
@@ -40,12 +37,10 @@ pre:hover { background-color: rgba(47, 75, 64, 0.28); cursor: pointer }
     white-space: nowrap;
     overflow: hidden; }
 
-#filename { color: #B2D019 }
-
-#file_description { color: #4D774A; padding-right: 8px; outline: none }
+#file_description { padding-right: 8px; outline: none }
 #file_description:before { content: '# '; color: #3A3A3A }
-#file_description:hover { color: #B2D019; cursor: text }
-#file_description:focus { color: #B2D019; cursor: text }
+#file_description:hover { cursor: text }
+#file_description:focus { cursor: text }
 
 .banner-link { font-style: normal; text-decoration: none }
 
@@ -56,17 +51,15 @@ pre:hover { background-color: rgba(47, 75, 64, 0.28); cursor: pointer }
 
 #slate { height: 16px; max-width: 648px }
 
-#footer { padding: 0 4px 2px 4px; color: #4D774A; width: 686px }
+#footer { padding: 0 4px 2px 4px; width: 686px }
 
 #spacer, #footer { cursor: text }
 
 #clock { float: right }
 
-.slate_counter { color: #4D774A }
 .slate_counter:before { content: '⇧'; margin: 0 -2px 0 -3px }
 
 #editor {
-    background-color: #1A1816;
     border-left: 1px solid #3A3A3A;
     position: fixed;
     top: 27px;
@@ -74,19 +67,17 @@ pre:hover { background-color: rgba(47, 75, 64, 0.28); cursor: pointer }
     left: 651px;
     right: 0; }
 
+/* Board Only */
+
 #board {
     padding: 0 4px;
     margin-top: 27px;
     word-wrap: break-word;
     width: 650px; }
 
-#board a { color: #B2D019 }
-
 #board p { margin: 16px 0; }
 
-#board strong { color: #E18243; font-weight: 100 }
-
-#board code { color: #EBBB00 }
+#board strong { font-weight: 100 }
 
 #board h1, #board h2, #board h3,
 #board h4, #board h5, #board h6 { font-size: 12px; font-weight: 100 }
@@ -146,8 +137,8 @@ pre:hover { background-color: rgba(47, 75, 64, 0.28); cursor: pointer }
 
 #board input[type=text], #board textarea { color: #E6E0B9 }
 
-/* Stacktrace Elements...
-*/
+/* Stacktrace Elements */
+
 .error { color: #999999 }
 
 .error_missing_char { border-bottom: 1px dotted #E18243 }
@@ -156,18 +147,42 @@ pre:hover { background-color: rgba(47, 75, 64, 0.28); cursor: pointer }
 
 .error_location:before { content: '# '}
 
-/* Loose Ends...
-*/
-.cut:before { content: '|' } /* the bar between links in the banner */
+/* Loose Ends */
+
+.cut:before { content: '|' }
 
 .unspaced { margin: -16px 0 16px 0 }
 
-.bail:before { content: "bailed: "; color: #E18243 }
-
 .pprint {}
 
-iframe, .banner { background: #141414 } /* almost black background */
+/* Colors */
 
-.bold, .cut:before, blockquote:before, blockquote:after,
-#board input[type=password], #board input[type=submit]
-{ color: #E18243 }
+.bg-color-main,
+    body,
+    #editor { background: #1A1816 }
+
+.bg-color-bar,
+    iframe,
+    .banner { background: #141414 }
+
+.color-bright,
+    a,
+    #filename,
+    #file_description:focus,
+    #file_description:hover { color: #B2D019 }
+
+.color-dull,
+    #footer,
+    #file_description,
+    .slate_counter { color: #4D774A }
+
+.color-high,
+    #board code { color: #EBBB00 }
+
+.color-bold,
+    blockquote:before,
+    blockquote:after,
+    #board strong,
+    #board input[type=password],
+    #board input[type=submit],
+    .cut:before { color: #E18243 }

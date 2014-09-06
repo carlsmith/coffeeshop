@@ -58,8 +58,11 @@ The `append` function also returns the jQuery object it appends, where `put` and
     $foo = append "This *Markdown* is converted to the following jQuery object:"
     .css color: "tomato"
 
-Use `append` when you need a generic function for appending stuff to the board,
-and use `put` and `peg` when working interactively.
+You can silence `append` in the shell by referencing a non-existant property last.
+
+    append "foo"
+    .addClass "unspaced"
+    .shush
 
 ## Function: `load`
 

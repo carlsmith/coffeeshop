@@ -17,7 +17,6 @@ window.galleryMode = location.host in [
     "localhost:9090"
     ]
 
-jQuery.ajaxSetup cache: false
 marked.setOptions sanitize: false
 
 String::compile = (lang, options={}) ->
@@ -38,36 +37,46 @@ $descriptionDiv = jQuery "#file_description"
 clock = document.getElementById "clock"
 slate_div = document.getElementById "slate"
 
-jQuery("#home-link").click -> load "/docs/home.md"
-jQuery("#more-link").click -> load "/docs/external.md"
-jQuery("#book-link").click -> load "/docs/book/front.md"
+window.get = (key) ->
 
-worker = new Worker "/scripts/cosh/clock_worker.js"
-worker.onmessage = (event) -> $clock.text event.data
+    item = localStorage.getItem key
+    if item then JSON.parse item
 
-goToEnd = ->
+window.set = (args...) ->
 
-    document.getElementById("clock").scrollIntoView()
-    undefined
+    return if undefined in args
+    switch args.length
+        when 1 then [key, value] = [ args[0].coshKey, args[0] ]
+        when 2 then [key, value] = args
+        else return toastr.error "Wrong number of args.", "Cosh API"
+    unless key
+        toastr.error "Set failed, bad args.", "Cosh API"
+        return
+    if value.coshKey then value.coshKey = key
+    localStorage.setItem key, JSON.stringify value
+    editor.updateCurrentFile()
+
+    value
+
+window.pop = (target) ->
+
+    return toastr.error "Not enough args.", "Cosh API" unless target
+    key = if target.isString?() then target else target.coshKey
+    item = get key
+    return toastr.error "Nothing at #{target}.", "Cosh API" unless item
+    localStorage.removeItem key
+    toastr.success "Popped #{target}", "Cosh API"
+    editor.updateStatus()
+
+    item
 
 inputs = {}
 inputCount = 0
-historyStore = "coshHistoryStore"
 window.slate = ace.edit "slate"
-history = localStorage.getItem historyStore
-if history is null then slate.history = []
-else slate.history = JSON.parse history
+historyStore = "coshHistoryStore"
+slate.history = get(historyStore) or []
 pointer = slate.history.length
 stash = ""
-
-jQuery('#footer').click -> slate.focus()
-
-window.onbeforeunload = ->
-
-    if not galleryMode
-        value = JSON.stringify slate.history.last 400
-        localStorage.setItem historyStore, value
-    return
 
 slate.setShowPrintMargin false
 slate.getSession().setTabSize 4
@@ -93,11 +102,7 @@ jQuery("#board").on "click", "pre", (event) ->
     if slate.getValue() isnt source then slate.push source
     else slate.focus()
 
-slate.reset = ->
-
-    slate.history = []
-    localStorage.setItem historyStore, JSON.stringify []
-    return
+slate.reset = -> set historyStore, slate.history = []
 
 slate.push = (source) ->
 
@@ -166,7 +171,6 @@ slate.commands.addCommand
         cosh.execute source if source
 
 currentFile = {}
-
 window.editor = ace.edit "editor"
 editor.session.setMode "ace/mode/coffee"
 editor.setTheme "ace/theme/vibrant_ink"
@@ -220,7 +224,7 @@ editor.render = ->
 editor.edit = (target) ->
 
     item = if target.isString?() then get target else target
-    return toastr.error "Nothing at #{target}.", "Cosh API" if not item
+    return toastr.error "Nothing at #{target}.", "Cosh API" unless item
 
     if item.coshKey.endsWith(".md") or item.coshKey.endsWith(".litcoffee")
         mode = "ace/mode/markdown"
@@ -269,7 +273,7 @@ $descriptionDiv.bind "keydown", (event) ->
     if event.which is 9 or event.which is 13
         editor.focus()
         return event.preventDefault()
-    return if not event.ctrlKey or not event.metaKey
+    return unless event.ctrlKey or not event.metaKey
     if event.which is 190
         slate.focus()
         return event.preventDefault()
@@ -279,39 +283,6 @@ $descriptionDiv.bind "keydown", (event) ->
     editor.set()
 
 window.edit = editor.edit
-
-window.get = (key) ->
-
-    item = localStorage.getItem key
-    if item then JSON.parse item
-
-window.set = (args...) ->
-
-    return if undefined in args
-    switch args.length
-        when 1 then [key, value] = [ args[0].coshKey, args[0] ]
-        when 2 then [key, value] = args
-        else return toastr.error "Wrong number of args.", "Cosh API"
-    if not key
-        toastr.error "Set failed, bad args.", "Cosh API"
-        return
-    if value.coshKey then value.coshKey = key
-    localStorage.setItem key, JSON.stringify value
-    editor.updateCurrentFile()
-
-    value
-
-window.pop = (target) ->
-
-    return toastr.error "Not enough args.", "Cosh API" if not target
-    key = if target.isString?() then target else target.coshKey
-    item = get key
-    return toastr.error "Nothing at #{target}.", "Cosh API" if not item
-    localStorage.removeItem key
-    toastr.success "Popped #{target}", "Cosh API"
-    editor.updateStatus()
-
-    item
 
 window.run = (target) ->
 
@@ -336,7 +307,7 @@ window.put = (arg) ->
 
     $div = jQuery("<xmp>").html arg
     if color then $div.css color: color
-    if not $board.text() then append $div, "pprint"
+    unless $board.text() then append $div, "pprint"
     else append $div, "pprint unspaced"
 
     undefined
@@ -397,7 +368,7 @@ auth = (args...) ->
 
 authHeader = ->
 
-    return if not authData = auth()
+    return unless authData = auth()
     authData = btoa "#{authData.username}:#{authData.password}"
     Authorization: "Basic #{authData}"
 
@@ -452,10 +423,10 @@ jQuery("#auth-link").click ->
         $username = jQuery "##{formID}Username"
         $password = jQuery "##{formID}Password"
 
-        if not $username.val()
+        unless $username.val()
             toastr.error "Username can't be empty.", "GitHub Auth"
             return $username.focus()
-        if not $password.val()
+        unless $password.val()
             toastr.error "Password can't be empty.", "GitHub Auth"
             return $password.focus()
 
@@ -469,10 +440,10 @@ window.publish = (target, published=true) ->
     output = undefined
 
     if target.isString?() then target = get target
-    if not target
+    unless target
         toastr.error "Hash not found.", "GitHub Gist"
         return
-    if not authData = authHeader()
+    unless authData = authHeader()
         toastr.error "Couldn't find credentials.", "GitHub Gist"
         return
 
@@ -502,13 +473,13 @@ window.push = (target) ->
     output = undefined
 
     if target.isString?() then target = get target
-    if not target
+    unless target
         toastr.error "Hash not found.", "GitHub Gist"
         return
-    if not target.gistId
+    unless target.gistId
         toastr.error "#{target.coshKey} is unpublished.", "GitHub Gist"
         return
-    if not authData = authHeader()
+    unless authData = authHeader()
         toastr.error "Auth failed.", "GitHub Gist"
         return
 
@@ -582,7 +553,7 @@ window.chit = (args...) ->
     options.coshKey = key
     options
 
-page_cache = {}
+pageCache = {}
 
 get_href = (event) ->
 
@@ -597,16 +568,16 @@ get_href = (event) ->
 $board.on "click", ".page a", (event) ->
     path = get_href event
     if path.endsWith(".md")
-        if file = page_cache[path] then append file, "page"
+        if file = pageCache[path] then append file, "page"
         else jQuery.get path, (file) ->
-            page_cache[path] = file
+            pageCache[path] = file
             append file, "page"
     else open path
 
 $board.on "mouseover", ".page a", (event) ->
     path = get_href event
-    return if not path.endsWith(".md") or page_cache[path]
-    jQuery.get path, (page) -> page_cache[path] = page
+    return unless path.endsWith(".md") or pageCache[path]
+    jQuery.get path, (page) -> pageCache[path] = page
 
 cosh.execute = (source, url) ->
 
@@ -635,6 +606,7 @@ cosh.execute = (source, url) ->
         return clock.scrollIntoView()
 
     if shell
+
         inputCount++
         slate.updateHistory source
         url = "slate#{inputCount}.js"
@@ -648,6 +620,7 @@ cosh.execute = (source, url) ->
         map: code.sourceMap
 
     if shell
+
         $source = jQuery("<xmp>").html(source).css color: "#4DBDBD"
         $board.append $source
 
@@ -771,6 +744,20 @@ parseTrace = (traceback) ->
 
     [stack, true]
 
+goToEnd = ->
+
+    document.getElementById("clock").scrollIntoView()
+    undefined
+
+jQuery("#home-link").click -> load "/docs/home.md"
+jQuery("#more-link").click -> load "/docs/external.md"
+jQuery("#book-link").click -> load "/docs/book/front.md"
+
+worker = new Worker "/scripts/cosh/clock_worker.js"
+worker.onmessage = (event) -> $clock.text event.data
+
+jQuery('#footer').click -> slate.focus()
+
 if galleryMode
 
     localStorage?.clear()
@@ -778,15 +765,15 @@ if galleryMode
     indexedDB?.deleteDatabase "*"
 
     window.mainFile = clone launchCode
-    if not mainFile then $brand.text "fatal error: gist not found"
+    unless mainFile then $brand.text "fatal error: gist not found"
     else
         $brand.text("CoffeeShop Gallery").css color: "#E18243"
         edit set mainFile
         run mainFile
 
-if not galleryMode
+else
 
-    if not get "config.coffee" then set chit "config.coffee",
+    unless get "config.coffee" then set chit "config.coffee",
         description: "Run on boot unless in safe mode."
         content: 'load "/docs/home.md"'
 
@@ -795,6 +782,11 @@ if not galleryMode
 
     edit "config.coffee"
     run "config.coffee" if launchCode isnt "safemode"
+
+    window.onbeforeunload = ->
+
+        set historyStore, slate.history.last 400
+        undefined
 
 jQuery("#favicon").attr href: "/images/skull_up.png"
 toastr.success "Powered by CoffeeScript (#{coffee.VERSION})", "CoffeeShop Beta"

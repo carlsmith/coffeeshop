@@ -1,8 +1,8 @@
 # Containers
 
-CoffeeScript has two core container types, `Object`s and `Array`s. To avoid ambiguity,
-raw objects are often referred to as hashes or chits. In these docs, they're referred
-to as hashes, and are called chits if they're JSON serialisable.
+CoffeeScript has two container types, objects and arrays. To avoid ambiguity ~ because
+everything is an object ~ plain objects are often referred to as hashes or maps. In these
+docs, they're referred to as hashes, and called chits if they're JSON serialisable.
 
 ## Hashes
 
@@ -43,4 +43,4 @@ and missing ones.
 
 ---
 
-Next Page: [Control Flow](/docs/book/control_flow.md)
+Next Page: [Conditionals](/docs/book/conditionals.md)

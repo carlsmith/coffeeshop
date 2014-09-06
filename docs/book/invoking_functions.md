@@ -6,9 +6,8 @@ expression, containing zero or more arguments.
     area = (x, y) -> x * y
     put(area(3, 4))
 
-Like Ruby, CoffeeScript will also automatically call functions if they are invoked with
-at least one argument, allowing you to pipe function by passing invokations to one another.
-CoffeeShop's shell functions are designed to be used that way.
+Like Ruby, CoffeeScript automatically calls functions if they are invoked with arguments.
+This allows you to pipe functions by passing invocations to one another.
 
     put area 3, 4
 
