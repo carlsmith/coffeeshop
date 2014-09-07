@@ -40,7 +40,8 @@ explained properly later. For now, just think of them as files.
 - `put` Appends a pretty printed evaluation of any expression to the board.
 - `peg` Appends a string of Markdown, a DOM node or a jQuery object to the board.
 - `append` Works like `peg`, but is more generic, for use in scripts.
-- `load` Loads and renders a CoffeeScript or Markdown file from a URL.
+- `show` Appends Markdown to the board from a chit or a remote resource.
+- `load` Loads a remote resource.
 - `clear` Clears the board.
 
 [Storage Functions](/docs/book/cosh_storage.md)
@@ -53,7 +54,7 @@ explained properly later. For now, just think of them as files.
 
 - `chit` Creates a chit from its arguments.
 - `edit` Open a chit in the editor.
-- `run` Runs a chit as a shell script.
+- `run` Runs a chit or remote resource as a shell script.
 - `clone` Creates a chit populated from a GitHub Gist.
 - `publish` Publishes a chit as a Gist on GitHub.
 - `push` Updates a published Gist from a chit.

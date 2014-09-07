@@ -124,12 +124,13 @@ You can do stuff like `edit chit "foo.coffee"` to open a new empty file named
 
 ## Function: `run`
 
-The `run` function takes a single argument, a file chit or a key string for one
-in local storage. It executes the chit's content property.
+The `run` function takes a file hash, or a key for one, or a URL string. If the
+string is a URL, it's loaded and the content is executed. If the argument resolves to a
+file chit, the chit's content is rendered.
 
     run "foo.coffee"
 
-The `run` function supports Literate CoffeeScript automatically if the chit's
-key ends with `.coffee.md` or `.litcoffee`.
+The `run` function supports Literate CoffeeScript automatically if the chit's key or the
+resource's path ends with `.coffee.md` or `.litcoffee`.
 
 Next Page: [Chits as Gists](/docs/book/cosh_gists.md)

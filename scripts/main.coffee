@@ -50,7 +50,10 @@ window.set = (args...) ->
         when 2 then [key, value] = args
         else return toastr.error "Wrong number of args.", "Cosh API"
     unless key
-        toastr.error "Set failed, bad args.", "Cosh API"
+        toastr.error "Bad args.", "Set Failed"
+        return
+    if remote key
+        toastr.error "Key contains illegal characters.", "Set Failed"
         return
     if value.coshKey then value.coshKey = key
     localStorage.setItem key, JSON.stringify value
@@ -284,10 +287,19 @@ $descriptionDiv.bind "keydown", (event) ->
 
 window.edit = editor.edit
 
+remote = (path) -> ":" in path or "/" in path
+
 window.run = (target) ->
 
-    item = if target.isString() then get target else target
-    if item then cosh.execute item.content, item.coshKey
+    if target.isString()
+        path = target
+        if remote target then content = load target
+        else content = get(target)?.content
+    else
+        path = target.coshKey
+        content = target.content
+
+    if content and path then cosh.execute content, path
     else toastr.error "Nothing at #{target}.", "Cosh API"
 
     undefined
@@ -341,14 +353,25 @@ window.peg = (args...) ->
     append(args...)?.addClass "unspaced"
     undefined
 
-window.load = (path, async=false) ->
+window.load = (path, callback=undefined) ->
+
+    output = undefined
 
     jQuery.ajax
         url: path
-        async: async
-        success: (source) ->
-            if path.endsWith ".coffee" then cosh.execute source, path
-            else append source, "page"
+        async: if callback then true else false
+        success: (response) ->
+            if callback then callback response
+            else output = response
+
+    output
+
+window.view = (target) ->
+
+    if target.isString()
+        if remote target then append load target
+        else if target = get target then append target.content
+    else append target.content
 
     undefined
 
@@ -615,7 +638,7 @@ cosh.execute = (source, url) ->
 
     inputs[url] =
         name: url
-        #code: code.js
+        code: code.js
         source: source
         count: if shell then inputCount else url
         map: code.sourceMap
@@ -642,7 +665,7 @@ window.onerror = (message, url, line, column, error) ->
 
         if item = inputs[trace.file]
 
-            #console.log item.code
+            console.log item.code
 
             map = new smc.SourceMapConsumer item.map.generate()
             .originalPositionFor
@@ -752,9 +775,9 @@ goToEnd = ->
     document.getElementById("clock").scrollIntoView()
     undefined
 
-jQuery("#home-link").click -> load "/docs/home.md"
-jQuery("#more-link").click -> load "/docs/external.md"
-jQuery("#book-link").click -> load "/docs/book/front.md"
+jQuery("#home-link").click -> view "/docs/home.md"
+jQuery("#more-link").click -> view "/docs/external.md"
+jQuery("#book-link").click -> view "/docs/book/front.md"
 
 worker = new Worker "/scripts/cosh/clock_worker.js"
 worker.onmessage = (event) -> $clock.text event.data
@@ -778,7 +801,7 @@ else
 
     unless get "config.coffee" then set chit "config.coffee",
         description: "Run on boot unless in safe mode."
-        content: 'load "/docs/home.md"'
+        content: 'view "/docs/home.md"'
 
     $brand.css color: "#E18243"
     .text if launchCode is "safemode" then "Safe Mode" else "CoffeeShop"

@@ -1,10 +1,11 @@
 # Output Functions
 
-The are five output functions. Four append stuff to the board; one clears it.
+The are six output functions. Four append stuff to the board; one clears it.
 
 - `put` Appends a pretty printed evaluation of any expression to the board.
 - `peg` Appends a string of Markdown, a DOM node or a jQuery object to the board.
 - `append` Works like `peg`, but is more generic, for use in scripts.
+- `show` Appends Markdown to the board from a chit or a remote resource.
 - `load` Loads and renders a CoffeeScript or Markdown file from a URL.
 - `clear` Clears the board.
 
@@ -66,15 +67,23 @@ You can silence `append` in the shell by referencing a non-existant property las
 
 ## Function: `load`
 
-The `load` function takes a single argument, a URL string. If the string
-matches the pattern `*.coffee`, it's rendered as CoffeeScript, and *everything*
-else is rendered as Markdown. Filenames matching the patterns `*.md` and
-`*.markdown` will always be rendered as Markdown.
-
-This line renders the next page in the book.
-
-    load "/docs/book/cosh_storage.md"
+The `load` function takes one required argument, a URL string. It loads the remote
+resource and returns it. You can pass a callback as the second argument, and `load`
+will operate asynchronously.
 
 ## Function: `clear`
 
 The `clear` function clears the board. This destroys anything that was on there.
+
+## Function: `view`
+
+The `view` function takes a file hash, or a key for one, or a URL string. If the
+string is a URL, it's loaded and the content is rendered as Markdown. If the argument
+resolves to a file chit, the chit's content is rendered.
+
+URLs are distinguished from key strings by simply checking if the string contains a
+colon or a slash; if it does, it's a URL, else a key string.
+
+This line renders the next page in the book.
+
+    view "/docs/book/cosh_storage.md"

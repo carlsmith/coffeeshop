@@ -17,7 +17,11 @@ case, it takes two arguments, a key string and a JSON value.
 You can also pass in a hash as the only argument. Hashes and introduced in [the
 next page][1].
 
-The `set` function always returns the value it set to storage.
+The `set` function returns the value it set to storage.
+
+Note: Throughout the cosh API, URLs are distinguished from key strings by simply checking
+if the string contains a colon or a slash; if it does, it's a URL, else a key string. For
+this reason, you can not create keys containing either of those characters.
 
 ## Function: `get`
 

@@ -24,12 +24,12 @@ require ([
 
         $brand.text("building...")
 
-        jQuery.get("/scripts/main.coffee", function (main) {
-
-            var js = coffee.compile(main, {bare: true})
-
-            localStorage.setItem("coshSource", js)
-            localStorage.setItem("coshBuilt", new Date().toString())
-
-            eval(js)
-            })})
+        jQuery.ajax({
+            cache: false,
+            url: "/scripts/main.coffee",
+            success: function (main) {
+                var js = coffee.compile(main, {bare: true})
+                localStorage.setItem("coshSource", js)
+                localStorage.setItem("coshBuilt", new Date().toString())
+                eval(js)
+                }})})

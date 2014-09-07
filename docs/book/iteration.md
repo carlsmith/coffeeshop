@@ -16,7 +16,7 @@ expression once for each iteration.
 You can also grab the index by providing an extra name to assign to.
 
     raceWinners = ["Ali", "Bob", "Caz"]
-    put "#{index+1} ~ #{name}" for name, index in people
+    put "#{index+1} ~ #{name}" for name, index in raceWinners
 
 You can also use comprehensions for iterating over properties in objects by using the `of`
 keyword, instead of `in`.
@@ -25,7 +25,7 @@ keyword, instead of `in`.
         chef:   "Jane"
         barman: "John"
 
-    put "The #{position}'s name is #{name}'." for position, name of staff
+    put "The #{position}'s name is #{name}." for position, name of staff
 
 ---
 
