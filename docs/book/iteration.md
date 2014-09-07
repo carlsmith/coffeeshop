@@ -1,33 +1,31 @@
 # Iteration
 
-Iteration in JavaScript has archaic syntax, reminiscent of C. ES5 introduced the `forEach` function, which is prettier, but requires a function call on every iteration, so it's generally much slower. CoffeeScript uses modern `for`/`in` based iterators.
+Iteration in JavaScript has archaic syntax, reminiscent of C. ES5 introduced the `forEach`
+function, which is nice, but requires a function call on every iteration, so it's often
+slower. CoffeeScript uses simple for-loops.
 
-    for name in ["Roger", "Roderick", "Brian"]
-      alert "Release #{name}"
+    for x in [1..8]
+        put 2 ** x
 
-You can also grab the index by providing an extra name to assign to (in practice, everyone uses `i`).
+You can use the `then` operator to create one-liners ~ `for a in b then c`. CoffeeScript
+also allows an expression to be followed by an iterator, where it will evaluate the
+expression once for each iteration.
 
-    for name, i in ["Roger", "Roderick", "Brian"]
-      alert "Position: #{i} - Name: #{name}"
+    put 2 ** x for x in [1..8]
 
-You can also write oneliners, using the postfix form.
+You can also grab the index by providing an extra name to assign to.
 
-    release prisoner for prisoner in ["Roger", "Roderick", "Brian"]
+    raceWinners = ["Ali", "Bob", "Caz"]
+    put "#{index+1} ~ #{name}" for name, index in people
 
-As with Python comprehensions, you can filter too.
+You can also use comprehensions for iterating over properties in objects by using the `of`
+keyword, instead of `in`.
 
-    release prisoner for prisoner in prisoners when prisoner[0] is "R"
+    staff =
+        chef:   "Jane"
+        barman: "John"
 
-You can also use comprehensions for iterating over properties in objects; instead of the `in` keyword, use `of`.
-
-    names = sam: seaborn, donna: moss
-    alert("#{first} #{last}") for first, last of names
-
-CoffeeScript exposes one low-level loop, the `while` loop. This works like it does in JavaScript, but better: It returns an array of the results (like JavaScripts `Array.prototype.map` function).
-
-    num = 6
-    minstrel = while num -= 1
-      num + " Brave Sir Robin ran away"
+    put "The #{position}'s name is #{name}'." for position, name of staff
 
 ---
 

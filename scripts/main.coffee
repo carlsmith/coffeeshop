@@ -596,7 +596,7 @@ cosh.execute = (source, url) ->
 
         $board.append(
             jQuery "<div>"
-            .attr "class", "bold"
+            .attr "class", "color-bold"
             .append highlightTrace source, line, column
             .append jQuery("<xmp>").text message
             )
@@ -615,6 +615,7 @@ cosh.execute = (source, url) ->
 
     inputs[url] =
         name: url
+        #code: code.js
         source: source
         count: if shell then inputCount else url
         map: code.sourceMap
@@ -641,6 +642,8 @@ window.onerror = (message, url, line, column, error) ->
 
         if item = inputs[trace.file]
 
+            #console.log item.code
+
             map = new smc.SourceMapConsumer item.map.generate()
             .originalPositionFor
                 line: trace.lineNumber
@@ -656,7 +659,7 @@ window.onerror = (message, url, line, column, error) ->
             $traceDiv = jQuery """
                 <div>
                 <span class=error>JavaScriptError in
-                <span class=bold>#{trace.methodName}</span>
+                <span class=color-bold>#{trace.methodName}</span>
                 [#{trace.lineNumber}:#{trace.column}]</span>
                 </div>
                 """
@@ -671,7 +674,7 @@ window.onerror = (message, url, line, column, error) ->
         $stackDiv.append traceDivs.pop()
         break unless traceDivs.length
 
-    $messageDiv = jQuery("<xmp>").text(message).attr class: "bold unspaced"
+    $messageDiv = jQuery("<xmp>").text(message).attr class: "color-bold unspaced"
     $stackDiv.append $messageDiv
     $board.append $stackDiv
     clock.scrollIntoView()
@@ -687,7 +690,7 @@ highlightTrace = (source, lineNumber, charNumber) ->
     end   = escape line.slice charNumber + 1
 
     char = line[charNumber]
-    look = if char then "bold" else "error_missing_char"
+    look = if char then "color-bold" else "error_missing_char"
     char = if char then escape char else "&nbsp;"
 
     lines[lineNumber] = "#{start}<span class=#{look}>#{char}</span>#{end}"
