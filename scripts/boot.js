@@ -26,9 +26,10 @@ require ([
 
         jQuery.ajax({
             cache: false,
-            url: "/scripts/main.coffee",
+            url: "/scripts/main.coffee.md",
             success: function (main) {
-                var js = coffee.compile(main, {bare: true})
+                var options = {bare: true, literate: true}
+                var js = coffee.compile(main, options)
                 localStorage.setItem("coshSource", js)
                 localStorage.setItem("coshBuilt", new Date().toString())
                 eval(js)

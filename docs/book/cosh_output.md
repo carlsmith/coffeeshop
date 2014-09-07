@@ -69,7 +69,7 @@ You can silence `append` in the shell by referencing a non-existant property las
 
 The `load` function takes one required argument, a URL string. It loads the remote
 resource and returns it. You can pass a callback as the second argument, and `load`
-will operate asynchronously.
+will operate asynchronously instead, returning `undefined` immediately.
 
 ## Function: `clear`
 
