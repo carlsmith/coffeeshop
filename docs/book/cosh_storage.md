@@ -38,6 +38,6 @@ doesn't exist.
 
     pop "someKey"
 
-Next Page: [Hashes][1]
+Next Page: [Chits][1]
 
-[1]: /docs/book/cosh_hashes.md
+[1]: /docs/book/cosh_chits.md
