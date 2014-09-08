@@ -8,7 +8,7 @@ Welcome to the Book, currently alpha quality. Contributions are welcome.
 
 - [Shortcuts](/docs/book/shortcuts.md) The Application's Keyboard Shortcuts.
 - [Builtins](/docs/book/builtins.md) The Builtin Libraries and Methods.
-- [Output Funtions](/docs/book/cosh_output.md) Using `put`, `peg`, `append`, `view`, `load` and `clear`.
+- [Output Funtions](/docs/book/cosh_output.md) Using `put`, `peg`, `append`, `view` and `clear`.
 - [Storage Functions](/docs/book/cosh_storage.md) Using `set`, `get`, and `pop`.
 - [Introducing Chits](/docs/book/cosh_chits.md) Working with chits using `chit`, `edit` and `run`.
 - [Chits and Gists](/docs/book/cosh_gists.md) Using `clone`, `publish` and `push`.

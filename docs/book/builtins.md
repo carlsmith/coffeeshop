@@ -20,7 +20,7 @@ inherit from them.
 Strings also have a [`compile`](/docs/book/string.compile.md) method you can
 use to compile strings of CoffeeScript and Markdown.
 
-As ever, [jQuery][3] is available gloablly as `jQuery` and `$`, and [toastr][4]
+As ever, [jQuery][3] is available globally as `jQuery` and `$`, and [toastr][4]
 is also available as `toastr`.
 
 ## Shell Functions
@@ -40,8 +40,7 @@ explained properly later. For now, just think of them as files.
 - `put` Appends a pretty printed evaluation of any expression to the board.
 - `peg` Appends a string of Markdown, a DOM node or a jQuery object to the board.
 - `append` Works like `peg`, but is more generic, for use in scripts.
-- `show` Appends Markdown to the board from a chit or a remote resource.
-- `load` Loads a remote resource.
+- `view` Appends Markdown to the board from a chit or a remote resource.
 - `clear` Clears the board.
 
 [Storage Functions](/docs/book/cosh_storage.md)
@@ -58,6 +57,10 @@ explained properly later. For now, just think of them as files.
 - `clone` Creates a chit populated from a GitHub Gist.
 - `publish` Publishes a chit as a Gist on GitHub.
 - `push` Updates a published Gist from a chit.
+
+There's also a `load` function that takes one required argument, a URL string, and loads
+the remote resource and returns it. You can pass a callback as the second argument, and
+`load` will operate asynchronously instead, returning `undefined` immediately.
 
 ## Shell Components
 

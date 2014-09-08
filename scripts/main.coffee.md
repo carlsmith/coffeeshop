@@ -375,7 +375,7 @@ This event handler is bound to the description div, and gives it all it's keybin
         if event.which is 9 or event.which is 13
             editor.focus()
             return event.preventDefault()
-        return unless event.ctrlKey or not event.metaKey
+        return if not event.ctrlKey or not event.metaKey
         if event.which is 190
             slate.focus()
             return event.preventDefault()

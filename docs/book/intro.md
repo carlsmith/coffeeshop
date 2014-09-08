@@ -13,7 +13,7 @@ specifically designed to elegantly express the JavaScript idioms that work, and 
 exist as time honoured workarounds for JavaScripts's many shortcomings. Features, such as
 array comprehensions and classical classes, without the usual boilerplate and JavaScript's
 archaic punctuation, just make it a lot easier to express yourself clearly with your code.
-And then there's JavaScript's infamous *Bad Parts*; CoffeeScript just left that shit on the
+And then there's JavaScript's infamous *Bad Parts*; CoffeeScript just left that crap on the
 side of the plate.
 
 ---

@@ -1,12 +1,11 @@
 # Output Functions
 
-The are six output functions. Four append stuff to the board; one clears it.
+The are five output functions. Four append stuff to the board; one clears it.
 
 - `put` Appends a pretty printed evaluation of any expression to the board.
 - `peg` Appends a string of Markdown, a DOM node or a jQuery object to the board.
 - `append` Works like `peg`, but is more generic, for use in scripts.
-- `show` Appends Markdown to the board from a chit or a remote resource.
-- `load` Loads and renders a CoffeeScript or Markdown file from a URL.
+- `view` Appends Markdown to the board from a chit or a remote resource.
 - `clear` Clears the board.
 
 ## Function: `put`
@@ -64,12 +63,6 @@ You can silence `append` in the shell by referencing a non-existant property las
     append "foo"
     .addClass "unspaced"
     .shush
-
-## Function: `load`
-
-The `load` function takes one required argument, a URL string. It loads the remote
-resource and returns it. You can pass a callback as the second argument, and `load`
-will operate asynchronously instead, returning `undefined` immediately.
 
 ## Function: `clear`
 
