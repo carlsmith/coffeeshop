@@ -1,10 +1,12 @@
 # Idioms
 
-This page offers a small collection of the most useful CoffeeScript idioms.
+This page offers a small collection of the most useful CoffeeScript idioms. It's currently
+a mess, but will be tidied up and separated out a bit soon.
 
 # Comprehensions
 
-CoffeeScript's iterator expressions abstract for-loops, and are written using the `<expression> for <name> in <sequence>` syntax.
+CoffeeScript's iterator expressions abstract for-loops, and are written using the
+`<expression> for <name> in <sequence>` syntax.
 
     check(thing) for thing in things
 
@@ -17,7 +19,9 @@ You can iterate over the pairs in an object using the `of` keyword instead of `i
 
 ## Maps
 
-Note that you **must surround the comprehension with parens** if you want the array back, otherwise `result` gets assigned to on each iteration and just ends up equal to the last value.
+Note that you **must surround the comprehension with parens** if you want the
+array back, otherwise `result` gets assigned to on each iteration and just ends up equal
+to the last value.
 
     result = (item.name for item in array)
 
@@ -26,7 +30,7 @@ Note that you **must surround the comprehension with parens** if you want the ar
 The `when` keyword is used to filter items in a comprehension.
 
     passed = (score for score in scores when score > 60)
-    
+
     result = (item for item in array when item.name is "test")
 
 CoffeeScript's comprehensions are very flexible:
@@ -36,7 +40,11 @@ CoffeeScript's comprehensions are very flexible:
     for score in [49, 58, 76, 82, 88, 90]
       (if score > 60 then passed else failed).push score
 
-    (if score > 60 then passed else failed).push score for score in [49, 58, 76, 82, 88, 90]
+You can do all sorts.
+
+    (if score > 60 then passed else failed).push(
+        score for score in [49, 58, 76, 82, 88, 90]
+        )
 
 ## Membership
 

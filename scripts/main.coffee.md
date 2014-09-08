@@ -1,8 +1,14 @@
 # CoffeeShop
 
-This is the main file.
+This is the main CoffeeShop file. It is loaded, compiled, cached and executed within a
+function inside `boot.js`. All of cosh's code, except for `index.html`, `shell.css` and
+`boot.js`, lives in this file. This file's dependencies, `coffee`, `marked`, `pprint` and
+`smc` (Source Map Consumer), are loaded by `boot.js`.
 
-## Setup Local Namespace
+## Set Up the Namespace
+
+First, just make sure `window.indexedDB` is the correct object or undefined. Users may
+arrive at the Gallery in any browser, so it's important to have this when nuking the db.
 
     window.indexedDB = \
         indexedDB or
@@ -10,18 +16,31 @@ This is the main file.
         webkitIndexedDB or
         msIndexedDB
 
+This code creates a global named `cosh` that internal stuff can be bound to, but still be
+available to the user if they need it. If they often do, the API should be extended.
+The code also sets up a global function named `uniquePin` that can be used to get an
+integer that's always unique. This can be used in element IDs to keep them unique when
+rendered multiple times.
+
     window.cosh =
         uniquePin: 0
         coffeeVersion: coffee.VERSION
 
     window.uniquePin = -> cosh.uniquePin++
 
+Gallery mode is based on the URL. Port `9090` is supported on localhost for development.
+
     window.galleryMode = location.host in [
         "gallery-cosh.appspot.com"
         "localhost:9090"
         ]
 
+Setup the Marked Markdown parser.
+
     marked.setOptions sanitize: false
+
+This needs changing so the method isn't iterable. The method is documented
+[here](/docs/book/string.compile.md).
 
     String::compile = (lang, options={}) ->
 
@@ -30,6 +49,8 @@ This is the main file.
             return coffee.compile this, options
         if lang in ["md", "markdown"]
             return marked this, options
+
+This are all local variables pointing to elements, most wrapped by jQuery.
 
     $brand = jQuery "#brand"
     $slate = jQuery "#slate"
@@ -41,10 +62,16 @@ This is the main file.
     clock = document.getElementById "clock"
     slate_div = document.getElementById "slate"
 
+## The Output Functions
+
+The `get` method from [the API](/docs/book/cosh_storage.md).
+
     window.get = (key) ->
 
         item = localStorage.getItem key
         if item then JSON.parse item
+
+The `set` method from [the API](/docs/book/cosh_storage.md).
 
     window.set = (args...) ->
 
@@ -65,6 +92,8 @@ This is the main file.
 
         value
 
+The `pop` method from [the API](/docs/book/cosh_storage.md).
+
     window.pop = (target) ->
 
         return toastr.error "Not enough args.", "Cosh API" unless target
@@ -77,6 +106,10 @@ This is the main file.
 
         item
 
+## The Slate
+
+This is a bunch of locals used by the slate, which manages the input history too.
+
     inputs = {}
     inputCount = 0
     window.slate = ace.edit "slate"
@@ -84,6 +117,8 @@ This is the main file.
     slate.history = get(historyStore) or []
     pointer = slate.history.length
     stash = ""
+
+Configure the slate, an instance of Ace.
 
     slate.setShowPrintMargin false
     slate.getSession().setTabSize 4
@@ -97,11 +132,16 @@ This is the main file.
     slate.session.setMode "ace/mode/coffee"
     doc = slate.getSession().getDocument()
 
+This, using `doc`, resizes the slate on change.
+
     slate.on "change", ->
 
         slate_div.style.height = "#{16*doc.getLength()}px"
         slate.resize()
-        clock.scrollIntow()
+        clock.scrollIntoView()
+
+This makes `pre` tags inside the board clickable, loading their content into the slate when
+clicked.
 
     jQuery("#board").on "click", "pre", (event) ->
 
@@ -109,7 +149,13 @@ This is the main file.
         if slate.getValue() isnt source then slate.push source
         else slate.focus()
 
+This API function resets the line history. It actually just sets the history store and the
+volatile copy to empty arrays.
+
     slate.reset = -> set historyStore, slate.history = []
+
+This API function pushes a string to the slate, pushing the slate content to the input
+history. The push to the input history is actually done by `slate.updateHistory`.
 
     slate.push = (source) ->
 
@@ -120,11 +166,16 @@ This is the main file.
         slate.focus()
         value
 
+This API function is used to push inputs to the input history internally. It does some
+housekeeping to remove any older duplicate.
+
     slate.updateHistory = (source) ->
 
         index = slate.history.indexOf source
         slate.history.splice(index, 1) if index isnt -1
         pointer = slate.history.push source
+
+This keybinding makes `Meta.Up` rewind the input history.
 
     slate.commands.addCommand
         name: "rewind_history"
@@ -143,6 +194,8 @@ This is the main file.
             slate.clearSelection 1
             clock.scrollIntoView()
 
+This keybinding makes `Meta.Down` forward the input history.
+
     slate.commands.addCommand
         name: "forward_history"
         bindKey: win: "Ctrl-Down", mac: "Cmd-Down"
@@ -158,15 +211,21 @@ This is the main file.
             slate.clearSelection 1
             clock.scrollIntoView()
 
+This keybinding makes `Meta.Escape` clear the board.
+
     slate.commands.addCommand
         name: "clear_board"
         bindKey: win: "Ctrl-Esc", mac: "Cmd-Esc"
         exec: -> board.innerHTML = ""
 
+This keybinding makes `Meta.Dot` focus the editor.
+
     slate.commands.addCommand
         name: "focus_editor"
         bindKey: win: "Ctrl-.", mac: "Cmd-."
         exec: -> editor.focus()
+
+This keybinding makes `Meta.Enter` execute the slate content.
 
     slate.commands.addCommand
         name: "execute_slate"
@@ -176,6 +235,12 @@ This is the main file.
             source = source.lines (line) -> line.trimRight()
             source = source.join '\n'
             cosh.execute source if source
+
+## The Editor
+
+The editor is another instance of slate with a few extras for ensuring the hash status
+colour reflects whether or not the hash is different in local storage and executing the
+content.
 
     currentFile = {}
     window.editor = ace.edit "editor"
@@ -189,27 +254,38 @@ This is the main file.
     editor.getSession().setUseWrapMode true
     editor.getSession().setUseSoftTabs true
 
+This keybinding makes `Meta.Enter` call `editor.run` to execute some code.
+
     editor.commands.addCommand
         name: "execute_editor"
         bindKey: win: "Ctrl-Enter", mac: "Cmd-Enter"
         exec: -> editor.run()
+
+This keybinding makes `Meta.M` call `editor.render` to view some Markdown.
 
     editor.commands.addCommand
         name: "render_page"
         bindKey: win: "Ctrl-M", mac: "Cmd-M"
         exec: -> editor.render()
 
+This keybinding makes `Meta.S` call `editor.set` to set the chit to storage.
+
     editor.commands.addCommand
         name: "set_chit"
         bindKey: win: "Ctrl-s", mac: "Cmd-s"
         exec: -> editor.set()
+
+This keybinding makes `Meta.Dot` focus the slate.
 
     editor.commands.addCommand
         name: "focus_slate"
         bindKey: win: "Ctrl-.", mac: "Cmd-."
         exec: ->
             slate.focus()
-            document.getElementById("clock").scrollIntoView()
+            clock.scrollIntoView()
+
+This keybinding makes `Shift.Tab` move the focus to the description div, but only if no
+code is selected, else it indents the code as Ace normally would.
 
     editor.commands.addCommand
         name: "focus_description"
@@ -218,15 +294,23 @@ This is the main file.
             if editor.getCopyText() then editor.blockOutdent()
             else $descriptionDiv.focus()
 
+This API function executes the currently selected text, or the whole content if nothing is
+selected, using the cosh key as the file name. It supports Literate CoffeeScript files.
+
     editor.run = ->
 
         source = editor.getCopyText() or editor.getValue()
         cosh.execute source, currentFile.coshKey
 
+This API function renders the currently selected text, or the whole content if nothing is
+selected, to the board as Markdown.
+
     editor.render = ->
 
         source = editor.getCopyText() or editor.getValue()
         append source.compile "md"
+
+This API function opens a chit in the editor. It's available globally too as `edit`.
 
     editor.edit = (target) ->
 
@@ -249,6 +333,8 @@ This is the main file.
         editor.focus()
         return
 
+This API function sets the current chit, `currentFile`, to local storage.
+
     editor.set = ->
 
         currentFile.description = $descriptionDiv.text() or "?"
@@ -256,6 +342,9 @@ This is the main file.
         set currentFile
         $nameDiv.css color: "#B2D019"
         currentFile
+
+This function is used internally to trigger the editor's checks that allow it to keep the
+chit status colour correct.
 
     editor.updateStatus = ->
 
@@ -266,6 +355,10 @@ This is the main file.
         test = test and $descriptionDiv.text() is currentFile.description
         $nameDiv.css color: if test then "#B2D019" else "#E18243"
 
+This function and the event handlers that follow it are used internally to update the
+`currentFile` using the copy in local storage. It has no effect when the hash isn't
+found in local storage.
+
     editor.updateCurrentFile = ->
 
         update = get currentFile.coshKey
@@ -274,6 +367,8 @@ This is the main file.
 
     editor.on "change", editor.updateStatus
     $descriptionDiv.on "input", editor.updateStatus
+
+This event handler is bound to the description div, and gives it all it's keybindings.
 
     $descriptionDiv.bind "keydown", (event) ->
 
@@ -289,9 +384,17 @@ This is the main file.
         event.preventDefault()
         editor.set()
 
+## The Shell API
+
+The `editor.edit` method is also a global, `edit`, and is part of the shell API.
+
     window.edit = editor.edit
 
+This function is used internally to decide whether a string is a URL or storage key.
+
     remote = (path) -> ":" in path or "/" in path
+
+The `run` method from [the API](/docs/book/cosh_chits.md).
 
     window.run = (target) ->
 
@@ -307,6 +410,8 @@ This is the main file.
         else toastr.error "Nothing at #{target}.", "Cosh API"
 
         undefined
+
+The `put` method from [the API](/docs/book/cosh_output.md).
 
     window.put = (arg) ->
 
@@ -327,6 +432,8 @@ This is the main file.
         else append $div, "pprint unspaced"
 
         undefined
+
+The `append` method from [the API](/docs/book/cosh_output.md).
 
     window.append = (tree, options) ->
 
@@ -352,10 +459,14 @@ This is the main file.
 
         $tree
 
+The `peg` method from [the API](/docs/book/cosh_output.md).
+
     window.peg = (args...) ->
 
         append(args...)?.addClass "unspaced"
         undefined
+
+The `load` method from [the API](/docs/book/cosh_output.md).
 
     window.load = (path, callback=undefined) ->
 
@@ -370,6 +481,8 @@ This is the main file.
 
         output
 
+The `view` method from [the API](/docs/book/cosh_output.md).
+
     window.view = (target) ->
 
         if target.isString()
@@ -379,10 +492,16 @@ This is the main file.
 
         undefined
 
+The `clear` method from [the API](/docs/book/cosh_output.md).
+
     window.clear = -> $board.html("").shush
 
-    authStore = "coshGitHubAuth"
+## The GitHub Gist API
 
+This section extends the shell API to work with gists. It starts by just defining a couple
+of helpful locals.
+
+    authStore = "coshGitHubAuth"
     gistEndpoint = (path) -> "https://api.github.com#{path}"
 
     auth = (args...) ->
@@ -594,7 +713,7 @@ This is the main file.
 
     $board.on "click", ".page a", (event) ->
         path = get_href event
-        if path.endsWith(".md")
+        if path.endsWith ".md"
             if file = pageCache[path] then append file, "page"
             else jQuery.get path, (file) ->
                 pageCache[path] = file
@@ -603,7 +722,7 @@ This is the main file.
 
     $board.on "mouseover", ".page a", (event) ->
         path = get_href event
-        return unless path.endsWith(".md") or pageCache[path]
+        return if not path.endsWith(".md") or pageCache[path]
         jQuery.get path, (page) -> pageCache[path] = page
 
     cosh.execute = (source, url) ->

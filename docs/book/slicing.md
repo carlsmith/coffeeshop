@@ -17,7 +17,7 @@ In the example above, the variable `firstTwo` is assigned a new array that conta
 
 You can slice strings too.
 
-    firstTwo = "yoyo"[0..1]    
+    firstTwo = "yoyo"[0..1]
 
 Checking if a value exists in an array is fairly painful in JavaScript. In CoffeeScript, it's not.
 
@@ -25,4 +25,4 @@ Checking if a value exists in an array is fairly painful in JavaScript. In Coffe
 
 ---
 
-Next Page: [Aliases](/docs/book/aliases.md)
+Next Page: [Existential Operations](/docs/book/existential.md)

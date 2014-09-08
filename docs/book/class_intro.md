@@ -1,14 +1,11 @@
 # Introducing Classes
 
 All you need to define a custom class is the `class` keyword followed by a name for the new
-class, capitalised by convention.
+class, capitalised by convention ~ `class Animal`. That's all it takes to define an `Animal`
+class. You could now use `Animal` as a constructor with the `new` operator.
 
     class Animal
-
-In the example above, a custom class named `Animal` is created. You could now use `Animal`
-as a constructor with the `new` operator.
-
-    animal = new Animal()
+    animal = new Animal
 
 To customise the class constructor ~ the method that gets invoked on instantiation ~ you
 define a `constructor` method.
