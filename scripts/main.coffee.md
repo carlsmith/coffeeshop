@@ -7,8 +7,8 @@ function inside `boot.js`. All of cosh's code, except for `index.html`, `shell.c
 
 ## Set Up the Namespace
 
-First, just make sure `window.indexedDB` is the correct object or undefined. Users may
-arrive at the Gallery in any browser, so it's important to have this when nuking the db.
+First, just make sure `window.indexedDB` is the correct object or `undefined`. Users may
+arrive at the Gallery in any browser, so it's important to have this when nuking the DB.
 
     window.indexedDB = \
         indexedDB or
