@@ -20,8 +20,10 @@ next page][1].
 The `set` function returns the value it set to storage.
 
 Note: Throughout the cosh API, URLs are distinguished from key strings by simply checking
-if the string contains a colon or a slash; if it does, it's a URL, else a key string. For
-this reason, you can not create keys containing either of those characters.
+if the string contains a slash (`/`). If it does, it's a URL, else a key string. For
+this reason, you can not create keys containing a slash.
+
+Keys of the pattern `cosh*` are reserved.
 
 ## Function: `get`
 

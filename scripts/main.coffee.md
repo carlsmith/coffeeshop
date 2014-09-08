@@ -392,7 +392,7 @@ The `editor.edit` method is also a global, `edit`, and is part of the shell API.
 
 This function is used internally to decide whether a string is a URL or storage key.
 
-    remote = (path) -> ":" in path or "/" in path
+    remote = (path) -> "/" in path
 
 The `run` method from [the API](/docs/book/cosh_chits.md).
 
