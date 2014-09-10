@@ -935,7 +935,8 @@ id is not provided. The gist is then loaded into the editor and run.
             sessionStorage?.clear()
             indexedDB?.deleteDatabase "*"
 
-        window.mainFile = clone(launchCode) or clone("9419b50cdaa7238725d8")
+        fallback = "9419b50cdaa7238725d8"
+        window.mainFile = clone(launchCode or fallback) or clone(fallback)
         edit set mainFile
         editor.run()
 
