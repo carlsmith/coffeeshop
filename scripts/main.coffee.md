@@ -325,6 +325,8 @@ selected, to the board as Markdown.
         source = editor.getCopyText() or editor.getValue()
         append source.compile "md", "page"
 
+        undefined
+
 This API function opens a chit in the editor. It's available globally too as `edit`.
 
     editor.edit = (target) ->
