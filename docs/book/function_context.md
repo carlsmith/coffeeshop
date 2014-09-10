@@ -12,5 +12,7 @@ This binding idea is a similar concept to [jQuery's `proxy` method][1] or
 
 ---
 
+Next Page: [Containers](/docs/book/containers.md)
+
 [1]: http://api.jquery.com/jQuery.proxy/
 [2]: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind

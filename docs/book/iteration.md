@@ -27,6 +27,10 @@ keyword, instead of `in`.
 
     put "The #{position}'s name is #{name}." for position, name of staff
 
+Iterations can be stepped using the `by` operator.
+
+    put x for x in [2..10] by 2
+
 ---
 
 Next Page: [Slicing](/docs/book/slicing.md)

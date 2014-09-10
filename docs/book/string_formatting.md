@@ -1,14 +1,23 @@
 # String Formatting
 
-CoffeeScript supports string formatting, where *double-quoted* strings can contain `#{}` tags, which contain expressions to be interpolated.
+CoffeeScript supports string formatting, where *double-quoted* strings can contain
+`#{}` tags, each containing an expression to be interpolated.
 
-    favourite_color = "Blue. No, yel..."
-    question = "Bridgekeeper: What... is your favourite color?
-                Galahad: #{favourite_color}
-                Bridgekeeper: Wrong!
-                "
+    "two plus two is #{2 + 2}"
 
-Note that multiline strings are fine too.
+Multiline strings are fine too, and CoffeeScript allows for 'triple quotes', for when
+you need a string that contains quotes [or doesn't, but you just like consistency].
+
+    put "
+        A simple, multiline string.
+        "
+
+Note that the indentation is resolved intuitively.
+
+    put """
+        A triple quoted, multiline string.
+            With indented stuff.
+        """
 
 ---
 
