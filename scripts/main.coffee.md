@@ -59,6 +59,7 @@ These are all local variables pointing to elements, most wrapped by jQuery.
     $nameDiv = jQuery "#filename"
     $editorLinks = jQuery "#editor-links"
     $descriptionDiv = jQuery "#file_description"
+
     clock = document.getElementById "clock"
     slate_div = document.getElementById "slate"
 
@@ -436,7 +437,7 @@ The `put` method from [the API](/docs/book/cosh_output.md).
 
         color = '#CC8989'
         if arg is null then arg = "null"
-        else if arg is undefined then return goToEnd()
+        else if arg is undefined then return clock.scrollIntoView()
         else if arg.isDate?() then arg = arg.format()
         else if arg.isString?()
             if arg then color = "#B2D019"
@@ -471,7 +472,7 @@ The `append` method from [the API](/docs/book/cosh_output.md).
         if $tree[0].className is "page"
             jQuery("html")
             .animate { scrollTop: $tree.offset().top - 27 }, duration: 150
-        else goToEnd()
+        else clock.scrollIntoView()
 
         $tree.children("h1").each ->
             tail = ":".repeat 87 - this.innerText.length
@@ -752,6 +753,12 @@ of helpful locals.
 This stuff needs refactoring. It's where all the compilation, execution, source mapping,
 error handling currently lives.
 
+### Execution
+
+The `cosh.execute` function handles all execution of CoffeeScript code. It stashes the
+source maps and other input data on successful compilation. It also handles CoffeeScript
+compilation errors. Runtime errors are handled in `window.onerror` below.
+
     cosh.execute = (source, url) ->
 
         shell = if url then false else true
@@ -804,6 +811,11 @@ error handling currently lives.
 
         put result if shell
 
+### Exception Handling
+
+This is where runtime errors get caught and stacktaces are generated from data stashed by
+the `cosh.execute` function above.
+
     window.onerror = (message, url, line, column, error) ->
 
         traceDivs = []
@@ -846,6 +858,9 @@ error handling currently lives.
         $board.append $stackDiv
         clock.scrollIntoView()
 
+This highlights the source code for single item in a stacktrace, escaping the code and
+colouring it, before converting it into the jQuery object that the function returns.
+
     highlightTrace = (source, lineNumber, charNumber) ->
 
         escape = (line) -> line.escapeHTML().split(' ').join "&nbsp;"
@@ -866,6 +881,11 @@ error handling currently lives.
             if index isnt lineNumber then lines[index] = escape line
 
         jQuery("<span class=error>").html lines.join "<br>"
+
+This parses the stacktrace string that `window.onerror` knows as `error.stack`, converting
+it into an array of items from the stack, as hashes. It returns an array of two objects,
+the stack array it creates, and a bool, truthy if the stacktrace fails to reach the
+`limit`, which is essentially this file. Traces are truncated at the borders of userland.
 
     parseTrace = (traceback) ->
 
@@ -914,9 +934,6 @@ error handling currently lives.
 
         [stack, true]
 
-    goToEnd = ->
-        document.getElementById("clock").scrollIntoView()
-        undefined
 
     jQuery("#favicon").attr href: "/images/skull_up.png"
     toastr.success "Powered by CoffeeScript (#{coffee.VERSION})", "CoffeeShop Beta"

@@ -16,25 +16,22 @@
 - **HTML5 Shell** Everything you can do in a browser. In a shell.
 - **Based on Ace** Supports multiline input, syntax highlighting and everything else
 that Ace provides.
-- **CoffeeScript Tracebacks** You never need to debug compiled JavaScript.
-- **Totally Hackable** Edit scripts in local storage, including a config file that
+- **Tracebacks** You never need to debug compiled JavaScript.
+- **Hackable** Edit scripts in local storage, including a config file that
 gets executed each time the shell loads.
-- **GitHub Gist Integration** Publish, push, pull and clone scripts through GitHub.
+- **Gist Integration** Publish, push, pull and clone scripts through GitHub.
 All published scripts can be executed by every user.
-- **Showing Off** There's a sanitised version of the shell, running on its own domain,
-that allows anyone to wrap published gists as little, standalone web apps, with a URL
-you can share and point iframes at.
-- **Kung Foo** Cosh defines a small collection of functions that use CoffeeScript's
+- **Show Off** There's a special version of the shell you can share by URL. It allows
+anyone to wrap published gists as little, standalone web scripts. You can share example
+code, like JSFiddle on steroids, or just do Astroids again.
+- **Shell Foo** Cosh defines a small collection of functions that use CoffeeScript's
 optional parens syntax to provide an API that's like shell scripting, but about ten
 times more ninja.
 - **Sweet Runtime** The SugarJS Library is applied wholesale, so native types all
 have awesome methods out the box. You also have jQuery. Obviously.
-- **Magic Docs** Built in, interactive documentation, using Markdown.
-- **Trampy Server** Cosh only uses static files and CORS. It will happily live anywhere.
+- **Documented** Built in, interactive documentation, using Markdown.
 - **Self Compiling** Cosh is able to build itself from source on page load, so you can
 hack on the core without installing any dependencies, even on Windows.
-- **Other Stuff** It's free to use and open source. If you're not interested enough by
-this point to click a link and try it, you're in the wrong place.
 
 Set Up
 ------
@@ -77,30 +74,13 @@ Limitations
 Only Chrome and Opera currently have the features needed to create tracebacks,
 so you'll need one of those to use the shell.
 
-The app's still pre-release, but it's ready now. All the core features have
-been implemented and are stable and documented.
+The app's just been released. All the core features have been implemented and are
+pretty stable and documented. It's just a matter of testing things really.
 
-The code base has been heavily refactored recently, so there may be minor
-bugs from that work that still need shaking out. Report them and they'll be
-looked at immediately.
-
-The docs are still being worked on, and should be of a minimal viable quality
-within days.
-
-Status
-------
-
-The current effort is towards testing everything and finishing the built in docs. Once
-that's done, the app will hit the Version One milestone. The plan is to start plugging
-CoffeeShop at that point, gathering more users and getting their feedback. During this
-time, the code will be converted to use Literate CoffeeScript, and properly documented
-so it's easy to hack on. No new features will be added until that's done.
-
-The docs can never be good enough, so that'll be ongoing work.
-
-Once the source is properly documented, which shouldn't take long ~ it's only about 800
-lines of spacious CoffeeScript ~ then new features can be looked at, once there's a few
-people to discuss them
+The docs still need some work. They cover using the app itself pretty well, but the
+CoffeeScript Language stuff is still really sketchy in places. The docs are being
+worked on currently. There's good CoffeeScript docs online already, and it's a very
+easy ~ and fun ~ language to learn if you already know JavaScript.
 
 License
 -------
