@@ -2,7 +2,7 @@
 
 Welcome to **CoffeeShop**, a better [CoffeeScript][1] shell.
 
-Note that the shell depends on Blink, so it'll only work in Chromium based browsers, like
+Note that the shell depends on V8, so it'll only work in Chromium based browsers, like
 [Google Chrome][2] and [Opera][3].
 
 Look through the [the Book](/docs/book/front.md) to get started with cosh. There's more

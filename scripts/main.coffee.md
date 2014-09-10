@@ -35,7 +35,7 @@ Gallery mode is based on the URL. Port `9090` is supported on localhost for deve
         "localhost:9090"
         ]
 
-Setup the Marked Markdown parser.
+Setup the [Marked parser](https://github.com/chjj/marked) options.
 
     marked.setOptions sanitize: false
 
@@ -50,7 +50,7 @@ This needs changing so the method isn't iterable. The method is documented
         if lang in ["md", "markdown"]
             return marked this, options
 
-This are all local variables pointing to elements, most wrapped by jQuery.
+These are all local variables pointing to elements, most wrapped by jQuery.
 
     $brand = jQuery "#brand"
     $slate = jQuery "#slate"
@@ -61,6 +61,17 @@ This are all local variables pointing to elements, most wrapped by jQuery.
     $descriptionDiv = jQuery "#file_description"
     clock = document.getElementById "clock"
     slate_div = document.getElementById "slate"
+
+These are the links above the board.
+
+    jQuery("#home-link").click -> view "/docs/home.md"
+    jQuery("#more-link").click -> view "/docs/external.md"
+    jQuery("#book-link").click -> view "/docs/book/front.md"
+
+This is a simple webworker that updates the time on the clock in the footer.
+
+    worker = new Worker "/scripts/cosh/clock_worker.js"
+    worker.onmessage = (event) -> $clock.text event.data
 
 ## The Output Functions
 
@@ -79,7 +90,7 @@ The `set` method from [the API](/docs/book/cosh_storage.md).
         switch args.length
             when 1 then [key, value] = [ args[0].coshKey, args[0] ]
             when 2 then [key, value] = args
-            else return toastr.error "Wrong number of args.", "Cosh API"
+            else return toastr.error "Wrong number of args.", "Set Failed"
         unless key
             toastr.error "Bad args.", "Set Failed"
             return
@@ -96,19 +107,20 @@ The `pop` method from [the API](/docs/book/cosh_storage.md).
 
     window.pop = (target) ->
 
-        return toastr.error "Not enough args.", "Cosh API" unless target
+        return toastr.error "Not enough args.", "Pop Failed" unless target
         key = if target.isString?() then target else target.coshKey
         item = get key
-        return toastr.error "Nothing at #{target}.", "Cosh API" unless item
+        return toastr.error "Nothing at #{target}.", "Pop Failed" unless item
         localStorage.removeItem key
-        toastr.success "Popped #{target}", "Cosh API"
+        toastr.success target, "Popped From Local Storage"
         editor.updateStatus()
 
         item
 
 ## The Slate
 
-This is a bunch of locals used by the slate, which manages the input history too.
+This is a bunch of locals used by the slate, which manages the input history too. Clicking
+the footer focusses the slate to make it easier to click into when it's small.
 
     inputs = {}
     inputCount = 0
@@ -117,6 +129,8 @@ This is a bunch of locals used by the slate, which manages the input history too
     slate.history = get(historyStore) or []
     pointer = slate.history.length
     stash = ""
+
+    jQuery('#footer').click -> slate.focus()
 
 Configure the slate, an instance of Ace.
 
@@ -300,6 +314,7 @@ selected, using the cosh key as the file name. It supports Literate CoffeeScript
     editor.run = ->
 
         source = editor.getCopyText() or editor.getValue()
+        toastr.info currentFile.coshKey, "Editor Running", timeOut: 1000
         cosh.execute source, currentFile.coshKey
 
 This API function renders the currently selected text, or the whole content if nothing is
@@ -308,14 +323,14 @@ selected, to the board as Markdown.
     editor.render = ->
 
         source = editor.getCopyText() or editor.getValue()
-        append source.compile "md"
+        append source.compile "md", "page"
 
 This API function opens a chit in the editor. It's available globally too as `edit`.
 
     editor.edit = (target) ->
 
         item = if target.isString?() then get target else target
-        return toastr.error "Nothing at #{target}.", "Cosh API" unless item
+        return toastr.error "Nothing at #{target}.", "Edit File Failed" unless item
 
         if item.coshKey.endsWith(".md") or item.coshKey.endsWith(".litcoffee")
             mode = "ace/mode/markdown"
@@ -406,8 +421,10 @@ The `run` method from [the API](/docs/book/cosh_chits.md).
             path = target.coshKey
             content = target.content
 
-        if content and path then cosh.execute content, path
-        else toastr.error "Nothing at #{target}.", "Cosh API"
+        if path and content?
+            toastr.info path, "Running Chit", timeOut: 1000
+            cosh.execute content, path
+        else toastr.error "No file hash at #{target}.", "Run Failed"
 
         undefined
 
@@ -415,7 +432,7 @@ The `put` method from [the API](/docs/book/cosh_output.md).
 
     window.put = (arg) ->
 
-        color = '#BEBEBE'
+        color = '#CC8989'
         if arg is null then arg = "null"
         else if arg is undefined then return goToEnd()
         else if arg.isDate?() then arg = arg.format()
@@ -437,10 +454,11 @@ The `append` method from [the API](/docs/book/cosh_output.md).
 
     window.append = (tree, options) ->
 
-        if tree.isString() then $tree = jQuery("<div>").html tree.compile "md"
+        if not tree? then $tree = jQuery "<div>"
         else if tree instanceof HTMLElement then $tree = jQuery tree
         else if tree instanceof jQuery then $tree = tree
-        else return toastr.error "Unrenderable first arg.", "Cosh API"
+        else if tree.isString?() then $tree = jQuery("<div>").html tree.compile "md"
+        else $tree = jQuery("<xmp>").html tree.toString()
 
         if options isnt undefined
             if options.isString?() then $tree.first().addClass options
@@ -486,8 +504,10 @@ The `view` method from [the API](/docs/book/cosh_output.md).
     window.view = (target) ->
 
         if target.isString()
-            if remote target then append load(target), "page"
-            else if target = get target then append target.content, "page"
+            if remote target
+                if data = load target then append data, "page"
+                else toastr.error "#{target} not found", "View Failed"
+            else if data = get target then append data.content, "page"
         else append target.content, "page"
 
         undefined
@@ -570,14 +590,14 @@ of helpful locals.
             $password = jQuery "##{formID}Password"
 
             unless $username.val()
-                toastr.error "Username can't be empty.", "GitHub Auth"
+                toastr.error "Username can't be empty.", "Auth Failed"
                 return $username.focus()
             unless $password.val()
-                toastr.error "Password can't be empty.", "GitHub Auth"
+                toastr.error "Password can't be empty.", "Auth Failed"
                 return $password.focus()
 
             auth $username.val(), $password.val()
-            toastr.success "Credentials set to coshGitHubAuth.", "GitHub Auth"
+            toastr.success "Credentials set to coshGitHubAuth.", "Authorised"
 
         undefined
 
@@ -587,10 +607,10 @@ of helpful locals.
 
         if target.isString?() then target = get target
         unless target
-            toastr.error "Hash not found.", "GitHub Gist"
+            toastr.error "Hash not found.", "Publishing Failed"
             return
         unless authData = authHeader()
-            toastr.error "Couldn't find credentials.", "GitHub Gist"
+            toastr.error "Couldn't find credentials.", "Publishing Failed"
             return
 
         data =
@@ -607,10 +627,10 @@ of helpful locals.
             headers: authData
             error: (result) ->
                 reason = JSON.parse(result.responseText).message
-                toastr.error "Publishing failed, #{reason}.", "GitHub Gist"
+                toastr.error reason, "Publishing failed"
             success: (data) ->
                 output = gist2chit data
-                toastr.success "Published new gist.", "GitHub Gist"
+                toastr.success output.gistId, "Published Gist"
 
         output
 
@@ -620,13 +640,13 @@ of helpful locals.
 
         if target.isString?() then target = get target
         unless target
-            toastr.error "Hash not found.", "GitHub Gist"
+            toastr.error "Hash not found.", "Push Failed"
             return
         unless target.gistId
-            toastr.error "#{target.coshKey} is unpublished.", "GitHub Gist"
+            toastr.error "#{target.coshKey} is unpublished.", "Push Failed"
             return
         unless authData = authHeader()
-            toastr.error "Auth failed.", "GitHub Gist"
+            toastr.error "No credentials.", "Push Failed"
             return
 
         data = description: target.description, files: {}
@@ -642,10 +662,10 @@ of helpful locals.
             headers: authData
             error: (result) ->
                 reason = JSON.parse(result.responseText).message
-                toastr.error "Push failed, #{reason}.", "GitHub Gist"
+                toastr.error reason, "Push Failed"
             success: (data) ->
                 output = gist2chit data
-                toastr.success "Pushed #{target.coshKey} .", "GitHub Gist"
+                toastr.success target.coshKey, "Pushed Gist"
 
         output
 
@@ -658,7 +678,7 @@ of helpful locals.
             async: false
             url: gistEndpoint "/gists/#{gistId}"
             success: (data) -> output = gist2chit data
-            error: (data) -> toastr.error "Gist not found.", "GitHub Gist"
+            error: (data) -> toastr.error "Gist not found.", "Clone Failed"
 
         output
 
@@ -693,7 +713,7 @@ of helpful locals.
                     options = args[0]
                     key = options.coshKey
             else
-                toastr.error "Couldn't create chit from args.", "Cosh API"
+                toastr.error "Invalid arguments.", "Chit Creation Failed"
                 return
 
         options.coshKey = key
@@ -711,7 +731,7 @@ of helpful locals.
 
         href
 
-    $board.on "click", ".page a", (event) ->
+    $board.on "click", "a", (event) ->
         path = get_href event
         if path.endsWith ".md"
             if file = pageCache[path] then append file, "page"
@@ -720,25 +740,29 @@ of helpful locals.
                 append file, "page"
         else open path
 
-    $board.on "mouseover", ".page a", (event) ->
+    $board.on "mouseover", "a", (event) ->
         path = get_href event
         return if not path.endsWith(".md") or pageCache[path]
         jQuery.get path, (page) -> pageCache[path] = page
 
+## Execution and Exception Handling
+
+This stuff needs refactoring. It's where all the compilation, execution, source mapping,
+error handling currently lives.
+
     cosh.execute = (source, url) ->
 
-        options = bare: true, sourceMap: true
-
         shell = if url then false else true
-        if url?.endsWith(".coffee.md") or url?.endsWith(".litcoffee")
-            options.literate = true
+        options = bare: true, sourceMap: true
+        options.literate = true if \
+            url?.endsWith(".coffee.md") or url?.endsWith(".litcoffee")
 
         try code = coffee.compile source, options
         catch error
 
             line = error.location.first_line
             column = error.location.first_column
-            message = "Caught #{error.name}: #{error.message}"
+            message = "Caught CoffeeScript #{error.name}: #{error.message}"
 
             $board.append(
                 jQuery "<div>"
@@ -787,9 +811,6 @@ of helpful locals.
         for trace in stack
 
             if item = inputs[trace.file]
-
-                console.log item.code
-
                 map = new smc.SourceMapConsumer item.map.generate()
                 .originalPositionFor
                     line: trace.lineNumber
@@ -798,9 +819,7 @@ of helpful locals.
                 origin = item.count + " [#{map.line}:#{map.column + 1}]"
                 $traceDiv = jQuery("<div>").css "display": "inline"
                 .append highlightTrace item.source, map.line - 1, map.column
-
             else
-
                 origin = trace.file
                 $traceDiv = jQuery """
                     <div>
@@ -894,33 +913,48 @@ of helpful locals.
         [stack, true]
 
     goToEnd = ->
-
         document.getElementById("clock").scrollIntoView()
         undefined
 
-    jQuery("#home-link").click -> view "/docs/home.md"
-    jQuery("#more-link").click -> view "/docs/external.md"
-    jQuery("#book-link").click -> view "/docs/book/front.md"
+    jQuery("#favicon").attr href: "/images/skull_up.png"
+    toastr.success "Powered by CoffeeScript (#{coffee.VERSION})", "CoffeeShop Beta"
 
-    worker = new Worker "/scripts/cosh/clock_worker.js"
-    worker.onmessage = (event) -> $clock.text event.data
+### Gallery Mode
 
-    jQuery('#footer').click -> slate.focus()
+If the shell is in gallery mode, then storage needs nuking. This is done now and again on
+unload so that if the `onunload` function gets edited, nothing will persist beyond the next
+boot, making it pointless to hack `onunload`.
+
+Then the gist specified in the launch code is cloned ~ a fallback gist used if a valid gist
+id is not provided. The gist is then loaded into the editor and run.
 
     if galleryMode
 
-        localStorage?.clear()
-        sessionStorage?.clear()
-        indexedDB?.deleteDatabase "*"
+        do window.onunload = ->
+            localStorage?.clear()
+            sessionStorage?.clear()
+            indexedDB?.deleteDatabase "*"
 
-        window.mainFile = clone launchCode
-        unless mainFile then $brand.text "fatal error: gist not found"
-        else
-            $brand.text("CoffeeShop Gallery").css color: "#E18243"
-            edit set mainFile
-            run mainFile
+        window.mainFile = clone(launchCode) or clone("9419b50cdaa7238725d8")
+        edit set mainFile
+        editor.run()
 
-    else
+        $brand.text("CoffeeShop Gallery").css color: "#E18243"
+
+### Shell Mode
+
+If the shell is not in gallery mode, then it needs to check that `config.coffee` exists,
+and create it otherwise. It'll then open the config file in the editor and execute it. If
+the launch code `safemode` is used, the config is loaded into the editor, but not run.
+
+The `onunload` function is also set up to write the input history to local storage when
+the page is destroyed.
+
+    if not galleryMode
+
+        window.onunload = ->
+            set historyStore, slate.history.last 400
+            undefined
 
         unless get "config.coffee" then set chit "config.coffee",
             description: "Run on boot unless in safe mode."
@@ -930,15 +964,14 @@ of helpful locals.
         .text if launchCode is "safemode" then "Safe Mode" else "CoffeeShop"
 
         edit "config.coffee"
-        run "config.coffee" if launchCode isnt "safemode"
+        if launchCode isnt "safemode"
+            cosh.execute get("config.coffee").content, "config.coffee"
 
-        window.onbeforeunload = ->
+### The End
 
-            set historyStore, slate.history.last 400
-            undefined
+All done. The odd looking comment at the bottom is a source URL directive that allows the
+shell to recognise this file in stacktraces, so the stack can be truncated correctly.
 
-    jQuery("#favicon").attr href: "/images/skull_up.png"
-    toastr.success "Powered by CoffeeScript (#{coffee.VERSION})", "CoffeeShop Beta"
     slate.focus()
 
     `//# sourceURL=/cosh/main.js`
