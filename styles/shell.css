@@ -81,8 +81,7 @@ pre:hover { background: rgba(47, 75, 64, 0.28); cursor: pointer }
 
 #board h1, #board h2, #board h3,
 #board h4, #board h5, #board h6 { font-size: 12px; font-weight: 100 }
-#board h1, #board h2 { color: #4DBDBD }
-#board h3 { color: #FFCC00 }
+#board h1, #board h2, #board h3 { color: #4DBDBD }
 #board h1, #board h2, #board h3 { margin: 0 0 16px 0 }
 #board h4, #board h5, #board h6 { margin: 0 }
 #board h1:before, #board h2:before { color: #E18243; content: '::: ' }
