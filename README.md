@@ -19,11 +19,11 @@ that Ace provides.
 - **Tracebacks** You never need to debug compiled JavaScript.
 - **Hackable** Edit scripts in local storage, including a config file that
 gets executed each time the shell loads.
-- **Gist Integration** Publish, push, pull and clone scripts through GitHub.
-All published scripts can be executed by every user.
+- **Gist Integration** Publish, push and clone scripts through GitHub. All published
+scripts can be cloned by every user.
 - **Show Off** There's a special version of the shell you can share by URL. It allows
 anyone to wrap published gists as little, standalone web scripts. You can share example
-code, like JSFiddle on steroids, or just do Astroids again.
+code, like JSFiddle, or just do Astroids again.
 - **Shell Foo** Cosh defines a small collection of functions that use CoffeeScript's
 optional parens syntax to provide an API that's like shell scripting, but about ten
 times more ninja.

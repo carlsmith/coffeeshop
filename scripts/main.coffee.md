@@ -487,9 +487,10 @@ The `peg` method from [the API](/docs/book/cosh_output.md).
         append(args...)?.addClass "unspaced"
         undefined
 
-The `load` method from [the API](/docs/book/cosh_output.md).
+The `load` method was an API method, and is no more. It's still used internally to make
+blocking requests for remote resources.
 
-    window.load = (path, callback=undefined) ->
+    load = (path, callback=undefined) ->
 
         output = undefined
 
@@ -759,41 +760,12 @@ The `cosh.execute` function handles all execution of CoffeeScript code. It stash
 source maps and other input data on successful compilation. It also handles CoffeeScript
 compilation errors. Runtime errors are handled in `window.onerror` below.
 
-
-class Executer
-
-    isLiterate: (key) -> key?.endsWith(".coffee.md") or key?.endsWith(".litcoffee")
-
-    execute: (source, url) ->
-
-        shell = if url then false else true
-        options = bare: true, sourceMap: true, literate: isLiterate url
-        try code = coffee.compile source, options
-        catch error
-
-            line = error.location.first_line
-            column = error.location.first_column
-            message = "Caught CoffeeScript #{error.name}: #{error.message}"
-
-            $board.append(
-                jQuery "<div>"
-                .attr "class", "color-bold"
-                .append highlightTrace source, line, column
-                .append jQuery("<xmp>").text message
-                )
-
-            slate.updateHistory source if shell
-            slate.setValue ""
-            return clock.scrollIntoView()
-
     cosh.execute = (source, url) ->
 
         shell = if url then false else true
+        literate = url?.endsWith(".coffee.md") or url?.endsWith(".litcoffee")
         url += "@#{+(new Date())}" if url
-        options =
-            bare: true
-            sourceMap: true
-            literate: url?.endsWith(".coffee.md") or url?.endsWith(".litcoffee")
+        options = bare: true, sourceMap: true, literate: literate
 
         try code = coffee.compile source, options
         catch error

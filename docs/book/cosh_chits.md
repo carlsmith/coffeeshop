@@ -4,11 +4,16 @@ In CoffeeShop, chits are used everywhere. A chit is a JSON serialisable hash, so
 most simple chit would be `{}`. This criterion is the only one that all chits will
 meet. Chits usually meet more criteria too.
 
+The purpose of chits is to allow data structures to be passed around easily, while
+ensuring that certain assumptions about the data are safe. You don't normally need to
+deal with chits very directly, as you'll just think of them as files, gists or whatever
+kind of data they represent. That said, it's useful to quickly breeze over what they are,
+so you don't find the functions that work with them too magical.
+
 ## Abstract
 
-A chit must be a hash that is JSON serialisable.
-
-Chits are also *defined by secondary criteria in a strict hierarchy...*
+A chit is **always** a JSON serialisable hash. Chits are normally further defined by
+secondary criteria in a strict hierarchy...
 
 Chits have *kinds*, with the most simple kind being `chit` itself. To define a new
 kind of chit, you define criteria it must meet. This is not done in code, you just
@@ -94,8 +99,8 @@ the returned chit to `edit`.
         description: "Let foo be true.",
         content: "foo = true"
 
-Note that `edit` can also take a key string, and will open a file chit from storage
-if the key exists exists.
+Note that `edit` can also take a key string, and will open a file chit from storage,
+assuming the key exists.
 
     edit "foo.coffee"
 
@@ -124,13 +129,16 @@ You can do stuff like `edit chit "foo.coffee"` to open a new empty file named
 
 ## Function: `run`
 
-The `run` function takes a file hash, or a key for one, or a URL string. If the
+The `run` function takes a file chit, or a key for one, or a URL string. If the
 string is a URL, it's loaded and the content is executed. If the argument resolves to a
-file chit, the chit's content is rendered.
+file chit, the chit's content is executed.
 
     run "foo.coffee"
 
 The `run` function supports Literate CoffeeScript automatically if the chit's key or the
 resource's path ends with `.coffee.md` or `.litcoffee`.
+
+Note: Key strings are distinguished from URL strings by checking if the string contains a
+slash (`/`). If it does, it's a URL, else a key. The `set` function enforces this.
 
 Next Page: [Chits as Gists](/docs/book/cosh_gists.md)

@@ -58,10 +58,6 @@ explained properly later. For now, just think of them as files.
 - `publish` Publishes a chit as a Gist on GitHub.
 - `push` Updates a published Gist from a chit.
 
-There's also a `load` function that takes one required argument, a URL string, and loads
-the remote resource and returns it. You can pass a callback as the second argument, and
-`load` will operate asynchronously instead, returning `undefined` immediately.
-
 ## Shell Components
 
 The slate and editor are both instances of Ace, so you can use all of Ace's

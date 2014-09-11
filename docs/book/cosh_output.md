@@ -11,13 +11,12 @@ The are five output functions. Four append stuff to the board; one clears it.
 ## Function: `put`
 
 The `put` function takes a single argument, any object, and pretty prints it.
-Strings are printed in green; everything else is cyan.
-
-    put key for key of localStorage
-    2 ** 8
+Strings are printed in green; everything else is red.
 
 When you enter code in the shell, the last value to be evaluated is put
 automatically, so you don't need to call `put` yourself.
+
+    2 ** 8
 
 ## Function: `peg`
 
