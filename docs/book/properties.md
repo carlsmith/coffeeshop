@@ -10,17 +10,22 @@ used to add class properties. Instance properties are defined in the constructor
     animal = new Animal("Suzi", "Dog")
     animal.identify()
 
-## Where is `this`
+## Where is `this @`
 
-CoffeeScript locks the value of `this` to a particular context using a fat arrow function,
-ensuring that no matter what context a function is *called* in, it'll always execute inside
-the context it was *created* in. Support for fat arrows is extended to classes. Using a fat
-arrow for a method ensures that `this` (and `@`) is always the current instance.
+CoffeeScript locks the value of `this` to the current context inside fat arrow functions.
+Using a fat arrow ensures that no matter what context a function is *called* in, `this`
+will be whatever `this` was in the scope the function was *defined* in. This is useful
+because JavaScript changes the context when a function is used as a callback, so the
+value of `this` changes, depending on where the function is called.
 
-The following will not work, as `animal.identify` will not retain the context of `this`, as
-it was defined with a thin arrow. Click the output to see.
+Using a fat arrow for a method ensures that `this` is always the instance of the class
+the invocation is bound to. Python's `self`.
 
-    peg "click this", (div) ->
+For example, the following will not work as `animal.identify` was defined with a thin
+arrow, meaning that, once it's passed as a callback to `peg`, `this` is `undefined`,
+not the instance of `Animal` that `indentify` seems to be bound to.
+
+    peg "click here", (div) ->
         div.click animal.identify
         div.css cursor: "pointer"
 
@@ -32,6 +37,6 @@ no matter where `indentify` gets called.
         identify: => put "#{@name} is a #{@kind}."
 
     animal = new Animal("Jim", "Shark")
-    peg "click this", (div) ->
-        div.click animal.identify
-        div.css cursor: "pointer"
+
+If you run this code, then run the `peg` invocation again, you'll see that `this` is now
+what you expect it to be.

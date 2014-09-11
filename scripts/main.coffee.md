@@ -759,12 +759,41 @@ The `cosh.execute` function handles all execution of CoffeeScript code. It stash
 source maps and other input data on successful compilation. It also handles CoffeeScript
 compilation errors. Runtime errors are handled in `window.onerror` below.
 
+
+class Executer
+
+    isLiterate: (key) -> key?.endsWith(".coffee.md") or key?.endsWith(".litcoffee")
+
+    execute: (source, url) ->
+
+        shell = if url then false else true
+        options = bare: true, sourceMap: true, literate: isLiterate url
+        try code = coffee.compile source, options
+        catch error
+
+            line = error.location.first_line
+            column = error.location.first_column
+            message = "Caught CoffeeScript #{error.name}: #{error.message}"
+
+            $board.append(
+                jQuery "<div>"
+                .attr "class", "color-bold"
+                .append highlightTrace source, line, column
+                .append jQuery("<xmp>").text message
+                )
+
+            slate.updateHistory source if shell
+            slate.setValue ""
+            return clock.scrollIntoView()
+
     cosh.execute = (source, url) ->
 
         shell = if url then false else true
-        options = bare: true, sourceMap: true
-        options.literate = true if \
-            url?.endsWith(".coffee.md") or url?.endsWith(".litcoffee")
+        url += "@#{+(new Date())}" if url
+        options =
+            bare: true
+            sourceMap: true
+            literate: url?.endsWith(".coffee.md") or url?.endsWith(".litcoffee")
 
         try code = coffee.compile source, options
         catch error
@@ -795,6 +824,7 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
         inputs[url] =
             name: url
             code: code.js
+            shell: shell
             source: source
             count: if shell then inputCount else url
             map: code.sourceMap
@@ -829,8 +859,12 @@ the `cosh.execute` function above.
                 .originalPositionFor
                     line: trace.lineNumber
                     column: trace.column - 1 or 1
-
-                origin = item.count + " [#{map.line}:#{map.column + 1}]"
+                if item.shell
+                    origin = item.count + " [#{map.line}:#{map.column + 1}]"
+                else
+                    [key, date] = item.count.split "@"
+                    date = new Date(+date).toString().split(" GMT")[0]
+                    origin = "#{key} @ #{date}"
                 $traceDiv = jQuery("<div>").css "display": "inline"
                 .append highlightTrace item.source, map.line - 1, map.column
             else
