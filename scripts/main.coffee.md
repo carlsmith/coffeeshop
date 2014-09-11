@@ -317,6 +317,7 @@ selected, using the cosh key as the file name. It supports Literate CoffeeScript
         source = editor.getCopyText() or editor.getValue()
         toastr.info currentFile.coshKey, "Editor Running", timeOut: 1000
         cosh.execute source, currentFile.coshKey
+        slate.focus()
 
 This API function renders the currently selected text, or the whole content if nothing is
 selected, to the board as Markdown.
@@ -827,19 +828,26 @@ the `cosh.execute` function above.
         for trace in stack
 
             if item = inputs[trace.file]
+
                 map = new smc.SourceMapConsumer item.map.generate()
                 .originalPositionFor
                     line: trace.lineNumber
                     column: trace.column - 1 or 1
-                if item.shell
-                    origin = item.count + " [#{map.line}:#{map.column + 1}]"
+
+                locationString = "[#{map.line}:#{map.column + 1}]"
+
+                if item.shell then origin = "#{item.count} #{locationString}"
                 else
                     [key, date] = item.count.split "@"
                     date = new Date(+date).toString().split(" GMT")[0]
-                    origin = "#{key} @ #{date}"
-                $traceDiv = jQuery("<div>").css "display": "inline"
+                    origin = "#{key} @ #{date} #{locationString}"
+
+                $traceDiv = jQuery "<div>"
+                .css "display": "inline"
                 .append highlightTrace item.source, map.line - 1, map.column
+
             else
+
                 origin = trace.file
                 $traceDiv = jQuery """
                     <div>
