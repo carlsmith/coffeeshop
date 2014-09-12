@@ -37,10 +37,10 @@ pre:hover { background: rgba(47, 75, 64, 0.28); cursor: pointer }
     white-space: nowrap;
     overflow: hidden; }
 
-#file_description { padding-right: 8px; outline: none }
-#file_description:before { content: '# '; color: #3A3A3A }
-#file_description:hover { cursor: text }
-#file_description:focus { cursor: text }
+#file-description { padding-right: 8px; outline: none }
+#file-description:before { content: '# '; color: #3A3A3A }
+#file-description:hover { cursor: text }
+#file-description:focus { cursor: text }
 
 .banner-link { font-style: normal; text-decoration: none }
 
@@ -57,7 +57,8 @@ pre:hover { background: rgba(47, 75, 64, 0.28); cursor: pointer }
 
 #clock { float: right }
 
-.slate_counter:before { content: '⇧'; margin: 0 -2px 0 -3px }
+.trace-counter:before, .slate-counter:before {
+    content: '⇧'; margin: 0 -2px 0 -3px }
 
 #editor {
     border-left: 1px solid #3A3A3A;
@@ -67,7 +68,7 @@ pre:hover { background: rgba(47, 75, 64, 0.28); cursor: pointer }
     left: 651px;
     right: 0; }
 
-/* Board Only */
+    /* Board Only */
 
 #board {
     padding: 0 4px;
@@ -136,25 +137,23 @@ pre:hover { background: rgba(47, 75, 64, 0.28); cursor: pointer }
 
 #board input[type=text], #board textarea { color: #E6E0B9 }
 
-/* Stacktrace Elements */
+    /* Stacktrace Elements */
 
-.error { color: #999999 }
+#board .error { color: #999999 }
 
-.error_missing_char { border-bottom: 1px dotted #E18243 }
+#board .error-missing-char { border-bottom: 1px dotted #E18243 }
 
-.error_location { color: #999; font-style: italic }
+#board .trace-counter { }
 
-.error_location:before { content: '# '}
-
-/* Loose Ends */
+    /* Loose Ends */
 
 .cut:before { content: '|' }
 
-.unspaced { margin: -16px 0 16px 0 }
+#board .unspaced { margin: -16px 0 16px 0 }
 
-.pprint {}
+#board .pprint {}
 
-/* Colors */
+    /* Colors */
 
 .bg-color-main,
     body,
@@ -167,13 +166,14 @@ pre:hover { background: rgba(47, 75, 64, 0.28); cursor: pointer }
 .color-bright,
     a,
     #filename,
-    #file_description:focus,
-    #file_description:hover { color: #B2D019 }
+    #file-description:focus,
+    #file-description:hover { color: #B2D019 }
 
 .color-dull,
     #footer,
-    #file_description,
-    .slate_counter { color: #4D774A }
+    #file-description,
+    .trace-counter,
+    .slate-counter { color: #4D774A }
 
 .color-high,
     #board code { color: #EBBB00 }

@@ -58,10 +58,10 @@ These are all local variables pointing to elements, most wrapped by jQuery.
     $board = jQuery "#board"
     $nameDiv = jQuery "#filename"
     $editorLinks = jQuery "#editor-links"
-    $descriptionDiv = jQuery "#file_description"
+    $descriptionDiv = jQuery "#file-description"
 
     clock = document.getElementById "clock"
-    slate_div = document.getElementById "slate"
+    slateDiv = document.getElementById "slate"
 
 These are the links above the board.
 
@@ -73,6 +73,14 @@ This is a simple webworker that updates the time on the clock in the footer.
 
     worker = new Worker "/scripts/cosh/clock_worker.js"
     worker.onmessage = (event) -> $clock.text event.data
+
+This is used internally as a more Pythonic thruthiness test.
+
+    bool = (thing) ->
+
+        if thing.equals([]) or thing.equals({}) then false
+        else if thing is "false" then true
+        else !! thing
 
 ## The Output Functions
 
@@ -151,7 +159,7 @@ This, using `doc`, resizes the slate on change.
 
     slate.on "change", ->
 
-        slate_div.style.height = "#{16*doc.getLength()}px"
+        slateDiv.style.height = "#{16*doc.getLength()}px"
         slate.resize()
         clock.scrollIntoView()
 
@@ -477,7 +485,7 @@ The `append` method from [the API](/docs/book/cosh_output.md).
 
         $tree.children("h1").each ->
             tail = ":".repeat 87 - this.innerText.length
-            this.innerHTML += "<span style=color:#E18243> #{tail}</span>"
+            this.innerHTML += "<span class=color-bold> #{tail}</span>"
 
         $tree
 
@@ -485,7 +493,9 @@ The `peg` method from [the API](/docs/book/cosh_output.md).
 
     window.peg = (args...) ->
 
-        append(args...)?.addClass "unspaced"
+        empty = !! $board.text()
+        output = append(args...)
+        output.addClass "unspaced" if empty
         undefined
 
 The `load` method was an API method, and is no more. It's still used internally to make
@@ -726,7 +736,7 @@ of helpful locals.
 
     pageCache = {}
 
-    get_href = (event) ->
+    getHref = (event) ->
 
         target = event.target
         event.preventDefault()
@@ -737,7 +747,7 @@ of helpful locals.
         href
 
     $board.on "click", "a", (event) ->
-        path = get_href event
+        path = getHref event
         if path.endsWith ".md"
             if file = pageCache[path] then append file, "page"
             else jQuery.get path, (file) ->
@@ -746,7 +756,7 @@ of helpful locals.
         else open path
 
     $board.on "mouseover", "a", (event) ->
-        path = get_href event
+        path = getHref event
         return if not path.endsWith(".md") or pageCache[path]
         jQuery.get path, (page) -> pageCache[path] = page
 
@@ -791,7 +801,7 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
             inputCount++
             slate.updateHistory source
             url = "slate#{inputCount}.js"
-            jQuery("#slate_count").html inputCount + 1
+            jQuery("#slate-count").html inputCount + 1
             slate.setValue ""
 
         inputs[url] =
@@ -840,7 +850,7 @@ the `cosh.execute` function above.
                 else
                     [key, date] = item.count.split "@"
                     date = new Date(+date).toString().split(" GMT")[0]
-                    origin = "#{key} @ #{date} #{locationString}"
+                    origin = "#{key} #{locationString} [#{date}]"
 
                 $traceDiv = jQuery "<div>"
                 .css "display": "inline"
@@ -857,17 +867,19 @@ the `cosh.execute` function above.
                     </div>
                     """
 
-            $countDiv = jQuery "<div>"
-            .html "<span class=slate_counter>#{origin}</span><br><br>"
+            $countDiv = jQuery "<div class=trace_footer>"
+            .html "<span class=trace-counter>#{origin}</span><br><br>"
             $traceDiv.append $countDiv
             traceDivs.push $traceDiv
 
-        $stackDiv = jQuery("<div>")
+        $stackDiv = jQuery "<div>"
         loop
             $stackDiv.append traceDivs.pop()
             break unless traceDivs.length
 
-        $messageDiv = jQuery("<xmp>").text(message).attr class: "color-bold unspaced"
+        $messageDiv = jQuery "<xmp>"
+        .text message
+        .attr class: "error-message color-bold unspaced"
         $stackDiv.append $messageDiv
         $board.append $stackDiv
         clock.scrollIntoView()
@@ -886,7 +898,7 @@ colouring it, before converting it into the jQuery object that the function retu
         end   = escape line.slice charNumber + 1
 
         char = line[charNumber]
-        look = if char then "color-bold" else "error_missing_char"
+        look = if char then "color-bold" else "error-missing-char"
         char = if char then escape char else "&nbsp;"
 
         lines[lineNumber] = "#{start}<span class=#{look}>#{char}</span>#{end}"
