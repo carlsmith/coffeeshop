@@ -1,75 +1,77 @@
 # Output Functions
 
-The are five output functions. Four append stuff to the board; one clears it.
+The are four output functions. Three append stuff to the board; one clears it.
 
 - `put` Appends a pretty printed evaluation of any expression to the board.
 - `peg` Appends a string of Markdown, a DOM node or a jQuery object to the board.
-- `append` Works like `peg`, but is more generic, for use in scripts.
-- `view` Appends Markdown to the board from a chit or a remote resource.
+- `print` Loads and pegs a resource to the board.
 - `clear` Clears the board.
 
-## Function: `put`
+## Introducing the `put` Function
 
 The `put` function takes a single argument, any object, and pretty prints it.
-Strings are printed in green; everything else is red.
+Strings are printed in green; everything else is pink.
 
 When you enter code in the shell, the last value to be evaluated is put
-automatically, so you don't need to call `put` yourself.
+automatically, so you often don't need to call `put` yourself.
 
-    2 ** 8
+    put key for key of localStorage
 
-## Function: `peg`
+## Introducing the `peg` Function
 
 The `peg` Function appends DOM stuff to the board. It accepts Markdown
-strings, which can include HTML.
+strings.
 
     peg """
-    # A Markdown Page
+        # A Markdown Page
 
-    - with bullet points and *emphasised text*
-    - some **bold text** and some `inline code`
-    """
+        - with bullet points and *emphasised text*
+        - some **bold text** and some `inline code`
+        """
+
+Anything within tags in a Markdown document is not compiled, so you can have a Markdown
+string which is all one `div` element, allowing for pure HTML Markdown strings.
 
 The `peg` function also accepts DOM nodes and jQuery objects.
 
     peg $("<img>").attr height: 256, src: "/images/logo.png"
 
-The first argument is internally normalised to a jQuery object. If you pass a
-function as the second argument, the jQuery object is passed to your function,
-which must return a jQuery object, which will then be appended.
+## Tweaking `put` and `peg` calls.
 
-    peg "*hello world*", (element) -> element.css color: "hotpink"
+The first argument to `put` and `peg` is internally normalised to a jQuery object. You can
+pass a string as an optional second argument to either, and that string will be *added to*
+the jQuery object's classes.
 
-You can pass a string as the second argument, instead of a function, and the
-string is simply added to any CSS classes the rendered object has.
+    peg "*foo*", "color-clock"
 
-## Function: `append`
+If you pass a function as the second argument to `put`, instead of a string, then the
+jQuery object is passed to your function, which should return a jQuery object that will
+be appended.
 
-The `append` function works just like the `peg` function, but is less magical.
-The `put` and `peg` functions use `append` internally, and add a class named
-`unspaced` to the output, which makes the output append directly below the input.
-This magic's helpful when you're hacking interactively ~ you never even think
-about it ~ but can be confusing in a script.
+    peg "*hello world*", (e) -> e.css color: "hotpink"
 
-The `append` function also returns the jQuery object it appends, where `put` and
-`peg` return `undefined`, and only the thing that was put or pegged is rendered.
+## Magic or More Magic
 
-    $foo = append "This *Markdown* is converted to the following jQuery object:"
-    .css color: "tomato"
+The `put` and `peg` functions both apply a little magic to help make them easier to use
+interactively. They internally add a class named `unspaced` to the output object so it
+is appended directly to the bottom of the board [without whitespace]. Both functions also
+return `undefined`, so they look clean when they're called.
 
-You can silence `append` in the shell by referencing a non-existant property last.
+Sometimes, and often in scripts, this magic becomes a bit counter-intuitive and annoying.
+Both `put` and `peg` have low-magic versions of themselves, named `put.low` and `peg.low`.
+The low-magic versions do not make the output `unspaced`, so they appear after a newline,
+and they return the jQuery object they append.
 
-    append "foo"
-    .addClass "unspaced"
-    .shush
+    peg.low "Some `code` example."
+    .css color: "sienna"
 
 ## Function: `clear`
 
 The `clear` function clears the board. This destroys anything that was on there.
 
-## Function: `view`
+## Function: `print`
 
-The `view` function takes a file hash, or a key for one, or a URL string. If the
+The `print` function takes a file hash, or a key for one, or a URL string. If the
 string is a URL, it's loaded and the content is rendered as Markdown. If the argument
 resolves to a file chit, the chit's content is rendered.
 
@@ -78,4 +80,4 @@ colon or a slash; if it does, it's a URL, else a key string.
 
 This line renders the next page in the book.
 
-    view "/docs/book/cosh_storage.md"
+    print "/docs/book/cosh_storage.md"

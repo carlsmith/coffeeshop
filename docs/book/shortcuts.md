@@ -6,20 +6,22 @@ is just called the *editor*.
 
 Note: The *Meta* key refers to the *Cmd* key on OS X and the *Ctrl* key on everything else.
 
-## Slate Keybindings
+## Slate Only Keybindings
 
 - `Meta.Enter`: Execute the contents of the slate
 - `Meta.Up`: Scroll back through your input history
 - `Meta.Down`: Scroll forward through your input history
-- `Meta.Esc`: Clear the board, destroying everything on it
-- `Meta.Dot`: Focus the editor
 
-## Editor Keybindings
+## Editor Only Keybindings
 
 - `Meta.Enter`: Execute the editor content or selected text
-- `Meta.S`: Set the chit [the current file] to local storage
-- `Meta.M`: Render the editor content or selected text as Markdown
-- `Meta.Dot`: Focus the slate
+
+## Slate and Editor Keybindings
+
+- `Meta.S`: Set the contents of the editor to local storage
+- `Meta.P`: Print the editor content or selected text as Markdown
+- `Meta.Dot`: Toggle focus, between the slate and the editor
+- `Meta.Esc`: Clear the board, destroying everything on it
 
 When executing the editor content, the source will be treated as Literate CoffeeScript if
 the chit key ends with `.coffee.md` or `.litcoffee`.

@@ -8,8 +8,8 @@ body {
     font-size: 12px;
     width: 640px }
 
-a:active { color: blue }
 a:hover { color: #FFBAF4; cursor: pointer }
+a:active { color: blue }
 
 xmp, .error { margin: 0 0 16px 0 }
 
@@ -17,10 +17,12 @@ img, video { max-height: 256px; max-width: 642px; padding: 16px 14px; }
 
 iframe { height: 315px; width: 642px }
 
-pre:hover { background: rgba(47, 75, 64, 0.28); cursor: pointer }
+pre:hover {
+    background: rgba(47, 75, 64, 0.28);
+    width: 614px;
+    cursor: pointer }
 
 #banner {
-    color: #999;
     cursor: default;
     background: #1A1A1A;
     padding: 4px 0 6px 4px;
@@ -32,7 +34,8 @@ pre:hover { background: rgba(47, 75, 64, 0.28); cursor: pointer }
 #shell-links { position: absolute; left: 277px }
 
 #editor-links {
-    position: absolute; left: 696px;
+    left: 696px;
+    position: absolute;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden; }
@@ -143,45 +146,45 @@ pre:hover { background: rgba(47, 75, 64, 0.28); cursor: pointer }
 
 #board .error-missing-char { border-bottom: 1px dotted #E18243 }
 
-#board .trace-counter { }
-
     /* Loose Ends */
 
 .cut:before { content: '|' }
 
 #board .unspaced { margin: -16px 0 16px 0 }
 
-#board .pprint {}
-
     /* Colors */
 
-.bg-color-main,
+.bgcolor-main,
     body,
     #editor { background: #1A1816 }
 
-.bg-color-bar,
+.bgcolor-bar,
     iframe,
     .banner { background: #141414 }
 
-.color-bright,
+.color-object { color: #CC8989 }
+
+.color-string,
     a,
     #filename,
     #file-description:focus,
     #file-description:hover { color: #B2D019 }
 
-.color-dull,
-    #footer,
-    #file-description,
-    .trace-counter,
-    .slate-counter { color: #4D774A }
-
-.color-high,
-    #board code { color: #EBBB00 }
-
-.color-bold,
+.color-operator,
     blockquote:before,
     blockquote:after,
     #board strong,
     #board input[type=password],
     #board input[type=submit],
+    #board .error-message,
     .cut:before { color: #E18243 }
+
+.color-code,
+    #board code { color: #EBBB00 }
+
+.color-clock,
+    #banner,
+    #footer,
+    #file-description,
+    .trace-counter,
+    .slate-counter { color: #4D774A }

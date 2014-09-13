@@ -22,10 +22,12 @@ from the conditional block. Don't use `then` after `else` as there's no boolean 
         else if name.endsWith ".coffee" then return "CoffeeScript"
         else return "Unknown"
 
-CoffeeScript conditionals are expressions. As ever, they evaluate to the last thing
-evaluated. Because CoffeeScript functions also return the last thing evaluated, the `return`
-statements in the above code are redundant. The function would implicitly return whatever
-the conditional evaluates to.
+## Everything's an Expression
+
+CoffeeScript conditionals are expressions, evaluating to the last thing evaluated. Because
+CoffeeScript functions also return the last thing evaluated, the `return` statements in the
+above code are redundant. The function would implicitly return whatever the conditional
+evaluates to.
 
     fileType = (name) ->
 
@@ -42,14 +44,18 @@ redundant with conditional expressions.
     a = if b then c else d
     foo(if a then b else c)
 
-CoffeeScript also adopted the Ruby idiom of suffixed `if` expressions.
-
-    x = y if y > 0
-    alert "foo" if true
-
-If any conditional fails to evaluate anything, then *it* evaluates to `undefined`.
+If any conditional evaluates without evaluating anything, then it evaluates to `undefined`.
 
     (if false then "foo") is undefined
+
+## Skip Conditionals
+
+CoffeeScript also adopted suffixed `if` expressions from Ruby. These expressions do not use
+`else`. They simply evaluate or skip the expression before the `if` operator, based on the
+truthiness of the expression that follows it.
+
+    a = 1 if true
+    put a if a is 1
 
 ---
 

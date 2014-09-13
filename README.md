@@ -33,18 +33,16 @@ have awesome methods out the box. You also have jQuery. Obviously.
 - **Self Compiling** Cosh is able to build itself from source on page load, so you can
 hack on the core without installing any dependencies, even on Windows.
 
-Set Up
-------
+Getting Set Up
+--------------
 
-[The Shell][1] and the Gallery are hosted on Google App Engine. You're
-welcome to use them ~ problem solved. If you'd rather not share personal
-data with Google, you can host you own instances, privately or publicly,
-very easily.
+[The Shell][1] and the Gallery are hosted on Google App Engine. You're free to use them
+~ no problem. If you'd rather not share personal data with Google, you can host you own
+instances, privately or publicly, very easily.
 
-The entire application is just static files, so you can serve it from any
-static file server, locally or online. Cosh only uses cross origin services,
-so the app will work the same way however it's hosted. Note that local storage
-is always per-origin.
+The entire application is just static files, so you can serve it from any static file
+server, locally or online. Cosh only uses cross origin services, so the app will work
+the same way however it's hosted. Note that local storage is always per-origin.
 
 If you'd like to hack on the CoffeeScript and Markdown source, you also only
 need a static file server on your local machine; you don't need to install any
@@ -71,16 +69,13 @@ CoffeeShop has no account system; it just uses local storage.
 Limitations
 -----------
 
+The shell and its API are stable.
+
 Only Chrome and Opera currently have the features needed to create tracebacks,
 so you'll need one of those to use the shell.
 
-The app's just been released. All the core features have been implemented and are
-pretty stable and documented. It's just a matter of testing things really.
-
-The docs still need some work. They cover using the app itself pretty well, but the
-CoffeeScript Language stuff is still really sketchy in places. The docs are being
-worked on currently. There's good CoffeeScript docs online already, and it's a very
-easy ~ and fun ~ language to learn if you already know JavaScript.
+The docs cover using the shell itself well, but our CoffeeScript language reference
+is still really sketchy in places. There's good CoffeeScript docs online already.
 
 License
 -------

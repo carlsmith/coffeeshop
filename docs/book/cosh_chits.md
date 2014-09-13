@@ -109,7 +109,7 @@ assuming the key exists.
 The `chit` function is used to create chits, mostly file chits. It can be called in a
 number of ways. The first argument is always required and must be the chit's cosh key.
 If you only pass that first argument, the chit returned will have that key and empty
-strings for its `content` and `description` properties.
+strings or its `content` and `description` properties.
 
 The second arg, if it's provided and it's a string, sets the `description`
 property.

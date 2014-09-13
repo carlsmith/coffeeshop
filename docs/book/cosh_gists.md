@@ -9,13 +9,13 @@ There are three functions for managing gists.
 File chits always have at least three string properties, named `coshKey`, `description`
 and `content`. These properties map to [gists][1], where the cosh key is used the gist's
 filename. Gist chits extend the file kind, adding three extra, required string properties,
-named `gistId`, `owner` and `galleryURL`. An example gist chit:
+named `gistID`, `owner` and `galleryURL`. An example gist chit:
 
     {
      "coshKey": "foo.coffee",
      "description": "Let foo be true.",
      "content": "foo = true",
-     "gistId": "98f97a41924ca81c9863",
+     "gistID": "98f97a41924ca81c9863",
      "owner": "johnDoe",
      "galleryURL": "https://gallery-cosh.appspot.com/#98f97a41924ca81c9863"
     }

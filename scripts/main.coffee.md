@@ -65,14 +65,18 @@ These are all local variables pointing to elements, most wrapped by jQuery.
 
 These are the links above the board.
 
-    jQuery("#home-link").click -> view "/docs/home.md"
-    jQuery("#more-link").click -> view "/docs/external.md"
-    jQuery("#book-link").click -> view "/docs/book/front.md"
+    jQuery("#home-link").click -> print "/docs/home.md"
+    jQuery("#more-link").click -> print "/docs/external.md"
+    jQuery("#book-link").click -> print "/docs/book/front.md"
 
 This is a simple webworker that updates the time on the clock in the footer.
 
     worker = new Worker "/scripts/cosh/clock_worker.js"
     worker.onmessage = (event) -> $clock.text event.data
+
+    $board
+    .on "mouseover", -> jQuery("body").css overflow: "scroll"
+    .on "mouseout",  -> jQuery("body").css overflow: "hidden"
 
 This is used internally as a more Pythonic thruthiness test.
 
@@ -161,7 +165,7 @@ This, using `doc`, resizes the slate on change.
 
         slateDiv.style.height = "#{16*doc.getLength()}px"
         slate.resize()
-        clock.scrollIntoView()
+        do clock.scrollIntoView
 
 This makes `pre` tags inside the board clickable, loading their content into the slate when
 clicked.
@@ -171,6 +175,81 @@ clicked.
         source = event.target.innerText.slice 0, -1
         if slate.getValue() isnt source then slate.push source
         else slate.focus()
+
+This keybinding makes `Meta.Up` rewind the input history.
+
+    slate.commands.addCommand
+        name: "rewind_history"
+        bindKey: win: "Ctrl-Up", mac: "Cmd-Up"
+        exec: ->
+            source = slate.getValue()
+            if pointer >= 0 and source isnt slate.history[pointer]
+                stash = source
+                pointer = slate.history.length
+            pointer -= 1
+            if pointer >= 0
+                slate.setValue slate.history[pointer]
+            else
+                slate.setValue "# THE END OF HISTORY..."
+                pointer = -1
+            slate.clearSelection 1
+            do clock.scrollIntoView
+
+This keybinding makes `Meta.Down` forward the input history.
+
+    slate.commands.addCommand
+        name: "forward_history"
+        bindKey: win: "Ctrl-Down", mac: "Cmd-Down"
+        exec: ->
+            source = slate.getValue()
+            if pointer isnt -1 and source isnt slate.history[pointer]
+                stash = source
+                pointer = slate.history.length
+            pointer += 1
+            if pointer < slate.history.length
+                slate.setValue slate.history[pointer]
+            else slate.setValue stash
+            slate.clearSelection 1
+            do clock.scrollIntoView
+
+This keybinding makes `Meta.Escape` clear the board.
+
+    slate.commands.addCommand
+        name: "clear_board"
+        bindKey: win: "Ctrl-Esc", mac: "Cmd-Esc"
+        exec: -> board.innerHTML = ""
+
+This keybinding makes `Meta.Dot` focus the editor.
+
+    slate.commands.addCommand
+        name: "focus_editor"
+        bindKey: win: "Ctrl-.", mac: "Cmd-."
+        exec: -> editor.focus()
+
+This keybinding makes `Meta.Enter` execute the slate content.
+
+    slate.commands.addCommand
+        name: "execute_slate"
+        bindKey: win: "Ctrl-Enter", mac: "Cmd-Enter"
+        exec: ->
+            source = slate.getValue()
+            source = source.lines (line) -> line.trimRight()
+            source = source.join '\n'
+            cosh.execute source if source
+
+This keybinding makes `Meta.S` call `editor.set` to set the chit to storage.
+
+    slate.commands.addCommand
+        name: "set_editor_chit"
+        bindKey: win: "Ctrl-S", mac: "Cmd-S"
+        exec: -> editor.set()
+
+This keybinding makes `Meta.P` call `slate.print` to print the slate.
+
+    slate.commands.addCommand
+        name: "print_editor"
+        bindKey: win: "Ctrl-P", mac: "Cmd-P"
+        exec: -> editor.print()
 
 This API function resets the line history. It actually just sets the history store and the
 volatile copy to empty arrays.
@@ -198,67 +277,6 @@ housekeeping to remove any older duplicate.
         slate.history.splice(index, 1) if index isnt -1
         pointer = slate.history.push source
 
-This keybinding makes `Meta.Up` rewind the input history.
-
-    slate.commands.addCommand
-        name: "rewind_history"
-        bindKey: win: "Ctrl-Up", mac: "Cmd-Up"
-        exec: ->
-            source = slate.getValue()
-            if pointer >= 0 and source isnt slate.history[pointer]
-                stash = source
-                pointer = slate.history.length
-            pointer -= 1
-            if pointer >= 0
-                slate.setValue slate.history[pointer]
-            else
-                slate.setValue "# THE END OF HISTORY..."
-                pointer = -1
-            slate.clearSelection 1
-            clock.scrollIntoView()
-
-This keybinding makes `Meta.Down` forward the input history.
-
-    slate.commands.addCommand
-        name: "forward_history"
-        bindKey: win: "Ctrl-Down", mac: "Cmd-Down"
-        exec: ->
-            source = slate.getValue()
-            if pointer isnt -1 and source isnt slate.history[pointer]
-                stash = source
-                pointer = slate.history.length
-            pointer += 1
-            if pointer < slate.history.length
-                slate.setValue slate.history[pointer]
-            else slate.setValue stash
-            slate.clearSelection 1
-            clock.scrollIntoView()
-
-This keybinding makes `Meta.Escape` clear the board.
-
-    slate.commands.addCommand
-        name: "clear_board"
-        bindKey: win: "Ctrl-Esc", mac: "Cmd-Esc"
-        exec: -> board.innerHTML = ""
-
-This keybinding makes `Meta.Dot` focus the editor.
-
-    slate.commands.addCommand
-        name: "focus_editor"
-        bindKey: win: "Ctrl-.", mac: "Cmd-."
-        exec: -> editor.focus()
-
-This keybinding makes `Meta.Enter` execute the slate content.
-
-    slate.commands.addCommand
-        name: "execute_slate"
-        bindKey: win: "Ctrl-Enter", mac: "Cmd-Enter"
-        exec: ->
-            source = slate.getValue()
-            source = source.lines (line) -> line.trimRight()
-            source = source.join '\n'
-            cosh.execute source if source
-
 ## The Editor
 
 The editor is another instance of slate with a few extras for ensuring the hash status
@@ -284,12 +302,12 @@ This keybinding makes `Meta.Enter` call `editor.run` to execute some code.
         bindKey: win: "Ctrl-Enter", mac: "Cmd-Enter"
         exec: -> editor.run()
 
-This keybinding makes `Meta.M` call `editor.render` to view some Markdown.
+This keybinding makes `Meta.P` call `editor.print` to print some Markdown.
 
     editor.commands.addCommand
-        name: "render_page"
-        bindKey: win: "Ctrl-M", mac: "Cmd-M"
-        exec: -> editor.render()
+        name: "print_chit"
+        bindKey: win: "Ctrl-P", mac: "Cmd-P"
+        exec: -> editor.print()
 
 This keybinding makes `Meta.S` call `editor.set` to set the chit to storage.
 
@@ -298,6 +316,13 @@ This keybinding makes `Meta.S` call `editor.set` to set the chit to storage.
         bindKey: win: "Ctrl-s", mac: "Cmd-s"
         exec: -> editor.set()
 
+This keybinding makes `Meta.Escape` clear the board.
+
+    editor.commands.addCommand
+        name: "clear_board"
+        bindKey: win: "Ctrl-Esc", mac: "Cmd-Esc"
+        exec: -> board.innerHTML = ""
+
 This keybinding makes `Meta.Dot` focus the slate.
 
     editor.commands.addCommand
@@ -305,7 +330,7 @@ This keybinding makes `Meta.Dot` focus the slate.
         bindKey: win: "Ctrl-.", mac: "Cmd-."
         exec: ->
             slate.focus()
-            clock.scrollIntoView()
+            do clock.scrollIntoView
 
 This keybinding makes `Shift.Tab` move the focus to the description div, but only if no
 code is selected, else it indents the code as Ace normally would.
@@ -325,15 +350,16 @@ selected, using the cosh key as the file name. It supports Literate CoffeeScript
         source = editor.getCopyText() or editor.getValue()
         toastr.info currentFile.coshKey, "Editor Running", timeOut: 1000
         cosh.execute source, currentFile.coshKey
-        slate.focus()
+
+        undefined
 
 This API function renders the currently selected text, or the whole content if nothing is
 selected, to the board as Markdown.
 
-    editor.render = ->
+    editor.print = ->
 
         source = editor.getCopyText() or editor.getValue()
-        append source.compile "md", "page"
+        peg.low source.compile "md", "page"
 
         undefined
 
@@ -358,7 +384,8 @@ This API function opens a chit in the editor. It's available globally too as `ed
         editor.gotoLine 1
         editor.getSession().setScrollTop 1
         editor.focus()
-        return
+
+        undefined
 
 This API function sets the current chit, `currentFile`, to local storage.
 
@@ -401,15 +428,19 @@ This event handler is bound to the description div, and gives it all it's keybin
 
         if event.which is 9 or event.which is 13
             editor.focus()
-            return event.preventDefault()
-        return if not event.ctrlKey or not event.metaKey
+            event.preventDefault()
+            return
+
+        return if not (event.ctrlKey or event.metaKey)
+
         if event.which is 190
             slate.focus()
-            return event.preventDefault()
-        key = String.fromCharCode event.which
-        return if key.toLowerCase() isnt 's'
-        event.preventDefault()
-        editor.set()
+            event.preventDefault()
+            return
+
+        if String.fromCharCode(event.which).toLowerCase() is 's'
+            event.preventDefault()
+            editor.set()
 
 ## The Shell API
 
@@ -442,61 +473,65 @@ The `run` method from [the API](/docs/book/cosh_chits.md).
 
 The `put` method from [the API](/docs/book/cosh_output.md).
 
-    window.put = (arg) ->
+    window.put = (args...) ->
 
-        color = '#CC8989'
+        text = bool $board.text()
+        output = put.low args...
+        output.addClass "unspaced" if text
+
+        undefined
+
+    put.low = (args...) ->
+
+        arg = args[0]
+        kind = "color-object"
+
         if arg is null then arg = "null"
-        else if arg is undefined then return clock.scrollIntoView()
+        else if arg is undefined then return do clock.scrollIntoView
         else if arg.isDate?() then arg = arg.format()
         else if arg.isString?()
-            if arg then color = "#B2D019"
-            else arg = "empty string"
+            if arg then kind = "color-string" else arg = "empty string"
         else
             try arg = pprint.parse(arg)
             catch error then arg = arg.toString()
 
-        $div = jQuery("<xmp>").html arg
-        if color then $div.css color: color
-        unless $board.text() then append $div, "pprint"
-        else append $div, "pprint unspaced"
+        peg.low jQuery("<xmp>"), args[1]
+        .addClass kind
+        .html arg
+
+The `peg` method from [the API](/docs/book/cosh_output.md).
+
+    window.peg = (args...) ->
+
+        text = bool $board.text()
+        output = peg.low args...
+        output.addClass "unspaced" if text
 
         undefined
 
-The `append` method from [the API](/docs/book/cosh_output.md).
+    peg.low = (tree, options) ->
 
-    window.append = (tree, options) ->
-
-        if not tree? then $tree = jQuery "<div>"
+        if tree instanceof jQuery then $tree = tree
         else if tree instanceof HTMLElement then $tree = jQuery tree
-        else if tree instanceof jQuery then $tree = tree
         else if tree.isString?() then $tree = jQuery("<div>").html tree.compile "md"
         else $tree = jQuery("<xmp>").html tree.toString()
 
         if options isnt undefined
             if options.isString?() then $tree.first().addClass options
-            else $tree = options($tree)
+            else $tree = options $tree
 
         $board.append $tree
 
         if $tree[0].className is "page"
             jQuery("html")
             .animate { scrollTop: $tree.offset().top - 27 }, duration: 150
-        else clock.scrollIntoView()
+        else do clock.scrollIntoView
 
         $tree.children("h1").each ->
             tail = ":".repeat 87 - this.innerText.length
-            this.innerHTML += "<span class=color-bold> #{tail}</span>"
+            this.innerHTML += "<span class=color-operator> #{tail}</span>"
 
         $tree
-
-The `peg` method from [the API](/docs/book/cosh_output.md).
-
-    window.peg = (args...) ->
-
-        empty = !! $board.text()
-        output = append(args...)
-        output.addClass "unspaced" if empty
-        undefined
 
 The `load` method was an API method, and is no more. It's still used internally to make
 blocking requests for remote resources.
@@ -514,16 +549,16 @@ blocking requests for remote resources.
 
         output
 
-The `view` method from [the API](/docs/book/cosh_output.md).
+The `print` method from [the API](/docs/book/cosh_output.md).
 
-    window.view = (target) ->
+    window.print = (target) ->
 
         if target.isString()
             if remote target
-                if data = load target then append data, "page"
+                if data = load target then peg.low data, "page"
                 else toastr.error "#{target} not found", "View Failed"
-            else if data = get target then append data.content, "page"
-        else append target.content, "page"
+            else if data = get target then peg.low data.content, "page"
+        else peg.low target.content, "page"
 
         undefined
 
@@ -539,19 +574,27 @@ of helpful locals.
     authStore = "coshGitHubAuth"
     gistEndpoint = (path) -> "https://api.github.com#{path}"
 
+This function can be called with no arguments and it'll attempt to return the GitHub
+credentials for the browser, else `null`. I can be called with two arguments, a username
+and password, and it'll save them to local storage.
+
     auth = (args...) ->
 
         if args.length is 0
             authHash = get(authStore) or sessionStorage.getItem(authStore)
-            if authHash?.isString() then JSON.parse authHash
-            else authHash
+            if authHash?.isString() then JSON.parse authHash else authHash
         else set authStore, { username: args[0], password: args[1] }
+
+This function is called to create a basic auth header string. It'll return `null` if no
+credentials are found.
 
     authHeader = ->
 
         return unless authData = auth()
         authData = btoa "#{authData.username}:#{authData.password}"
         Authorization: "Basic #{authData}"
+
+This function creates a gist chit from the JSON returned by the GitHub API.
 
     gist2chit = (gistHash) ->
 
@@ -560,15 +603,18 @@ of helpful locals.
             coshKey: core.filename
             description: gistHash.description
             content: core.content
-            gistId: gistHash.id
+            gistID: gistHash.id
             owner: gistHash.owner.login
             galleryURL: "https://gallery-cosh.appspot.com/##{gistHash.id}"
+
+This makes the auth banner link load the form defined here and binds a couple of handlers
+to it.
 
     jQuery("#auth-link").click ->
 
         formID = "coshID#{uniquePin()}"
 
-        append """
+        peg.low """
             # GitHub Auth
             To publish or push to gists from cosh, you'll need to provide
             your GitHub username and password.
@@ -616,6 +662,8 @@ of helpful locals.
 
         undefined
 
+The `publish` function from the [API](/docs/book/cosh_gists.md).
+
     window.publish = (target, published=true) ->
 
         output = undefined
@@ -645,9 +693,11 @@ of helpful locals.
                 toastr.error reason, "Publishing failed"
             success: (data) ->
                 output = gist2chit data
-                toastr.success output.gistId, "Published Gist"
+                toastr.success output.gistID, "Published Gist"
 
         output
+
+The `push` function from the [API](/docs/book/cosh_gists.md).
 
     window.push = (target) ->
 
@@ -657,7 +707,7 @@ of helpful locals.
         unless target
             toastr.error "Hash not found.", "Push Failed"
             return
-        unless target.gistId
+        unless target.gistID
             toastr.error "#{target.coshKey} is unpublished.", "Push Failed"
             return
         unless authData = authHeader()
@@ -673,7 +723,7 @@ of helpful locals.
             type: "PATCH"
             data: JSON.stringify data
             async: false
-            url: gistEndpoint "/gists/#{target.gistId}"
+            url: gistEndpoint "/gists/#{target.gistID}"
             headers: authData
             error: (result) ->
                 reason = JSON.parse(result.responseText).message
@@ -684,22 +734,26 @@ of helpful locals.
 
         output
 
-    window.clone = (gistId) ->
+The `publish` function from the [API](/docs/book/cosh_gists.md).
+
+    window.clone = (gistID) ->
 
         output = undefined
 
         jQuery.ajax
             type: "GET"
             async: false
-            url: gistEndpoint "/gists/#{gistId}"
+            url: gistEndpoint "/gists/#{gistID}"
             success: (data) -> output = gist2chit data
             error: (data) -> toastr.error "Gist not found.", "Clone Failed"
 
         output
 
-    window.gallery = (gistId) ->
+The `gallery` function from the [API](/docs/book/cosh_publishing.md).
 
-        open "https://gallery-cosh.appspot.com/##{gistId}"
+    window.gallery = (gistID) ->
+
+        open "https://gallery-cosh.appspot.com/##{gistID}"
         undefined
 
     window.chit = (args...) ->
@@ -734,6 +788,9 @@ of helpful locals.
         options.coshKey = key
         options
 
+The following code pre-loads docs into a cache when the user mouses over a link to them,
+assuming the doc hasn't been cached already. This speeds things up a lot.
+
     pageCache = {}
 
     getHref = (event) ->
@@ -749,10 +806,10 @@ of helpful locals.
     $board.on "click", "a", (event) ->
         path = getHref event
         if path.endsWith ".md"
-            if file = pageCache[path] then append file, "page"
+            if file = pageCache[path] then peg.low file, "page"
             else jQuery.get path, (file) ->
                 pageCache[path] = file
-                append file, "page"
+                peg.low file, "page"
         else open path
 
     $board.on "mouseover", "a", (event) ->
@@ -787,14 +844,14 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
 
             $board.append(
                 jQuery "<div>"
-                .attr "class", "color-bold"
+                .attr "class", "color-operator"
                 .append highlightTrace source, line, column
                 .append jQuery("<xmp>").text message
                 )
 
             slate.updateHistory source if shell
             slate.setValue ""
-            return clock.scrollIntoView()
+            return do clock.scrollIntoView
 
         if shell
 
@@ -822,7 +879,8 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
             $source?.remove()
             throw error
 
-        put result if shell
+        put.low result, "unspaced" if shell
+        do clock.scrollIntoView
 
 ### Exception Handling
 
@@ -862,7 +920,7 @@ the `cosh.execute` function above.
                 $traceDiv = jQuery """
                     <div>
                     <span class=error>JavaScriptError in
-                    <span class=color-bold>#{trace.methodName}</span>
+                    <span class=color-operator>#{trace.methodName}</span>
                     [#{trace.lineNumber}:#{trace.column}]</span>
                     </div>
                     """
@@ -879,10 +937,10 @@ the `cosh.execute` function above.
 
         $messageDiv = jQuery "<xmp>"
         .text message
-        .attr class: "error-message color-bold unspaced"
+        .attr class: "error-message unspaced"
         $stackDiv.append $messageDiv
         $board.append $stackDiv
-        clock.scrollIntoView()
+        do clock.scrollIntoView
 
 This highlights the source code for single item in a stacktrace, escaping the code and
 colouring it, before converting it into the jQuery object that the function returns.
@@ -898,7 +956,7 @@ colouring it, before converting it into the jQuery object that the function retu
         end   = escape line.slice charNumber + 1
 
         char = line[charNumber]
-        look = if char then "color-bold" else "error-missing-char"
+        look = if char then "color-operator" else "error-missing-char"
         char = if char then escape char else "&nbsp;"
 
         lines[lineNumber] = "#{start}<span class=#{look}>#{char}</span>#{end}"
@@ -1004,7 +1062,7 @@ the page is destroyed.
 
         unless get "config.coffee" then set chit "config.coffee",
             description: "Run on boot unless in safe mode."
-            content: 'view "/docs/home.md"'
+            content: 'print "/docs/home.md"'
 
         $brand.css color: "#E18243"
         .text if launchCode is "safemode" then "Safe Mode" else "CoffeeShop"

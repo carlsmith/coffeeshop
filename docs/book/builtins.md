@@ -39,8 +39,7 @@ explained properly later. For now, just think of them as files.
 
 - `put` Appends a pretty printed evaluation of any expression to the board.
 - `peg` Appends a string of Markdown, a DOM node or a jQuery object to the board.
-- `append` Works like `peg`, but is more generic, for use in scripts.
-- `view` Appends Markdown to the board from a chit or a remote resource.
+- `print` Loads a local or remote resource and prints it.
 - `clear` Clears the board.
 
 [Storage Functions](/docs/book/cosh_storage.md)
@@ -69,6 +68,7 @@ methods. A couple of extras have been added.
 - `editor` The chit editor's ACE instance.
     - `editor.set` Set the current chit to storage.
     - `editor.run` Run the highlighted code or all the code.
+    - `editor.print` Print the highlighted code or all the code.
 
 ## Builtin Libraries
 
