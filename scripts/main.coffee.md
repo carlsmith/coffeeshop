@@ -35,8 +35,10 @@ Gallery mode is based on the URL. Port `9090` is supported on localhost for deve
         "localhost:9090"
         ]
 
-Setup the [Marked parser](https://github.com/chjj/marked) options.
+Set jQuery to not cache ajax requests, and disable the
+[Marked parser](https://github.com/chjj/marked)'s `sanitize` option.
 
+    jQuery.ajaxSetup cache: false
     marked.setOptions sanitize: false
 
 This needs changing so the method isn't iterable. The method is documented
