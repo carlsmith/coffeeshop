@@ -40,7 +40,7 @@ Setup the [Marked parser](https://github.com/chjj/marked) options.
     marked.setOptions sanitize: false
 
 This needs changing so the method isn't iterable. The method is documented
-[here](/docs/book/string.compile.md).
+[here](/docs/string.compile.md).
 
     String::compile = (lang, options={}) ->
 
@@ -67,7 +67,7 @@ These are the links above the board.
 
     jQuery("#home-link").click -> print "/docs/home.md"
     jQuery("#more-link").click -> print "/docs/external.md"
-    jQuery("#book-link").click -> print "/docs/book/front.md"
+    jQuery("#book-link").click -> print "/docs/front.md"
 
 This is a simple webworker that updates the time on the clock in the footer.
 
@@ -88,14 +88,14 @@ This is used internally as a more Pythonic thruthiness test.
 
 ## The Output Functions
 
-The `get` method from [the API](/docs/book/cosh_storage.md).
+The `get` method from [the API](/docs/storage.md).
 
     window.get = (key) ->
 
         item = localStorage.getItem key
         if item then JSON.parse item
 
-The `set` method from [the API](/docs/book/cosh_storage.md).
+The `set` method from [the API](/docs/storage.md).
 
     window.set = (args...) ->
 
@@ -116,7 +116,7 @@ The `set` method from [the API](/docs/book/cosh_storage.md).
 
         value
 
-The `pop` method from [the API](/docs/book/cosh_storage.md).
+The `pop` method from [the API](/docs/storage.md).
 
     window.pop = (target) ->
 
@@ -452,7 +452,7 @@ This function is used internally to decide whether a string is a URL or storage 
 
     remote = (path) -> "/" in path
 
-The `run` method from [the API](/docs/book/cosh_chits.md).
+The `run` method from [the API](/docs/files.md).
 
     window.run = (target) ->
 
@@ -471,7 +471,7 @@ The `run` method from [the API](/docs/book/cosh_chits.md).
 
         undefined
 
-The `put` method from [the API](/docs/book/cosh_output.md).
+The `put` method from [the API](/docs/output.md).
 
     window.put = (args...) ->
 
@@ -499,7 +499,7 @@ The `put` method from [the API](/docs/book/cosh_output.md).
         .addClass kind
         .html arg
 
-The `peg` method from [the API](/docs/book/cosh_output.md).
+The `peg` method from [the API](/docs/output.md).
 
     window.peg = (args...) ->
 
@@ -549,7 +549,7 @@ blocking requests for remote resources.
 
         output
 
-The `print` method from [the API](/docs/book/cosh_output.md).
+The `print` method from [the API](/docs/output.md).
 
     window.print = (target) ->
 
@@ -562,7 +562,7 @@ The `print` method from [the API](/docs/book/cosh_output.md).
 
         undefined
 
-The `clear` method from [the API](/docs/book/cosh_output.md).
+The `clear` method from [the API](/docs/output.md).
 
     window.clear = -> $board.html("").shush
 
@@ -662,7 +662,7 @@ to it.
 
         undefined
 
-The `publish` function from the [API](/docs/book/cosh_gists.md).
+The `publish` function from the [API](/docs/gists.md).
 
     window.publish = (target, published=true) ->
 
@@ -697,7 +697,7 @@ The `publish` function from the [API](/docs/book/cosh_gists.md).
 
         output
 
-The `push` function from the [API](/docs/book/cosh_gists.md).
+The `push` function from the [API](/docs/gists.md).
 
     window.push = (target) ->
 
@@ -734,7 +734,7 @@ The `push` function from the [API](/docs/book/cosh_gists.md).
 
         output
 
-The `publish` function from the [API](/docs/book/cosh_gists.md).
+The `publish` function from the [API](/docs/gists.md).
 
     window.clone = (gistID) ->
 
@@ -749,7 +749,7 @@ The `publish` function from the [API](/docs/book/cosh_gists.md).
 
         output
 
-The `gallery` function from the [API](/docs/book/cosh_publishing.md).
+The `gallery` function from the [API](/docs/publishing.md).
 
     window.gallery = (gistID) ->
 
@@ -1020,7 +1020,7 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
 
 
     jQuery("#favicon").attr href: "/images/skull_up.png"
-    toastr.success "Powered by CoffeeScript (#{coffee.VERSION})", "CoffeeShop Beta"
+    toastr.info "Powered by CoffeeScript (#{coffee.VERSION})", "CoffeeShop: The HTML5 Shell"
 
 ### Gallery Mode
 

@@ -69,13 +69,8 @@ CoffeeShop has no account system; it just uses local storage.
 Limitations
 -----------
 
-The shell and its API are stable.
-
 Only Chrome and Opera currently have the features needed to create tracebacks,
 so you'll need one of those to use the shell.
-
-The docs cover using the shell itself well, but our CoffeeScript language reference
-is still really sketchy in places. There's good CoffeeScript docs online already.
 
 License
 -------

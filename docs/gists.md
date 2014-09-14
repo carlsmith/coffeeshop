@@ -56,6 +56,6 @@ the gist chit.
 You need a GitHub account to publish gists through cosh and to push to them.
 Use the auth link in the banner to manage log in.
 
-Next Page: [Publishing](/docs/book/cosh_publishing.md)
+Next Page: [Publishing](/docs/publishing.md)
 
 [1]: https://gist.github.com

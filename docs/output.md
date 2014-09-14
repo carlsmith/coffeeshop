@@ -12,10 +12,10 @@ The are four output functions. Three append stuff to the board; one clears it.
 The `put` function takes a single argument, any object, and pretty prints it.
 Strings are printed in green; everything else is pink.
 
+    put key for key of localStorage
+
 When you enter code in the shell, the last value to be evaluated is put
 automatically, so you often don't need to call `put` yourself.
-
-    put key for key of localStorage
 
 ## Introducing the `peg` Function
 
@@ -44,8 +44,8 @@ the jQuery object's classes.
 
     peg "*foo*", "color-clock"
 
-If you pass a function as the second argument to `put`, instead of a string, then the
-jQuery object is passed to your function, which should return a jQuery object that will
+If you pass a function as the second argument to `put` or `peg`, instead of a string, then
+the jQuery object is passed to your function, which should return a jQuery object that will
 be appended.
 
     peg "*hello world*", (e) -> e.css color: "hotpink"
@@ -75,9 +75,9 @@ The `print` function takes a file hash, or a key for one, or a URL string. If th
 string is a URL, it's loaded and the content is rendered as Markdown. If the argument
 resolves to a file chit, the chit's content is rendered.
 
-URLs are distinguished from key strings by simply checking if the string contains a
-colon or a slash; if it does, it's a URL, else a key string.
+URLs are distinguished from key strings by simply checking if the string contains a slash;
+if it does, it's a URL, else a key string.
 
 This line renders the next page in the book.
 
-    print "/docs/book/cosh_storage.md"
+    print "/docs/storage.md"

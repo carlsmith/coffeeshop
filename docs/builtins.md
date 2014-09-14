@@ -17,7 +17,7 @@ inherit from them.
 
     [].equals []
 
-Strings also have a [`compile`](/docs/book/string.compile.md) method you can
+Strings also have a [`compile`](/docs/string.compile.md) method you can
 use to compile strings of CoffeeScript and Markdown.
 
 As ever, [jQuery][3] is available globally as `jQuery` and `$`, and [toastr][4]
@@ -35,20 +35,20 @@ name, then opens it in the editor.
 The shell functions are listed below. chits are basically hashes and are
 explained properly later. For now, just think of them as files.
 
-[Output Functions](/docs/book/cosh_output.md)
+[Output Functions](/docs/output.md)
 
 - `put` Appends a pretty printed evaluation of any expression to the board.
 - `peg` Appends a string of Markdown, a DOM node or a jQuery object to the board.
 - `print` Loads a local or remote resource and prints it.
 - `clear` Clears the board.
 
-[Storage Functions](/docs/book/cosh_storage.md)
+[Storage Functions](/docs/storage.md)
 
 - `set` Sets a value to localStorage, then returns it.
 - `get` Gets a value from localStorage , then returns it.
 - `pop` Removes a value from localStorage, then returns it.
 
-[Chit Functions](/docs/book/cosh_chits.md)
+[Chit Functions](/docs/chits.md)
 
 - `chit` Creates a chit from its arguments.
 - `edit` Open a chit in the editor.

@@ -42,4 +42,4 @@ doesn't exist.
 
 Next Page: [Chits][1]
 
-[1]: /docs/book/cosh_chits.md
+[1]: /docs/chits.md

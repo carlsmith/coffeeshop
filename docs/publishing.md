@@ -1,9 +1,8 @@
 # Publishing
 
-Once a chit is published as a Gist, you or anyone else can run the script in
-a shell, as easy as `run clone "98f97a41924ca81c9863"`. Doing this **can
-be dangerous**. You are trusting the person who wrote the code not to do bad
-stuff.
+Once a chit is published as a Gist, you or anyone else can run the script in a shell, as
+easy as `run clone "98f97a41924ca81c9863"`. Doing this **can be dangerous**. You're
+trusting the person who wrote the code not to do bad stuff.
 
 ## The Gallery
 
