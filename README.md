@@ -30,8 +30,8 @@ times more ninja.
 - **Sweet Runtime** The SugarJS Library is applied wholesale, so native types all
 have awesome methods out the box. You also have jQuery. Obviously.
 - **Documented** Built in, interactive documentation, using Markdown.
-- **Self Compiling** Cosh is able to build itself from source on page load, so you can
-hack on the core without installing any dependencies, even on Windows.
+- **Self Compiling** Cosh is able to build itself from source on page load, so you
+can hack on the core without installing any dependencies, even on Windows.
 
 Getting Set Up
 --------------

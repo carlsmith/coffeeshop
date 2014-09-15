@@ -38,8 +38,8 @@ Gallery mode is based on the URL. Port `9090` is supported on localhost for deve
 Set jQuery to not cache ajax requests, and disable the
 [Marked parser](https://github.com/chjj/marked)'s `sanitize` option.
 
-    jQuery.ajaxSetup cache: false
-    marked.setOptions sanitize: false
+    jQuery.ajaxSetup cache: no
+    marked.setOptions sanitize: no
 
 This needs changing so the method isn't iterable. The method is documented
 [here](/docs/string.compile.md).
@@ -102,20 +102,24 @@ The `set` method from [the API](/docs/storage.md).
     window.set = (args...) ->
 
         return if undefined in args
+
         switch args.length
             when 1 then [key, value] = [ args[0].coshKey, args[0] ]
             when 2 then [key, value] = args
             else return toastr.error "Wrong number of args.", "Set Failed"
+
         unless key
             toastr.error "Bad args.", "Set Failed"
             return
-        if remote key
-            toastr.error "Key contains illegal characters.", "Set Failed"
-            return
-        if value.coshKey then value.coshKey = key
-        localStorage.setItem key, JSON.stringify value
-        editor.updateCurrentFile()
 
+        if remote key
+            toastr.error "Keys must not contain slashes.", "Set Failed"
+            return
+
+        if value.coshKey then value.coshKey = key
+
+        localStorage.setItem key, JSON.stringify value
+        do editor.updateCurrentFile
         value
 
 The `pop` method from [the API](/docs/storage.md).
@@ -127,9 +131,7 @@ The `pop` method from [the API](/docs/storage.md).
         item = get key
         return toastr.error "Nothing at #{target}.", "Pop Failed" unless item
         localStorage.removeItem key
-        toastr.success target, "Popped From Local Storage"
-        editor.updateStatus()
-
+        do editor.updateStatus
         item
 
 ## The Slate
@@ -145,7 +147,7 @@ the footer focusses the slate to make it easier to click into when it's small.
     pointer = slate.history.length
     stash = ""
 
-    jQuery('#footer').click -> slate.focus()
+    jQuery('#footer').click -> do slate.focus
 
 Configure the slate, an instance of Ace.
 
@@ -165,8 +167,8 @@ This, using `doc`, resizes the slate on change.
 
     slate.on "change", ->
 
-        slateDiv.style.height = "#{16*doc.getLength()}px"
-        slate.resize()
+        slateDiv.style.height = "#{ 16 * do doc.getLength }px"
+        do slate.resize
         do clock.scrollIntoView
 
 This makes `pre` tags inside the board clickable, loading their content into the slate when
@@ -176,7 +178,7 @@ clicked.
 
         source = event.target.innerText.slice 0, -1
         if slate.getValue() isnt source then slate.push source
-        else slate.focus()
+        else do slate.focus
 
 This keybinding makes `Meta.Up` rewind the input history.
 
@@ -184,7 +186,7 @@ This keybinding makes `Meta.Up` rewind the input history.
         name: "rewind_history"
         bindKey: win: "Ctrl-Up", mac: "Cmd-Up"
         exec: ->
-            source = slate.getValue()
+            source = do slate.getValue
             if pointer >= 0 and source isnt slate.history[pointer]
                 stash = source
                 pointer = slate.history.length
@@ -203,7 +205,7 @@ This keybinding makes `Meta.Down` forward the input history.
         name: "forward_history"
         bindKey: win: "Ctrl-Down", mac: "Cmd-Down"
         exec: ->
-            source = slate.getValue()
+            source = do slate.getValue
             if pointer isnt -1 and source isnt slate.history[pointer]
                 stash = source
                 pointer = slate.history.length
@@ -226,7 +228,7 @@ This keybinding makes `Meta.Dot` focus the editor.
     slate.commands.addCommand
         name: "focus_editor"
         bindKey: win: "Ctrl-.", mac: "Cmd-."
-        exec: -> editor.focus()
+        exec: -> do editor.focus
 
 This keybinding makes `Meta.Enter` execute the slate content.
 
@@ -234,8 +236,8 @@ This keybinding makes `Meta.Enter` execute the slate content.
         name: "execute_slate"
         bindKey: win: "Ctrl-Enter", mac: "Cmd-Enter"
         exec: ->
-            source = slate.getValue()
-            source = source.lines (line) -> line.trimRight()
+            source = do slate.getValue
+            source = source.lines (line) -> do line.trimRight
             source = source.join '\n'
             cosh.execute source if source
 
@@ -244,14 +246,14 @@ This keybinding makes `Meta.S` call `editor.set` to set the chit to storage.
     slate.commands.addCommand
         name: "set_editor_chit"
         bindKey: win: "Ctrl-S", mac: "Cmd-S"
-        exec: -> editor.set()
+        exec: -> do editor.set
 
 This keybinding makes `Meta.P` call `slate.print` to print the slate.
 
     slate.commands.addCommand
         name: "print_editor"
         bindKey: win: "Ctrl-P", mac: "Cmd-P"
-        exec: -> editor.print()
+        exec: -> do editor.print
 
 This API function resets the line history. It actually just sets the history store and the
 volatile copy to empty arrays.
@@ -263,7 +265,7 @@ history. The push to the input history is actually done by `slate.updateHistory`
 
     slate.push = (source) ->
 
-        value = slate.getValue()
+        value = do slate.getValue
         slate.updateHistory value if value
         slate.setValue source
         slate.clearSelection 1
@@ -302,21 +304,21 @@ This keybinding makes `Meta.Enter` call `editor.run` to execute some code.
     editor.commands.addCommand
         name: "execute_editor"
         bindKey: win: "Ctrl-Enter", mac: "Cmd-Enter"
-        exec: -> editor.run()
+        exec: -> do editor.run
 
 This keybinding makes `Meta.P` call `editor.print` to print some Markdown.
 
     editor.commands.addCommand
         name: "print_chit"
         bindKey: win: "Ctrl-P", mac: "Cmd-P"
-        exec: -> editor.print()
+        exec: -> do editor.print
 
 This keybinding makes `Meta.S` call `editor.set` to set the chit to storage.
 
     editor.commands.addCommand
         name: "set_chit"
         bindKey: win: "Ctrl-s", mac: "Cmd-s"
-        exec: -> editor.set()
+        exec: -> do editor.set
 
 This keybinding makes `Meta.Escape` clear the board.
 
@@ -331,7 +333,7 @@ This keybinding makes `Meta.Dot` focus the slate.
         name: "focus_slate"
         bindKey: win: "Ctrl-.", mac: "Cmd-."
         exec: ->
-            slate.focus()
+            do slate.focus
             do clock.scrollIntoView
 
 This keybinding makes `Shift.Tab` move the focus to the description div, but only if no
@@ -342,7 +344,7 @@ code is selected, else it indents the code as Ace normally would.
         bindKey: win: "Shift-Tab", mac: "Shift-Tab"
         exec: ->
             if editor.getCopyText() then editor.blockOutdent()
-            else $descriptionDiv.focus()
+            else do $descriptionDiv.focus
 
 This API function executes the currently selected text, or the whole content if nothing is
 selected, using the cosh key as the file name. It supports Literate CoffeeScript files.
@@ -394,7 +396,7 @@ This API function sets the current chit, `currentFile`, to local storage.
     editor.set = ->
 
         currentFile.description = $descriptionDiv.text() or "?"
-        currentFile.content = editor.getValue()
+        currentFile.content = do editor.getValue
         set currentFile
         $nameDiv.css color: "#B2D019"
         currentFile
@@ -419,7 +421,7 @@ found in local storage.
 
         update = get currentFile.coshKey
         currentFile = update if update
-        editor.updateStatus()
+        do editor.updateStatus
 
     editor.on "change", editor.updateStatus
     $descriptionDiv.on "input", editor.updateStatus
@@ -429,20 +431,20 @@ This event handler is bound to the description div, and gives it all it's keybin
     $descriptionDiv.bind "keydown", (event) ->
 
         if event.which is 9 or event.which is 13
-            editor.focus()
-            event.preventDefault()
+            do editor.focus
+            do event.preventDefault
             return
 
         return if not (event.ctrlKey or event.metaKey)
 
         if event.which is 190
-            slate.focus()
-            event.preventDefault()
+            do event.preventDefault
+            do slate.focus
             return
 
         if String.fromCharCode(event.which).toLowerCase() is 's'
-            event.preventDefault()
-            editor.set()
+            do event.preventDefault
+            do editor.set
 
 ## The Shell API
 
@@ -458,13 +460,10 @@ The `run` method from [the API](/docs/files.md).
 
     window.run = (target) ->
 
-        if target.isString()
-            path = target
-            if remote target then content = load target
-            else content = get(target)?.content
-        else
-            path = target.coshKey
-            content = target.content
+        [path, content] = \
+            if target.isString()
+                [target, if remote target then load target else get(target)?.content]
+            else [target.coshKey, target.content]
 
         if path and content?
             toastr.info path, "Running Chit", timeOut: 1000
@@ -592,7 +591,7 @@ credentials are found.
 
     authHeader = ->
 
-        return unless authData = auth()
+        return unless authData = do auth
         authData = btoa "#{authData.username}:#{authData.password}"
         Authorization: "Basic #{authData}"
 
@@ -614,7 +613,7 @@ to it.
 
     jQuery("#auth-link").click ->
 
-        formID = "coshID#{uniquePin()}"
+        formID = "coshID#{do uniquePin}"
 
         peg.low """
             # GitHub Auth
@@ -647,17 +646,19 @@ to it.
 
         jQuery("##{formID}").submit (event) ->
 
-            event.preventDefault()
+            do event.preventDefault
 
             $username = jQuery "##{formID}Username"
             $password = jQuery "##{formID}Password"
 
             unless $username.val()
                 toastr.error "Username can't be empty.", "Auth Failed"
-                return $username.focus()
+                do $username.focus
+                return
             unless $password.val()
                 toastr.error "Password can't be empty.", "Auth Failed"
-                return $password.focus()
+                do $password.focus
+                return
 
             auth $username.val(), $password.val()
             toastr.success "Credentials set to coshGitHubAuth.", "Authorised"
@@ -674,7 +675,7 @@ The `publish` function from the [API](/docs/gists.md).
         unless target
             toastr.error "Hash not found.", "Publishing Failed"
             return
-        unless authData = authHeader()
+        unless authData = do authHeader
             toastr.error "Couldn't find credentials.", "Publishing Failed"
             return
 
@@ -712,7 +713,7 @@ The `push` function from the [API](/docs/gists.md).
         unless target.gistID
             toastr.error "#{target.coshKey} is unpublished.", "Push Failed"
             return
-        unless authData = authHeader()
+        unless authData = do authHeader
             toastr.error "No credentials.", "Push Failed"
             return
 
@@ -798,7 +799,7 @@ assuming the doc hasn't been cached already. This speeds things up a lot.
     getHref = (event) ->
 
         target = event.target
-        event.preventDefault()
+        do event.preventDefault
         href = target.href or target.parentNode.href
         if href.startsWith location.origin
             href = href.slice(location.origin.length)
@@ -951,7 +952,7 @@ colouring it, before converting it into the jQuery object that the function retu
 
         escape = (line) -> line.escapeHTML().split(' ').join "&nbsp;"
 
-        lines = source.lines()
+        lines = do source.lines
         line  = lines[lineNumber]
 
         start = escape line.slice 0, charNumber
@@ -1020,9 +1021,14 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
 
         [stack, true]
 
-
+    jQuery("#cover").slideUp()
+    jQuery("#cover-logo").slideUp()
     jQuery("#favicon").attr href: "/images/skull_up.png"
-    toastr.info "Powered by CoffeeScript (#{coffee.VERSION})", "CoffeeShop: The HTML5 Shell"
+    toastr.info(
+        "Powered by CoffeeScript (#{coffee.VERSION})"
+        "CoffeeShop: The HTML5 Shell"
+        timeOut: 1600
+        )
 
 ### Gallery Mode
 
@@ -1036,14 +1042,14 @@ id is not provided. The gist is then loaded into the editor and run.
     if galleryMode
 
         do window.onunload = ->
-            localStorage?.clear()
-            sessionStorage?.clear()
+            do localStorage?.clear
+            do sessionStorage?.clear
             indexedDB?.deleteDatabase "*"
 
         fallback = "9419b50cdaa7238725d8"
         window.mainFile = clone(launchCode or fallback) or clone(fallback)
         edit set mainFile
-        editor.run()
+        do editor.run
 
         $brand.text("CoffeeShop Gallery").css color: "#E18243"
 
@@ -1078,6 +1084,6 @@ the page is destroyed.
 All done. The odd looking comment at the bottom is a source URL directive that allows the
 shell to recognise this file in stacktraces, so the stack can be truncated correctly.
 
-    slate.focus()
+    do slate.focus
 
     `//# sourceURL=/cosh/main.js`
