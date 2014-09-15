@@ -22,6 +22,8 @@ pre:hover {
     width: 614px;
     cursor: pointer }
 
+details { margin-right: 8px; outline: none }
+
 #banner {
     cursor: default;
     background: #1A1A1A;

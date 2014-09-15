@@ -88,6 +88,15 @@ This is used internally as a more Pythonic thruthiness test.
         else if thing is "false" then true
         else !! thing
 
+A simple HTML escape function.
+
+    escape = (line) ->
+
+        line.escapeHTML()
+        .split(" ").join  "&nbsp;"
+        .split("\n").join "<br>"
+        .split("\t").join "&nbsp;&nbsp;&nbsp;&nbsp;"
+
 ## The Output Functions
 
 The `get` method from [the API](/docs/storage.md).
@@ -485,29 +494,31 @@ The `put` method from [the API](/docs/output.md).
     put.low = (args...) ->
 
         arg = args[0]
-        kind = "color-object"
+        color = "color-object"
 
         if arg is null then arg = "null"
         else if arg is undefined then return do clock.scrollIntoView
         else if arg.isDate?() then arg = arg.format()
         else if arg.isString?()
-            if arg then kind = "color-string" else arg = "empty string"
+            if arg is "" then arg = "empty string"
+            else if arg.isBlank() then arg = "invisible string"
+            else color = "color-string"
         else
             try arg = pprint.parse(arg)
             catch error then arg = arg.toString()
 
-        peg.low jQuery("<xmp>"), args[1]
-        .addClass kind
-        .html arg
+        peg.low(jQuery("<xmp>"), args[1]).addClass(color).html arg
 
 The `peg` method from [the API](/docs/output.md).
 
     window.peg = (args...) ->
 
         text = bool $board.text()
+        height = $board.height()
         output = peg.low args...
         output.addClass "unspaced" if text
-
+        return if height isnt $board.height()
+        peg.low("invisible element").attr class: "color-object"
         undefined
 
     peg.low = (tree, options) ->
@@ -519,7 +530,7 @@ The `peg` method from [the API](/docs/output.md).
 
         if options isnt undefined
             if options.isString?() then $tree.first().addClass options
-            else $tree = options $tree
+            else if options.isFunction?() then $tree = options $tree
 
         $board.append $tree
 
@@ -655,6 +666,7 @@ to it.
                 toastr.error "Username can't be empty.", "Auth Failed"
                 do $username.focus
                 return
+
             unless $password.val()
                 toastr.error "Password can't be empty.", "Auth Failed"
                 do $password.focus
@@ -707,12 +719,15 @@ The `push` function from the [API](/docs/gists.md).
         output = undefined
 
         if target.isString?() then target = get target
+
         unless target
             toastr.error "Hash not found.", "Push Failed"
             return
+
         unless target.gistID
             toastr.error "#{target.coshKey} is unpublished.", "Push Failed"
             return
+
         unless authData = do authHeader
             toastr.error "No credentials.", "Push Failed"
             return
@@ -759,37 +774,31 @@ The `gallery` function from the [API](/docs/publishing.md).
         open "https://gallery-cosh.appspot.com/##{gistID}"
         undefined
 
+The `chit` function from the [API](/docs/files.md).
+
     window.chit = (args...) ->
 
         return if undefined in args
 
-        switch args.length
-            when 3
-                [key, description, options] = args
-                options.description = description
-            when 2
-                [key, lastArg] = args
-                if lastArg.isString?()
-                    options =
-                        description: lastArg or ""
-                        content: ""
-                else
-                    options = lastArg
-                    options.description = options.description or ""
-                    options.content = options.content or ""
-            when 1
-                if args[0].isString?()
-                    options = description: "", content: ""
-                    key = args[0]
-                else
-                    options = args[0]
-                    key = options.coshKey
-            else
-                toastr.error "Invalid arguments.", "Chit Creation Failed"
-                return
+        [key, options] = \
 
-        options.coshKey = key
-        options
+            if args.length is 1
+
+                if args[0].isString?() then [args[0], {description: "", content: ""}]
+                else [args[0].coshKey, args[0]]
+
+            else if args.length is 2
+
+                if args[1].isString?()
+                    [args[0], {description: args[1] or "", content: ""}]
+                else [args[0], args[1].merge
+                    description: args[1].description or ""
+                    content: args[1].content or ""
+                    ]
+
+            else [args[0], args[2].merge description: args[1]]
+
+        options.merge coshKey: key
 
 The following code pre-loads docs into a cache when the user mouses over a link to them,
 assuming the doc hasn't been cached already. This speeds things up a lot.
@@ -874,7 +883,7 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
 
         if shell
 
-            $source = jQuery("<xmp>").html(source).css color: "#4DBDBD"
+            $source = jQuery("<xmp>").text(source).css color: "#4DBDBD"
             $board.append $source
 
         try result = eval.call window, "#{code.js}\n//# sourceURL=#{url}"
@@ -949,8 +958,6 @@ This highlights the source code for single item in a stacktrace, escaping the co
 colouring it, before converting it into the jQuery object that the function returns.
 
     highlightTrace = (source, lineNumber, charNumber) ->
-
-        escape = (line) -> line.escapeHTML().split(' ').join "&nbsp;"
 
         lines = do source.lines
         line  = lines[lineNumber]
