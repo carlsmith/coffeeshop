@@ -1,24 +1,25 @@
 /*
     JSS processor Version 1.0.1
-    
+
 	Copyright (c) 2011 Wolfgang Schmidetzki
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy 
-	of this software and associated documentation files (the "Software"), 
-	to deal in the Software without restriction, including without limitation the rights to use, 
-	copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"),
+	to deal in the Software without restriction, including without limitation the rights to use,
+	copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
 	and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-	
+
 	The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-	INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-	DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+	INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 	ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+define(function() {
 
-JSS = function (){
+  return function (){
 
     function addVars(vars){
         for(var i in vars)
@@ -30,38 +31,38 @@ JSS = function (){
     }
 
 	function toCSS(jss, scope){
-	
+
 		var result = {};
-		
+
 		if(typeof(jss)=="string"){
-			// evaluate the JSS object:	
+			// evaluate the JSS object:
 			try{
 				eval("var jss = {" + jss +"}");
 			}
-			catch(e){		
+			catch(e){
 				console.log(e);
 				return "/*\nUnable to parse JSS: " + e + "\n*/"
 			}
 		}
-		
+
 		json_to_css(scope||"", jss);
-	
-		// output result:	
+
+		// output result:
 		var ret="";
 		for(var a in result){
 			var css = result[a];
 			ret += a + " {\n"
 			for(var i in css){
 				var values = css[i];	// this is an array !
-				for(var j=0; j<values.length; j++) 
+				for(var j=0; j<values.length; j++)
 					ret += "\t" + i + ": " + values[j] + ";\n"
-			} 
+			}
 			ret += "}\n"
 		}
 		return ret;
-	
-		// --------------	
-	
+
+		// --------------
+
 		function json_to_css(scope, css){
 			if(scope && !result[scope])
 				result[scope]={};
@@ -76,7 +77,7 @@ JSS = function (){
 					case "number":
 					case "string":
 						addProperty(scope, property, value);
-						break;		
+						break;
 					case "object":
 						var endChar = property.charAt(property.length-1);
 						if(scope && (endChar=="_" || endChar=="-")){
@@ -97,16 +98,16 @@ JSS = function (){
 						}
 						else json_to_css(makeSelectorName(scope, property), value);
 						break;
-					default: 
+					default:
 						console.log("ignoring unknown type " + typeof(value) + " in property " + property);
 				}
 			}
 		}
-		
+
 		function makePropertyName(n){
 			return n.replace(/_/g, "-");
 		}
-	
+
 		function makeSelectorName(scope, name){
 			var snames = [];
 			var names = name.split(/\s*,\s*/);
@@ -122,21 +123,21 @@ JSS = function (){
 			}
 			return snames.join(", ");
 		}
-	
-		function addProperty(scope, property, value){		
+
+		function addProperty(scope, property, value){
 
 			if(typeof(value)=="number")
 				value = value+"px";
-	
+
 			var properties = property.split(/\s*,\s*/);
 			for(var i=0; i<properties.length; i++){
 				var property = makePropertyName(properties[i])
-		
-				if(result[scope][property])			
+
+				if(result[scope][property])
 					result[scope][property].push(value);
 				else result[scope][property]=[value];
-				
-				
+
+
 				var specials = {
 					"box-shadow": [
 						"-moz-box-shadow",
@@ -166,7 +167,7 @@ JSS = function (){
 				var browser_specials = specials[property]
 				for(var j=0; browser_specials && j<browser_specials.length; j++)
 					addProperty(scope, browser_specials[j], value);
-				
+
 			}
 		}
 	}
@@ -178,7 +179,7 @@ JSS = function (){
 		for(i=0; i<arguments.length; i++)
 			args.push(arguments[i]);
 		args = args.join(",");
-		
+
 		return [
 			"-moz-linear-gradient(" + args + ")",
 			"-webkit-linear-gradient(" + args + ")"
@@ -210,7 +211,7 @@ JSS = function (){
 		function cut(v){
 			return parseInt(Math.max(Math.min(255,v),0));
 		}
-		
+
 		return toHEX(r,g,b);
 	}
 
@@ -220,7 +221,7 @@ JSS = function (){
 			ret = "0"+ret;
 		return "#"+ret;
 	}
-	
+
 	// public interface:
 	return {
 		toCSS: toCSS,
@@ -229,6 +230,6 @@ JSS = function (){
 		linearGradient: linearGradient,
 		color: color
 	}
-	
-}()
 
+}()
+});

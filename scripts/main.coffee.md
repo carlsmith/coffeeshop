@@ -23,6 +23,7 @@ integer that's always unique. This can be used in element IDs to keep them uniqu
 rendered multiple times.
 
     window.cosh =
+        jss: jss
         uniquePin: 0
         coffeeVersion: coffee.VERSION
 
@@ -197,11 +198,9 @@ This keybinding makes `Meta.Up` rewind the input history.
         exec: ->
             source = do slate.getValue
             if pointer >= 0 and source isnt slate.history[pointer]
-                stash = source
-                pointer = slate.history.length
+                [stash, pointer] = [source, slate.history.length]
             pointer -= 1
-            if pointer >= 0
-                slate.setValue slate.history[pointer]
+            if pointer >= 0 then slate.setValue slate.history[pointer]
             else
                 slate.setValue "# THE END OF HISTORY..."
                 pointer = -1
@@ -216,11 +215,9 @@ This keybinding makes `Meta.Down` forward the input history.
         exec: ->
             source = do slate.getValue
             if pointer isnt -1 and source isnt slate.history[pointer]
-                stash = source
-                pointer = slate.history.length
+                [stash, pointer] = [source, slate.history.length]
             pointer += 1
-            if pointer < slate.history.length
-                slate.setValue slate.history[pointer]
+            if pointer < slate.history.length then slate.setValue slate.history[pointer]
             else slate.setValue stash
             slate.clearSelection 1
             do clock.scrollIntoView
@@ -363,7 +360,6 @@ selected, using the cosh key as the file name. It supports Literate CoffeeScript
         source = editor.getCopyText() or editor.getValue()
         toastr.info currentFile.coshKey, "Editor Running", timeOut: 1000
         cosh.execute source, currentFile.coshKey
-
         undefined
 
 This API function renders the currently selected text, or the whole content if nothing is
@@ -373,7 +369,6 @@ selected, to the board as Markdown.
 
         source = editor.getCopyText() or editor.getValue()
         peg.low source.compile "md", "page"
-
         undefined
 
 This API function opens a chit in the editor. It's available globally too as `edit`.
@@ -397,7 +392,6 @@ This API function opens a chit in the editor. It's available globally too as `ed
         editor.gotoLine 1
         editor.getSession().setScrollTop 1
         editor.focus()
-
         undefined
 
 This API function sets the current chit, `currentFile`, to local storage.
@@ -487,8 +481,7 @@ The `put` method from [the API](/docs/output.md).
 
         text = bool $board.text()
         output = put.low args...
-        output.addClass "unspaced" if text
-
+        output?.addClass "unspaced" if text
         undefined
 
     put.low = (args...) ->
@@ -810,9 +803,7 @@ assuming the doc hasn't been cached already. This speeds things up a lot.
         target = event.target
         do event.preventDefault
         href = target.href or target.parentNode.href
-        if href.startsWith location.origin
-            href = href.slice(location.origin.length)
-
+        href = href.slice location.origin.length if href.startsWith location.origin
         href
 
     $board.on "click", "a", (event) ->
@@ -961,18 +952,15 @@ colouring it, before converting it into the jQuery object that the function retu
 
         lines = do source.lines
         line  = lines[lineNumber]
-
         start = escape line.slice 0, charNumber
         end   = escape line.slice charNumber + 1
-
-        char = line[charNumber]
-        look = if char then "color-operator" else "error-missing-char"
-        char = if char then escape char else "&nbsp;"
+        char  = line[charNumber]
+        look  = if char then "color-operator" else "error-missing-char"
+        char  = if char then escape char else "&nbsp;"
 
         lines[lineNumber] = "#{start}<span class=#{look}>#{char}</span>#{end}"
 
-        for line, index in lines
-            if index isnt lineNumber then lines[index] = escape line
+        for line, index in lines then lines[index] = escape line if index isnt lineNumber
 
         jQuery("<span class=error>").html lines.join "<br>"
 
@@ -1028,8 +1016,6 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
 
         [stack, true]
 
-    jQuery("#cover").slideUp()
-    jQuery("#cover-logo").slideUp()
     jQuery("#favicon").attr href: "/images/skull_up.png"
     toastr.info(
         "Powered by CoffeeScript (#{coffee.VERSION})"

@@ -2,8 +2,9 @@ require ([
     "cosh/coffee-script",
     "cosh/marked",
     "cosh/pprint",
+    "cosh/jss",
     "cosh/sourcemap/source-map-consumer" ],
-    function(coffee, marked, pprint, smc) {
+    function(coffee, marked, pprint, jss, smc) {
 
         Object.extend()
 
