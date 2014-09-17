@@ -17,17 +17,16 @@ arrive at the Gallery in any browser, so it's important to have this when nuking
         msIndexedDB
 
 This code creates a global named `cosh` that internal stuff can be bound to, but still be
-available to the user if they need it. If they often do, the API should be extended.
-The code also sets up a global function named `uniquePin` that can be used to get an
-integer that's always unique. This can be used in element IDs to keep them unique when
-rendered multiple times.
+available to the user if they need it. If they often do, the API should be extended. The
+code also sets up the globals `uniquePIN` and `uniqueID`.
 
     window.cosh =
         jss: jss
-        uniquePin: 0
+        uniquePIN: 0
         coffeeVersion: coffee.VERSION
 
-    window.uniquePin = -> cosh.uniquePin++
+    window.uniquePIN = -> cosh.uniquePIN++
+    window.uniqueID  = -> "coshID" + do uniquePIN
 
 Gallery mode is based on the URL. Port `9090` is supported on localhost for development.
 
@@ -114,7 +113,7 @@ The `set` method from [the API](/docs/storage.md).
         return if undefined in args
 
         switch args.length
-            when 1 then [key, value] = [ args[0].coshKey, args[0] ]
+            when 1 then [key, value] = [args[0].coshKey, args[0]]
             when 2 then [key, value] = args
             else return toastr.error "Wrong number of args.", "Set Failed"
 
@@ -516,14 +515,20 @@ The `peg` method from [the API](/docs/output.md).
 
     peg.low = (tree, options) ->
 
-        if tree instanceof jQuery then $tree = tree
-        else if tree instanceof HTMLElement then $tree = jQuery tree
-        else if tree.isString?() then $tree = jQuery("<div>").html tree.compile "md"
-        else $tree = jQuery("<xmp>").html tree.toString()
+        $tree = \
+            if tree instanceof jQuery then tree
+            else if tree instanceof HTMLElement then jQuery tree
+            else if tree?.isString?() then jQuery("<div>").html tree.compile "md"
+            else jQuery("<xmp>").html tree?.toString() or jQuery "<div>"
 
         if options isnt undefined
-            if options.isString?() then $tree.first().addClass options
+
+            if options.isString?() then $tree.addClass options
             else if options.isFunction?() then $tree = options $tree
+            else
+                $tree = options.func $tree    if options.func
+                $tree.attr id: options.id     if options.id
+                $tree.addClass options.class  if options.class
 
         $board.append $tree
 
@@ -617,7 +622,7 @@ to it.
 
     jQuery("#auth-link").click ->
 
-        formID = "coshID#{do uniquePin}"
+        formID = do uniqueID
 
         peg.low """
             # GitHub Auth

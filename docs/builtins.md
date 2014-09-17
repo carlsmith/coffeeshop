@@ -39,7 +39,7 @@ explained properly later. For now, just think of them as files.
 
 - `put` Appends a pretty printed evaluation of any expression to the board.
 - `peg` Appends a string of Markdown, a DOM node or a jQuery object to the board.
-- `print` Loads a local or remote resource and prints it.
+- `print` Loads and appends a resource to the board.
 - `clear` Clears the board.
 
 [Storage Functions](/docs/storage.md)
@@ -80,6 +80,7 @@ methods. A couple of extras have been added.
 ## Loose Ends
 
 - `galleryMode` True if the app is in gallery mode, else false.
+- `uniquePIN` A function that returns an incremented integer each time it's called.
 - `cosh` App internals.
 
 [1]: http://sugarjs.com/native
