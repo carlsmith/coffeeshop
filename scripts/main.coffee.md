@@ -367,7 +367,7 @@ selected, to the board as Markdown.
     editor.print = ->
 
         source = editor.getCopyText() or editor.getValue()
-        peg.low source.compile "md", "page"
+        peg.low source.compile("md"), "page"
         undefined
 
 This API function opens a chit in the editor. It's available globally too as `edit`.
