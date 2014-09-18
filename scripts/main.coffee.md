@@ -21,7 +21,6 @@ available to the user if they need it. If they often do, the API should be exten
 code also sets up the globals `uniquePIN` and `uniqueID`.
 
     window.cosh =
-        jss: jss
         uniquePIN: 0
         coffeeVersion: coffee.VERSION
 
