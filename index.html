@@ -63,24 +63,37 @@ Stacktrace Parser (https://github.com/errwischt/stacktrace-parser)
 
 <link id=favicon rel=icon type=image/png href=/images/skull.png>
 
+<!-- Droid Sans Mono font -->
 <link rel=stylesheet href=/fonts/droid_sans_mono/stylesheet.css>
+
+<!-- CoffeeShop CSS -->
 <link rel=stylesheet href=/styles/shell.css>
+
+<!-- Toastr CSS -->
 <link rel="stylesheet" href="/scripts/cosh/toastr/toastr.css">
 <link rel="stylesheet" href="/scripts/cosh/toastr/toastr-responsive.css">
 
+<!-- Builtin libraries - jQuery, SugarJS, ACE and Toastr -->
 <script src=/scripts/cosh/jquery.js></script>
-<script src=/scripts/cosh/jss.js></script>
-
 <script src=/scripts/cosh/sugar.js></script>
 <script src=/scripts/cosh/ace/ace.js></script>
 <script src=/scripts/cosh/toastr/toastr.js></script>
+
+<!-- Require - Loads boot.js -->
 <script data-main=scripts/boot src=/scripts/cosh/require.js></script>
 
 <body>
 
-<img id=cover-logo src=/images/logo.png>
+<!--
+    This image is not visible within the application, but is used by
+    social media sites as the default image for the page when sharing
+    a link to it. TODO: Try using an SVG.
+--> <img id=cover-logo src=/images/logo.png>
 
+<!-- The fixed banner at the top of the screen. -->
 <div id=banner>
+
+    <!-- this is the shell side of the banner -->
     <span id=brand>checking...</span>
     <span id=shell-links>
         <a id=home-link class=banner-link>home</a>
@@ -99,17 +112,25 @@ Stacktrace Parser (https://github.com/errwischt/stacktrace-parser)
         <span class=cut></span>
         <a id=more-link class=banner-link>more</a>
     </span>
+
+    <!-- This is the editor side of the banner. -->
     <span id=editor-links>
         <span id=filename></span>
         <span id=file-description contenteditable></span>
     </span>
     <div id=fade></div>
+
 </div>
 
+<!-- The board and slate divs. -->
 <div id=board></div>
 <div id=slate></div>
+
+<!-- The footer beneath the slate that contains the input counter and clock. -->
 <div id=footer>
     <span id=slate-count class=slate-counter>1</span>
     <span id=clock></span>
 </div>
+
+<!-- The main editor div. -->
 <div id=editor></div>

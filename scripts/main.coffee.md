@@ -96,6 +96,10 @@ A simple HTML escape function.
         .split("\n").join "<br>"
         .split("\t").join "&nbsp;&nbsp;&nbsp;&nbsp;"
 
+## CSS Stuff
+
+    window.jss = jss
+
 ## The Output Functions
 
 The `get` method from [the API](/docs/storage.md).
