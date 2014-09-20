@@ -1,4 +1,5 @@
-/*
+/*  This is a cosh specific hack of the original JSS Processor by Wolfgang Schmidetzki.
+
     JSS processor Version 1.0.1
 
 	Copyright (c) 2011 Wolfgang Schmidetzki
@@ -20,15 +21,6 @@
 
 define( function() {
 
-    function addVars(vars){
-        for(var i in vars)
-            this[i] = vars[i]
-    }
-
-    function addVar(property, value){
-		this[property] = value
-    }
-
 	function toCSS(jss, scope){
 
         var key;
@@ -38,17 +30,6 @@ define( function() {
         } else key = "";
 
 		var result = {};
-
-		if(typeof(jss)=="string"){
-			// evaluate the JSS object:
-			try{
-				eval("var jss = {" + jss +"}");
-			}
-			catch(e){
-				console.log(e);
-				return "/*\nUnable to parse JSS: " + e + "\n*/"
-			}
-		}
 
 		json_to_css(scope||"", jss);
 
@@ -234,8 +215,6 @@ define( function() {
 	// public interface:
 	return {
 		toCSS: toCSS,
-		addVars: addVars,
-		addVar: addVar,
 		linearGradient: linearGradient,
 		color: color
 	}

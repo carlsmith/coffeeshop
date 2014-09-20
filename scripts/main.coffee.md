@@ -502,7 +502,10 @@ The `put` method from [the API](/docs/output.md).
             try arg = pprint.parse(arg)
             catch error then arg = arg.toString()
 
-        peg.low(jQuery("<xmp>"), args[1]).addClass(color).html arg
+        peg.low jQuery("<div>"), args[1]
+        .addClass color
+        .addClass "spaced"
+        .html escape arg
 
 The `peg` method from [the API](/docs/output.md).
 
