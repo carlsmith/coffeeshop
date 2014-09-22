@@ -96,10 +96,6 @@ A simple HTML escape function.
         .split("\n").join "<br>"
         .split("\t").join "&nbsp;&nbsp;&nbsp;&nbsp;"
 
-## CSS Stuff
-
-    window.jss = jss
-
 ## The Output Functions
 
 The `get` method from [the API](/docs/storage.md).
@@ -1033,6 +1029,66 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
         "CoffeeShop: The HTML5 Shell"
         timeOut: 1600
         )
+
+## Cascading Coffee Scripts
+
+This is the CCS function. It is currently undocumented.
+
+    window.CCS = (args...) ->
+
+        anArray = (obj) ->
+
+            obj instanceof Array
+
+        aRealm = (obj) ->
+
+            !!(obj and obj.constructor and obj.call and obj.apply)
+
+        aNumber = (obj) ->
+
+            (not anArray obj) and obj - parseFloat(obj) + 1 >= 0
+
+        hyphenate = (key) ->
+
+            key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+
+        conquer = (realm) -> realm.apply CCS
+
+        toHash = (realm) ->
+
+            output = {}
+            for key, value of conquer realm then output[hyphenate key] =
+                if aRealm value then toHash value
+                else if value is 0 then "0"
+                else if aNumber value then "#{value}px"
+                else value.toString()
+            output
+
+        toCSS = (realm) ->
+
+            output = ""
+            for key, value of conquer realm then output +=
+                if aRealm value then "\n#{hyphenate key} {#{toCSS value}\n}"
+                else if value is 0 then "\n#{hyphenate key}: #{value};"
+                else if aNumber value then "\n#{hyphenate key}: #{value}px;"
+                else "\n#{hyphenate key}: #{value.toString()};"
+            output
+
+        [realm, outputType] = \
+            if args.length is 1 then [do args[0], "css"]
+            else [do args[1], args[0].toLowerCase()]
+
+        if outputType is "hash"
+
+            output = {}
+            output[key] = toHash realm[key] for key of realm
+            return output
+
+        output = ""
+        output += "\n#{key} { #{toCSS realm[key]} \n}\n" for key of realm
+        output
+
+## Launch Shell
 
 ### Gallery Mode
 
