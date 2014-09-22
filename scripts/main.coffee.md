@@ -1048,6 +1048,10 @@ This is the CCS function. It is currently undocumented.
 
             (not anArray obj) and obj - parseFloat(obj) + 1 >= 0
 
+        aString = (obj) ->
+
+            typeof obj is "string" or obj instanceof String
+
         hyphenate = (key) ->
 
             key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
@@ -1061,7 +1065,8 @@ This is the CCS function. It is currently undocumented.
                 if aRealm value then toHash value
                 else if value is 0 then "0"
                 else if aNumber value then "#{value}px"
-                else value.toString()
+                else if aString value then value
+                else "none"
             output
 
         toCSS = (realm) ->
@@ -1071,12 +1076,13 @@ This is the CCS function. It is currently undocumented.
                 if aRealm value then "\n#{hyphenate key} {#{toCSS value}\n}"
                 else if value is 0 then "\n#{hyphenate key}: #{value};"
                 else if aNumber value then "\n#{hyphenate key}: #{value}px;"
-                else "\n#{hyphenate key}: #{value.toString()};"
+                else if aString value then "\n#{hyphenate key}: #{value};"
+                else "\n#{hyphenate key}: none;"
             output
 
         [realm, outputType] = \
-            if args.length is 1 then [do args[0], "css"]
-            else [do args[1], args[0].toLowerCase()]
+            if args.length is 1 then [args[0].apply(CCS), "css"]
+            else [args[1].apply(CCS), args[0].toLowerCase()]
 
         if outputType is "hash"
 
@@ -1089,6 +1095,8 @@ This is the CCS function. It is currently undocumented.
         output
 
 ## Launch Shell
+
+This is the last bit of code to run on boot.
 
 ### Gallery Mode
 
