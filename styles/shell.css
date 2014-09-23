@@ -11,7 +11,7 @@ body {
 a:hover { color: #FFBAF4; cursor: pointer }
 a:active { color: blue }
 
-xmp, .error, .spaced { margin: 0 0 16px 0 }
+xmp, .error, .spaced, .error-message { margin: 0 0 16px 0 }
 
 img, video { max-height: 256px; max-width: 642px; padding: 16px 14px; }
 

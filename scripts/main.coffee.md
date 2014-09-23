@@ -886,7 +886,7 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
 
         try result = eval.call window, "#{code.js}\n//# sourceURL=#{url}"
         catch error
-            $source?.remove()
+            if shell then $source.remove()
             throw error
 
         put.low result, "unspaced" if shell
@@ -899,9 +899,10 @@ the `cosh.execute` function above.
 
     window.onerror = (message, url, line, column, error) ->
 
+        console.log error
+
         traceDivs = []
-        [stack, untraceable] = parseTrace error.stack
-        if untraceable then message = "Untraceable #{message}"
+        stack = parseTrace error.stack
 
         for trace in stack
 
@@ -945,10 +946,7 @@ the `cosh.execute` function above.
             $stackDiv.append traceDivs.pop()
             break unless traceDivs.length
 
-        $messageDiv = jQuery "<xmp>"
-        .text message
-        .attr class: "error-message unspaced"
-        $stackDiv.append $messageDiv
+        $stackDiv.append jQuery("<xmp>").text(message).addClass "error-message unspaced"
         $board.append $stackDiv
         do clock.scrollIntoView
 
@@ -980,7 +978,10 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
 
         stack = []
         lines = traceback.split "\n"
-        limit = "/cosh/main.js;"
+
+        ignore = (url) -> bool \
+            url is "/cosh/main.js" or
+            url.startsWith "#{location.origin}/scripts"
 
         gecko = /^(?:\s*(\S*)(?:\((.*?)\))?@)?((?:file|http|https).*?):(\d+)(?::(\d+))?\s*$/i
         node = /^\s*at (?:((?:\[object object\])?\S+(?: \[as \S+\])?) )?\(?(.*?):(\d+)(?::(\d+))?\)?\s*$/i
@@ -990,7 +991,7 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
 
             if parts = chrome.exec line
 
-                return [stack, false] if parts[2] is limit
+                continue if ignore parts[2]
 
                 element =
                     file: parts[2]
@@ -1000,7 +1001,7 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
 
             else if parts = node.exec line
 
-                return [stack, false] if parts[2] is  limit
+                continue if ignore parts[2]
 
                 element =
                     file: parts[2]
@@ -1010,7 +1011,7 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
 
             else if parts = gecko.exec line
 
-                return [stack, false] if parts[3] is limit
+                continue if ignore parts[3]
 
                 element =
                     file: parts[3]
@@ -1021,7 +1022,7 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
             else continue
             stack.push element
 
-        [stack, true]
+        stack
 
     jQuery("#favicon").attr href: "/images/skull_up.png"
     toastr.info(
@@ -1094,6 +1095,16 @@ This is the CCS function. It is currently undocumented.
         output += "\n#{key} { #{toCSS realm[key]} \n}\n" for key of realm
         output
 
+    CCS.merge = ->
+
+        hash = {}
+        for arg in arguments
+            if arg.isFunction() then hash.merge arg.apply CCS
+            else if arg.isObject() then hash.merge arg
+        -> hash
+
+    CCS.em = (number) -> "#{number}em"
+
 ## Launch Shell
 
 This is the last bit of code to run on boot.
@@ -1154,4 +1165,5 @@ shell to recognise this file in stacktraces, so the stack can be truncated corre
 
     do slate.focus
 
-    `//# sourceURL=/cosh/main.js`
+    `//# sourceURL=/cosh/main.js
+    `
