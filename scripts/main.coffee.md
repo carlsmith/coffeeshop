@@ -47,9 +47,10 @@ This needs changing so the method isn't iterable. The method is documented
 
         if lang in ["cs", "coffee", "coffeescript"]
             options.merge bare: true if options.bare is undefined
-            return coffee.compile this, options
-        if lang in ["md", "markdown"]
-            return marked this, options
+            try return coffee.compile this, options
+            catch error then return error
+            return false
+        if lang in ["md", "markdown"] then return marked this, options
 
 These are all local variables pointing to elements, most wrapped by jQuery.
 
@@ -838,27 +839,32 @@ The `cosh.execute` function handles all execution of CoffeeScript code. It stash
 source maps and other input data on successful compilation. It also handles CoffeeScript
 compilation errors. Runtime errors are handled in `window.onerror` below.
 
+    reportCompilationError = (source, error) ->
+
+        line = error.location.first_line
+        column = error.location.first_column
+        message = "Caught CoffeeScript #{error.name}: #{error.message}"
+
+        $board.append(
+            jQuery "<div>"
+            .attr "class", "color-operator"
+            .append highlightTrace source, line, column
+            .append jQuery("<xmp>").text message
+            )
+
     cosh.execute = (source, url) ->
 
         shell = if url then false else true
         literate = url?.endsWith(".coffee.md") or url?.endsWith(".litcoffee")
+
         url += "@#{+(new Date())}" if url
+
         options = bare: true, sourceMap: true, literate: literate
 
         try code = coffee.compile source, options
         catch error
 
-            line = error.location.first_line
-            column = error.location.first_column
-            message = "Caught CoffeeScript #{error.name}: #{error.message}"
-
-            $board.append(
-                jQuery "<div>"
-                .attr "class", "color-operator"
-                .append highlightTrace source, line, column
-                .append jQuery("<xmp>").text message
-                )
-
+            reportCompilationError source, error
             slate.updateHistory source if shell
             slate.setValue ""
             return do clock.scrollIntoView
@@ -889,7 +895,8 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
             if shell then $source.remove()
             throw error
 
-        put.low result, "unspaced" if shell
+        return unless shell
+        put.low result, "unspaced"
         do clock.scrollIntoView
 
 ### Exception Handling
@@ -901,51 +908,64 @@ the `cosh.execute` function above.
 
         console.log error
 
-        traceDivs = []
-        stack = parseTrace error.stack
+        $nativeErrorDiv = (trace) ->
 
-        for trace in stack
+            jQuery """
+                <div>
+                <span class=error>JavaScriptError in
+                <span class=color-operator>#{trace.methodName}</span>
+                [#{trace.lineNumber}:#{trace.column}]</span>
+                </div>
+                """
+
+        $coffeeErrorDiv = (item, map) ->
+
+            jQuery "<div>"
+            .css "display": "inline"
+            .append highlightTrace item.source, map.line - 1, map.column
+
+
+        $traceFooterDiv = (origin) ->
+
+            jQuery """
+                <div class=trace_footer>
+                <span class=trace-counter>#{origin}</span><br><br>
+                </div>
+                """
+
+        drawMap = (item, trace) ->
+
+            (new smc.SourceMapConsumer do item.map.generate).originalPositionFor
+                line: trace.lineNumber
+                column: trace.column - 1 or 1
+
+        parseOrigin = (item, map) ->
+
+            locationString = "[#{map.line}:#{map.column + 1}]"
+
+            if item.shell then return "#{item.count} #{locationString}"
+
+            [key, date] = item.count.split "@"
+            date = new Date(+date).toString().split(" GMT")[0]
+            "#{key} #{locationString} [#{date}]"
+
+        traceDivs = []
+
+        for trace in parseTrace error.stack
 
             if item = inputs[trace.file]
-
-                map = new smc.SourceMapConsumer item.map.generate()
-                .originalPositionFor
-                    line: trace.lineNumber
-                    column: trace.column - 1 or 1
-
-                locationString = "[#{map.line}:#{map.column + 1}]"
-
-                if item.shell then origin = "#{item.count} #{locationString}"
-                else
-                    [key, date] = item.count.split "@"
-                    date = new Date(+date).toString().split(" GMT")[0]
-                    origin = "#{key} #{locationString} [#{date}]"
-
-                $traceDiv = jQuery "<div>"
-                .css "display": "inline"
-                .append highlightTrace item.source, map.line - 1, map.column
-
+                map = drawMap item, trace
+                origin = parseOrigin item, map
+                $traceDiv = $coffeeErrorDiv item, map
             else
-
                 origin = trace.file
-                $traceDiv = jQuery """
-                    <div>
-                    <span class=error>JavaScriptError in
-                    <span class=color-operator>#{trace.methodName}</span>
-                    [#{trace.lineNumber}:#{trace.column}]</span>
-                    </div>
-                    """
+                $traceDiv = $nativeErrorDiv trace
 
-            $countDiv = jQuery "<div class=trace_footer>"
-            .html "<span class=trace-counter>#{origin}</span><br><br>"
-            $traceDiv.append $countDiv
+            $traceDiv.append $traceFooterDiv origin
             traceDivs.push $traceDiv
 
         $stackDiv = jQuery "<div>"
-        loop
-            $stackDiv.append traceDivs.pop()
-            break unless traceDivs.length
-
+        $stackDiv.append $div for $div in traceDivs.reverse()
         $stackDiv.append jQuery("<xmp>").text(message).addClass "error-message unspaced"
         $board.append $stackDiv
         do clock.scrollIntoView
@@ -1033,7 +1053,8 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
 
 ## Cascading Coffee Scripts
 
-This is the CCS function. It is currently undocumented.
+This is the `CCS` function. It is currently undocumented. The `CCS` function is written
+to be used outside of cosh, but functions bound to it don't need to be.
 
     window.CCS = (args...) ->
 
@@ -1057,7 +1078,9 @@ This is the CCS function. It is currently undocumented.
 
             key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
 
-        conquer = (realm) -> realm.apply CCS
+        conquer = (realm) ->
+
+            realm.apply CCS
 
         toHash = (realm) ->
 
