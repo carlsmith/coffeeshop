@@ -32,11 +32,12 @@ have awesome methods out the box. You also have jQuery. Obviously.
 - **Documented** Built in, interactive documentation, using Markdown.
 - **Self Compiling** Cosh is able to build itself from source on page load, so you
 can hack on the core without installing any dependencies, even on Windows.
+- **Cascading Coffee Scripts** [CCS][1] lets you define stylesheets with pure functions.
 
 Getting Set Up
 --------------
 
-[The Shell][1] and the Gallery are hosted on Google App Engine. You're free to use them
+[The Shell][2] and the Gallery are hosted on Google App Engine. You're free to use them
 ~ no problem. If you'd rather not share personal data with Google, you can host you own
 instances, privately or publicly, very easily.
 
@@ -77,12 +78,13 @@ License
 
 CoffeeShop is Free Software. A lot of CoffeeShop's parts come from third party
 projects under their chosen [open source] licenses. All code and docs in this
-repository are bundled together under the [GPLv3][2] for convenience. Better
+repository are bundled together under the [GPLv3][3] for convenience. Better
 licensing can be worked out.
 
 ---
 
-- [shell-cosh.appspot.com][1] Our instance, hosted on Google App Engine.
+- [shell-cosh.appspot.com][2] Our instance, hosted on Google App Engine.
 
-[1]: https://shell-cosh.appspot.com/ "CoffeeShop"
-[2]: http://www.gnu.org/licenses/gpl-3.0.html "GNU General Public License v3"
+[1]: https://gist.github.com/carlsmith/544a7f10de1c9240f118 "CCS Gist"
+[2]: https://shell-cosh.appspot.com/ "CoffeeShop"
+[3]: http://www.gnu.org/licenses/gpl-3.0.html "GNU General Public License v3"
