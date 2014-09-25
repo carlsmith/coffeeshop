@@ -19,11 +19,8 @@ next page][1].
 
 The `set` function returns the value it set to storage.
 
-Note: Throughout cosh's API, URLs are distinguished from key strings by simply checking
-if the string contains a slash (`/`). If it does, it's a URL, else a key. For this reason,
-you can not create keys containing a slash [except by hacking on `localStorage` directly].
-
-Keys of the pattern `cosh*` are reserved.
+Keys can not contain any of these characters: `/ ! @ : + ( ) { } | $ *`. Keys starting
+with `cosh` are also currently reserved.
 
 ## Function: `get`
 

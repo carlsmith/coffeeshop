@@ -83,7 +83,6 @@ file chit, the chit's content is executed.
 The `run` function supports Literate CoffeeScript automatically if the chit's key or the
 resource's path ends with `.coffee.md` or `.litcoffee`.
 
-Note: Key strings are distinguished from URL strings by checking if the string contains a
-slash (`/`). If it does, it's a URL, else a key. The `set` function enforces this.
+Note: URLs are distinct from storage keys as URLs must contain a slash.
 
 Next Page: [Chits as Gists](/docs/gists.md)

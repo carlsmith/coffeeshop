@@ -77,8 +77,8 @@ This is a simple webworker that updates the time on the clock in the footer.
     worker.onmessage = (event) -> $clock.text event.data
 
     $board
-    .on "mouseover", -> jQuery("body").css overflow: "scroll"
-    .on "mouseout",  -> jQuery("body").css overflow: "hidden"
+        .on "mouseover", -> jQuery("body").css overflow: "scroll"
+        .on "mouseout",  -> jQuery("body").css overflow: "hidden"
 
 This is used internally as a more Pythonic thruthiness test.
 
@@ -93,9 +93,9 @@ A simple HTML escape function.
     escape = (line) ->
 
         line.escapeHTML()
-        .split(" ").join  "&nbsp;"
-        .split("\n").join "<br>"
-        .split("\t").join "&nbsp;&nbsp;&nbsp;&nbsp;"
+            .split(" ").join  "&nbsp;"
+            .split("\n").join "<br>"
+            .split("\t").join "&nbsp;&nbsp;&nbsp;&nbsp;"
 
 ## The Output Functions
 
@@ -110,6 +110,8 @@ The `set` method from [the API](/docs/storage.md).
 
     window.set = (args...) ->
 
+        reserved = (key) -> bool key.each /[*/!@:+(){}|$]/
+
         return if undefined in args
 
         switch args.length
@@ -121,8 +123,8 @@ The `set` method from [the API](/docs/storage.md).
             toastr.error "Bad args.", "Set Failed"
             return
 
-        if remote key
-            toastr.error "Keys must not contain slashes.", "Set Failed"
+        if reserved key
+            toastr.error "Key contains invalid characters.", "Set Failed"
             return
 
         if value.coshKey then value.coshKey = key
@@ -500,9 +502,9 @@ The `put` method from [the API](/docs/output.md).
             catch error then arg = arg.toString()
 
         peg.low jQuery("<div>"), args[1]
-        .addClass color
-        .addClass "spaced"
-        .html escape arg
+            .addClass color
+            .addClass "spaced"
+            .html escape arg
 
 The `peg` method from [the API](/docs/output.md).
 
@@ -537,7 +539,7 @@ The `peg` method from [the API](/docs/output.md).
 
         if $tree[0].className is "page"
             jQuery("html")
-            .animate { scrollTop: $tree.offset().top - 27 }, duration: 150
+                .animate { scrollTop: $tree.offset().top - 27 }, duration: 150
         else do clock.scrollIntoView
 
         $tree.children("h1").each ->
@@ -833,11 +835,21 @@ assuming the doc hasn't been cached already. This speeds things up a lot.
 This stuff needs refactoring. It's where all the compilation, execution, source mapping,
 error handling currently lives.
 
-### Execution
+    $highlightTrace = (source, lineNumber, charNumber) ->
 
-The `cosh.execute` function handles all execution of CoffeeScript code. It stashes the
-source maps and other input data on successful compilation. It also handles CoffeeScript
-compilation errors. Runtime errors are handled in `window.onerror` below.
+        lines = do source.lines
+        line  = lines[lineNumber]
+        start = escape line.slice 0, charNumber
+        end   = escape line.slice charNumber + 1
+        char  = line[charNumber]
+        look  = if char then "color-operator" else "error-missing-char"
+        char  = if char then escape char else "&nbsp;"
+
+        lines[lineNumber] = "#{start}<span class=#{look}>#{char}</span>#{end}"
+
+        for line, index in lines then lines[index] = escape line if index isnt lineNumber
+
+        jQuery("<span class=error>").html lines.join "<br>"
 
     reportCompilationError = (source, error) ->
 
@@ -845,19 +857,69 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
         column = error.location.first_column
         message = "Caught CoffeeScript #{error.name}: #{error.message}"
 
-        $board.append(
-            jQuery "<div>"
+        jQuery "<div>"
             .attr "class", "color-operator"
-            .append highlightTrace source, line, column
-            .append jQuery("<xmp>").text message
-            )
+            .append $highlightTrace source, line, column
+            .append $traceFooterDiv "invalid input [#{line}:#{column}]"
+            .append $errorMessageDiv message
+            .appendTo $board
+
+    $nativeErrorDiv = (trace) -> jQuery \
+        """
+        <div>
+        <span class=error>JavaScriptError in
+        <span class=color-operator>#{trace.methodName}</span>
+        [#{trace.lineNumber}:#{trace.column}]</span>
+        </div>
+        """
+
+    $coffeeErrorDiv = (item, map) ->
+
+        jQuery "<div>"
+            .css "display": "inline"
+            .append $highlightTrace item.source, map.line - 1, map.column
+
+
+    $traceFooterDiv = (origin) ->
+
+        jQuery """
+            <div class=trace_footer>
+            <span class=trace-counter>#{origin}</span><br><br>
+            </div>
+            """
+
+    $errorMessageDiv = (message) ->
+
+        jQuery("<xmp>").text(message).addClass "error-message unspaced"
+
+    doMap = (item, trace) ->
+
+        (new smc.SourceMapConsumer do item.map.generate).originalPositionFor
+            line: trace.lineNumber
+            column: trace.column - 1 or 1
+
+    parseOrigin = (item, map) ->
+
+        locationString = "[#{map.line}:#{map.column + 1}]"
+
+        if item.shell then return "#{item.count} #{locationString}"
+
+        [key, date] = item.count.split "@"
+
+        "#{key} #{locationString} [#{date}]"
+
+### Execution
+
+The `cosh.execute` function handles all execution of CoffeeScript code. It stashes the
+source maps and other input data on successful compilation. It also handles CoffeeScript
+compilation errors. Runtime errors are handled in `window.onerror` below.
 
     cosh.execute = (source, url) ->
 
         shell = if url then false else true
         literate = url?.endsWith(".coffee.md") or url?.endsWith(".litcoffee")
 
-        url += "@#{+(new Date())}" if url
+        url += "@#{new Date().format '{dd}:{MM}:{yyyy}:{HH}:{mm}:{ss}'}" if url
 
         options = bare: true, sourceMap: true, literate: literate
 
@@ -892,6 +954,7 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
 
         try result = eval.call window, "#{code.js}\n//# sourceURL=#{url}"
         catch error
+
             if shell then $source.remove()
             throw error
 
@@ -906,55 +969,12 @@ the `cosh.execute` function above.
 
     window.onerror = (message, url, line, column, error) ->
 
-        console.log error
-
-        $nativeErrorDiv = (trace) ->
-
-            jQuery """
-                <div>
-                <span class=error>JavaScriptError in
-                <span class=color-operator>#{trace.methodName}</span>
-                [#{trace.lineNumber}:#{trace.column}]</span>
-                </div>
-                """
-
-        $coffeeErrorDiv = (item, map) ->
-
-            jQuery "<div>"
-            .css "display": "inline"
-            .append highlightTrace item.source, map.line - 1, map.column
-
-
-        $traceFooterDiv = (origin) ->
-
-            jQuery """
-                <div class=trace_footer>
-                <span class=trace-counter>#{origin}</span><br><br>
-                </div>
-                """
-
-        drawMap = (item, trace) ->
-
-            (new smc.SourceMapConsumer do item.map.generate).originalPositionFor
-                line: trace.lineNumber
-                column: trace.column - 1 or 1
-
-        parseOrigin = (item, map) ->
-
-            locationString = "[#{map.line}:#{map.column + 1}]"
-
-            if item.shell then return "#{item.count} #{locationString}"
-
-            [key, date] = item.count.split "@"
-            date = new Date(+date).toString().split(" GMT")[0]
-            "#{key} #{locationString} [#{date}]"
-
         traceDivs = []
 
         for trace in parseTrace error.stack
 
             if item = inputs[trace.file]
-                map = drawMap item, trace
+                map = doMap item, trace
                 origin = parseOrigin item, map
                 $traceDiv = $coffeeErrorDiv item, map
             else
@@ -966,28 +986,10 @@ the `cosh.execute` function above.
 
         $stackDiv = jQuery "<div>"
         $stackDiv.append $div for $div in traceDivs.reverse()
-        $stackDiv.append jQuery("<xmp>").text(message).addClass "error-message unspaced"
+        $stackDiv.append $errorMessageDiv message
         $board.append $stackDiv
         do clock.scrollIntoView
-
-This highlights the source code for single item in a stacktrace, escaping the code and
-colouring it, before converting it into the jQuery object that the function returns.
-
-    highlightTrace = (source, lineNumber, charNumber) ->
-
-        lines = do source.lines
-        line  = lines[lineNumber]
-        start = escape line.slice 0, charNumber
-        end   = escape line.slice charNumber + 1
-        char  = line[charNumber]
-        look  = if char then "color-operator" else "error-missing-char"
-        char  = if char then escape char else "&nbsp;"
-
-        lines[lineNumber] = "#{start}<span class=#{look}>#{char}</span>#{end}"
-
-        for line, index in lines then lines[index] = escape line if index isnt lineNumber
-
-        jQuery("<span class=error>").html lines.join "<br>"
+        console.log error
 
 This parses the stacktrace string that `window.onerror` knows as `error.stack`, converting
 it into an array of items from the stack, as hashes. It returns an array of two objects,
@@ -1108,7 +1110,7 @@ to be used outside of cosh, but functions bound to it don't need to be.
             if args.length is 1 then [args[0].apply(CCS), "css"]
             else [args[1].apply(CCS), args[0].toLowerCase()]
 
-        if outputType is "hash"
+        if outputType is "map"
 
             output = {}
             output[key] = toHash realm[key] for key of realm
@@ -1175,7 +1177,7 @@ the page is destroyed.
             content: 'print "/docs/home.md"'
 
         $brand.css color: "#E18243"
-        .text if launchCode is "safemode" then "Safe Mode" else "CoffeeShop"
+            .text if launchCode is "safemode" then "Safe Mode" else "CoffeeShop"
 
         edit "config.coffee"
         if launchCode isnt "safemode"
