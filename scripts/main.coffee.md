@@ -359,6 +359,8 @@ selected, using the cosh key as the file name. It supports Literate CoffeeScript
     editor.run = ->
 
         source = editor.getCopyText() or editor.getValue()
+        source = source.lines (line) -> do line.trimRight
+        source = source.join '\n'
         toastr.info currentFile.coshKey, "Editor Running", timeOut: 1000
         cosh.execute source, currentFile.coshKey
         undefined
