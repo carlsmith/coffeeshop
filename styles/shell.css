@@ -15,7 +15,7 @@ xmp, .error, .spaced, .error-message { margin: 0 0 16px 0 }
 
 img, video { max-height: 256px; max-width: 642px; padding: 16px 14px; }
 
-iframe { height: 315px; width: 642px }
+iframe { height: 315px; width: 642px; border: 1px solid #000; }
 
 pre:hover {
     background: rgba(47, 75, 64, 0.28);
