@@ -363,7 +363,7 @@ selected, using the cosh key as the file name. It supports Literate CoffeeScript
         source = source.join '\n'
         toastr.info currentFile.coshKey, "Editor Running", timeOut: 1000
         cosh.execute source, currentFile.coshKey
-        undefined
+        do clock.scrollIntoView
 
 This API function renders the currently selected text, or the whole content if nothing is
 selected, to the board as Markdown.
@@ -1062,29 +1062,20 @@ to be used outside of cosh, but functions bound to it don't need to be.
 
     window.CCS = (args...) ->
 
-        anArray = (obj) ->
+        anArray = (obj) -> obj instanceof Array
 
-            obj instanceof Array
+        aRealm = (obj) -> !!(obj and obj.constructor and obj.call and obj.apply)
 
-        aRealm = (obj) ->
+        aNumber = (obj) -> (not anArray obj) and obj - parseFloat(obj) + 1 >= 0
 
-            !!(obj and obj.constructor and obj.call and obj.apply)
+        aString = (obj) -> typeof obj is "string" or obj instanceof String
 
-        aNumber = (obj) ->
-
-            (not anArray obj) and obj - parseFloat(obj) + 1 >= 0
-
-        aString = (obj) ->
-
-            typeof obj is "string" or obj instanceof String
+        conquer = (realm) -> realm.apply CCS
 
         hyphenate = (key) ->
 
-            key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
-
-        conquer = (realm) ->
-
-            realm.apply CCS
+            if key is "font" then "font-family"
+            else key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
 
         toHash = (realm) ->
 
@@ -1121,16 +1112,6 @@ to be used outside of cosh, but functions bound to it don't need to be.
         output = ""
         output += "\n#{key} { #{toCSS realm[key]} \n}\n" for key of realm
         output
-
-    CCS.merge = ->
-
-        hash = {}
-        for arg in arguments
-            if arg.isFunction() then hash.merge arg.apply CCS
-            else if arg.isObject() then hash.merge arg
-        -> hash
-
-    CCS.em = (number) -> "#{number}em"
 
 ## Launch Shell
 

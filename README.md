@@ -88,3 +88,6 @@ licensing can be worked out.
 [1]: https://gist.github.com/carlsmith/544a7f10de1c9240f118 "CCS Gist"
 [2]: https://shell-cosh.appspot.com/ "CoffeeShop"
 [3]: http://www.gnu.org/licenses/gpl-3.0.html "GNU General Public License v3"
+
+<!-- Google Plus Site Ownership Verification -->
+<a href="https://plus.google.com/108176342069674447249" rel="publisher">Google+ Page</a>
