@@ -10,6 +10,7 @@
                                                                             888
                       COSH ~ A BETTER COFFEESCRIPT SHELL                    888
                                                                             888
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/carlsmith/coffeeshop?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [CoffeeShop][1] [cosh] is a HTML5 shell for CoffeeScript hacking.
 
