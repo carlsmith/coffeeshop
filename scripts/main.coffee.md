@@ -10,22 +10,17 @@ function inside `boot.js`. All of cosh's code, except for `index.html`, `shell.c
 First, just make sure `window.indexedDB` is the correct object or `undefined`. Users may
 arrive at the Gallery in any browser, so it's important to have this when nuking the DB.
 
-    window.indexedDB = \
-        indexedDB or
-        mozIndexedDB or
-        webkitIndexedDB or
-        msIndexedDB
+    window.indexedDB = indexedDB or mozIndexedDB or webkitIndexedDB or msIndexedDB
 
 This code creates a global named `cosh` that internal stuff can be bound to, but still be
 available to the user if they need it. If they often do, the API should be extended. The
 code also sets up the globals `uniquePIN` and `uniqueID`.
 
-    window.cosh =
-        uniquePIN: 0
-        coffeeVersion: coffee.VERSION
+    window.cosh = uniquePIN: 0, coffeeVersion: coffee.VERSION
 
     window.uniquePIN = -> cosh.uniquePIN++
-    window.uniqueID  = -> "coshID" + do uniquePIN
+
+    window.uniqueID = -> "coshID" + do uniquePIN
 
 Gallery mode is based on the URL. Port `9090` is supported on localhost for development.
 
@@ -76,19 +71,22 @@ This is a simple webworker that updates the time on the clock in the footer.
     worker = new Worker "/scripts/cosh/clock_worker.js"
     worker.onmessage = (event) -> $clock.text event.data
 
+The board should only scroll if the mouse is over it...
+
     $board
         .on "mouseover", -> jQuery("body").css overflow: "scroll"
         .on "mouseout",  -> jQuery("body").css overflow: "hidden"
 
-This is used internally as a more Pythonic thruthiness test.
+This is used internally for sane truthiness tests.
 
     bool = (thing) ->
 
-        if thing.equals([]) or thing.equals({}) then false
+        if thing in [undefined, null, NaN] then false
+        else if thing.equals([]) or thing.equals({}) then false
         else if thing is "false" then true
         else !! thing
 
-A simple HTML escape function.
+The rest of the HTML escape function.
 
     escape = (line) ->
 
@@ -101,33 +99,24 @@ A simple HTML escape function.
 
 The `get` method from [the API](/docs/storage.md).
 
-    window.get = (key) ->
-
-        item = localStorage.getItem key
-        if item then JSON.parse item
+    window.get = (key) -> if item = localStorage.getItem key then JSON.parse item
 
 The `set` method from [the API](/docs/storage.md).
 
     window.set = (args...) ->
 
-        reserved = (key) -> bool key.each /[*/!@:+(){}|$]/
-
         return if undefined in args
 
+        reserved = (key) -> bool key.each /[*/!@:+(){}|$]/
+
         switch args.length
-            when 1 then [key, value] = [args[0].coshKey, args[0]]
             when 2 then [key, value] = args
+            when 1 then [key, value] = [args[0].coshKey, args[0]]
             else return toastr.error "Wrong number of args.", "Set Failed"
+        return toastr.error "Bad args.", "Set Failed" unless key
+        return toastr.error "Invalid key.", "Set Failed" if reserved key
 
-        unless key
-            toastr.error "Bad args.", "Set Failed"
-            return
-
-        if reserved key
-            toastr.error "Key contains invalid characters.", "Set Failed"
-            return
-
-        if value.coshKey then value.coshKey = key
+        value.coshKey = key if value.coshKey
 
         localStorage.setItem key, JSON.stringify value
         do editor.updateCurrentFile
@@ -139,8 +128,7 @@ The `pop` method from [the API](/docs/storage.md).
 
         return toastr.error "Not enough args.", "Pop Failed" unless target
         key = if target.isString?() then target else target.coshKey
-        item = get key
-        return toastr.error "Nothing at #{target}.", "Pop Failed" unless item
+        return toastr.error "Nothing at #{target}.", "Pop Failed" unless item = get key
         localStorage.removeItem key
         do editor.updateStatus
         item
@@ -182,8 +170,8 @@ This, using `doc`, resizes the slate on change.
         do slate.resize
         do clock.scrollIntoView
 
-This makes `pre` tags inside the board clickable, loading their content into the slate when
-clicked.
+This makes `pre` tags inside the board clickable, loading their content into the slate
+when clicked.
 
     jQuery("#board").on "click", "pre", (event) ->
 
@@ -243,9 +231,7 @@ This keybinding makes `Meta.Enter` execute the slate content.
         name: "execute_slate"
         bindKey: win: "Ctrl-Enter", mac: "Cmd-Enter"
         exec: ->
-            source = do slate.getValue
-            source = source.lines (line) -> do line.trimRight
-            source = source.join '\n'
+            source = ( slate.getValue().lines (line) -> do line.trimRight ).join "\n"
             cosh.execute source if source
 
 This keybinding makes `Meta.S` call `editor.set` to set the chit to storage.
@@ -359,8 +345,7 @@ selected, using the cosh key as the file name. It supports Literate CoffeeScript
     editor.run = ->
 
         source = editor.getCopyText() or editor.getValue()
-        source = source.lines (line) -> do line.trimRight
-        source = source.join '\n'
+        source = ( source.lines (line) -> do line.trimRight ).join "\n"
         toastr.info currentFile.coshKey, "Editor Running", timeOut: 1000
         cosh.execute source, currentFile.coshKey
         do clock.scrollIntoView
@@ -371,7 +356,7 @@ selected, to the board as Markdown.
     editor.print = ->
 
         source = editor.getCopyText() or editor.getValue()
-        peg.low source.compile("md"), "page"
+        peg.low source, "page"
         undefined
 
 This API function opens a chit in the editor. It's available globally too as `edit`.
@@ -381,14 +366,12 @@ This API function opens a chit in the editor. It's available globally too as `ed
         item = if target.isString?() then get target else target
         return toastr.error "Nothing at #{target}.", "Edit File Failed" unless item
 
-        if item.coshKey.endsWith(".md") or item.coshKey.endsWith(".litcoffee")
-            mode = "ace/mode/markdown"
-        else mode = "ace/mode/coffee"
+        md = item.coshKey.endsWith(".md") or item.coshKey.endsWith(".litcoffee")
 
         currentFile = item
         $nameDiv.text currentFile.coshKey
         $descriptionDiv.text currentFile.description
-        editor.session.setMode mode
+        editor.session.setMode "ace/mode/#{ if md then 'markdown' else 'coffee' }"
         editor.setValue currentFile.content
         editor.updateStatus()
         editor.clearSelection 1
@@ -414,10 +397,13 @@ chit status colour correct.
 
         lines = editor.session.getLength() + 1
         $editorLinks.css left: 689 + 7 * lines.toString().length
-        test = currentFile?.equals get currentFile.coshKey
-        test = test and editor.getValue() is currentFile.content
-        test = test and $descriptionDiv.text() is currentFile.description
-        $nameDiv.css color: if test then "#B2D019" else "#E18243"
+
+        inSync =
+            ( currentFile?.equals get currentFile.coshKey )   and
+            ( editor.getValue() is currentFile.content )      and
+            ( $descriptionDiv.text() is currentFile.description )
+
+        $nameDiv.css color: if inSync then "#B2D019" else "#E18243"
 
 This function and the event handlers that follow it are used internally to update the
 `currentFile` using the copy in local storage. It has no effect when the hash isn't
@@ -425,8 +411,7 @@ found in local storage.
 
     editor.updateCurrentFile = ->
 
-        update = get currentFile.coshKey
-        currentFile = update if update
+        if update = get currentFile.coshKey then currentFile = update
         do editor.updateStatus
 
     editor.on "change", editor.updateStatus
@@ -458,7 +443,7 @@ The `editor.edit` method is also a global, `edit`, and is part of the shell API.
 
     window.edit = editor.edit
 
-This function is used internally to decide whether a string is a URL or storage key.
+This function is used internally to decide whether a string is a URL or not.
 
     remote = (path) -> "/" in path
 
@@ -466,10 +451,9 @@ The `run` method from [the API](/docs/files.md).
 
     window.run = (target) ->
 
-        [path, content] = \
-            if target.isString()
-                [target, if remote target then load target else get(target)?.content]
-            else [target.coshKey, target.content]
+        [path, content] =
+            if not target.isString() then [target.coshKey, target.content]
+            else [target, if remote target then load target else get(target)?.content]
 
         if path and content?
             toastr.info path, "Running Chit", timeOut: 1000
@@ -482,9 +466,9 @@ The `put` method from [the API](/docs/output.md).
 
     window.put = (args...) ->
 
-        text = bool $board.text()
+        boardWasNotEmpty = bool $board.text()
         output = put.low args...
-        output?.addClass "unspaced" if text
+        output?.addClass "unspaced" if boardWasNotEmpty
         undefined
 
     put.low = (args...) ->
@@ -512,17 +496,18 @@ The `peg` method from [the API](/docs/output.md).
 
     window.peg = (args...) ->
 
-        text = bool $board.text()
-        height = $board.height()
+        heightBeforePeg = $board.height()
+        boardWasNotEmpty = bool $board.text()
         output = peg.low args...
-        output.addClass "unspaced" if text
-        return if height isnt $board.height()
+        output.addClass "unspaced" if boardWasNotEmpty
+        return if heightBeforePeg isnt $board.height()
         peg.low("invisible element").attr class: "color-object"
         undefined
 
     peg.low = (tree, options) ->
 
         $tree = \
+
             if tree instanceof jQuery then tree
             else if tree instanceof HTMLElement then jQuery tree
             else if tree?.isString?() then jQuery("<div>").html tree.compile "md"
@@ -533,18 +518,18 @@ The `peg` method from [the API](/docs/output.md).
             if options.isString?() then $tree.addClass options
             else if options.isFunction?() then $tree = options $tree
             else
+
                 $tree = options.func $tree    if options.func
                 $tree.attr id: options.id     if options.id
                 $tree.addClass options.class  if options.class
 
         $board.append $tree
 
-        if $tree[0].className is "page"
-            jQuery("html")
-                .animate { scrollTop: $tree.offset().top - 27 }, duration: 150
-        else do clock.scrollIntoView
+        if $tree[0].className isnt "page" then do clock.scrollIntoView
+        else jQuery("html").animate { scrollTop: $tree.offset().top - 27 }, duration: 150
 
         $tree.children("h1").each ->
+
             tail = ":".repeat 87 - this.innerText.length
             this.innerHTML += "<span class=color-operator> #{tail}</span>"
 
@@ -559,10 +544,9 @@ blocking requests for remote resources.
 
         jQuery.ajax
             url: path
-            async: if callback then true else false
+            async: bool callback
             success: (response) ->
-                if callback then callback response
-                else output = response
+                if callback then callback response else output = response
 
         output
 
@@ -957,7 +941,10 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
         try result = eval.call window, "#{code.js}\n//# sourceURL=#{url}"
         catch error
 
-            if shell then $source.remove()
+            if error.stack.startsWith "SyntaxError"
+                $source.css color: "#999"
+                error.backtickedCode = true
+            else if shell then do $source.remove
             throw error
 
         return unless shell
@@ -970,6 +957,8 @@ This is where runtime errors get caught and stacktaces are generated from data s
 the `cosh.execute` function above.
 
     window.onerror = (message, url, line, column, error) ->
+
+        if error.backtickedCode then message = "Lost #{message}"
 
         traceDivs = []
 
@@ -987,7 +976,7 @@ the `cosh.execute` function above.
             traceDivs.push $traceDiv
 
         $stackDiv = jQuery "<div>"
-        $stackDiv.append $div for $div in traceDivs.reverse()
+        $stackDiv.append traceDivs.reverse()
         $stackDiv.append $errorMessageDiv message
         $board.append $stackDiv
         do clock.scrollIntoView
