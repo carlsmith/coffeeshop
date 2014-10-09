@@ -44,7 +44,6 @@ This needs changing so the method isn't iterable. The method is documented
             options.merge bare: true if options.bare is undefined
             try return coffee.compile this, options
             catch error then return error
-            return false
         if lang in ["md", "markdown"] then return marked this, options
 
 These are all local variables pointing to elements, most wrapped by jQuery.
@@ -980,7 +979,6 @@ the `cosh.execute` function above.
         $stackDiv.append $errorMessageDiv message
         $board.append $stackDiv
         do clock.scrollIntoView
-        console.log error
 
 This parses the stacktrace string that `window.onerror` knows as `error.stack`, converting
 it into an array of items from the stack, as hashes. It returns an array of two objects,
