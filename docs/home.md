@@ -2,8 +2,8 @@
 
 Welcome to **CoffeeShop**, a better [CoffeeScript][1] shell.
 
-Note that the shell depends on V8, so it'll only work in Chromium based browsers, like
-[Google Chrome][2] and [Opera][3].
+The tracebacks depend on V8, so you need a Chromium based browser, like [Google
+Chrome][2] or [Opera][3]. FireFox support should be possible soon.
 
 Look through the [the Book](/docs/front.md) to get started with cosh. There's more
 information about the project at [the Repo][4].
