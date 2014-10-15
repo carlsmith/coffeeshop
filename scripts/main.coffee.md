@@ -641,7 +641,8 @@ to it.
             <button id=#{formID}Delete>pop coshGitHubAuth</button>
             """
 
-        jQuery("##{formID}Delete").click -> pop authStore
+        jQuery("##{formID}Delete").click -> if pop authStore
+            toastr.success "Popped coshGitHubAuth.", "Deauthorised"
 
         jQuery("##{formID}").submit (event) ->
 
