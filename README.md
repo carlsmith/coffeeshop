@@ -98,8 +98,6 @@ CoffeeShop is Free Software. A lot of CoffeeShop's parts come from third party
 projects under their chosen [open source] licenses. All code and docs in this
 repository are bundled together under the [GPLv3][3] for convenience.
 
-> "legend tells of a legendary warrior whose kung fu skills were the stuff of legend" -- Po
-
 ![logo](https://raw.githubusercontent.com/carlsmith/coffeeshop/master/images/skull_stamp.png)
 
 [1]: https://shell-cosh.appspot.com/ "CoffeeShop"

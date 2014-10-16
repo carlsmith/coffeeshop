@@ -1014,7 +1014,7 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
                 continue if ignore parts[2]
 
                 element =
-                    file: parts[2]
+                    file: parts[2].remove /[()]/g
                     methodName: parts[1] or "<unknown>"
                     lineNumber: +parts[3]
                     column: (if parts[4] then +parts[4] else null)
@@ -1024,7 +1024,7 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
                 continue if ignore parts[2]
 
                 element =
-                    file: parts[2]
+                    file: parts[2].remove /[()]/g
                     methodName: parts[1] or "<unknown>"
                     lineNumber: +parts[3]
                     column: (if parts[4] then +parts[4] else null)
@@ -1034,7 +1034,7 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
                 continue if ignore parts[3]
 
                 element =
-                    file: parts[3]
+                    file: parts[3].remove /[()]/g
                     methodName: parts[1] or "<unknown>"
                     lineNumber: +parts[4]
                     column: (if parts[5] then +parts[5] else null)
