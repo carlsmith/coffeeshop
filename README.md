@@ -8,10 +8,10 @@
     Y88b  d88PY88..88P888   888   Y8b.    Y8b.    Y88b  d88P888  888Y88..88P888 d88P   "
      "Y8888P"  "Y88P" 888   888    "Y8888  "Y8888  "Y8888P" 888  888 "Y88P" 88888P"   888
                                                                             888
-                      COSH -> THE ONE AND ONLY HTML5 SHELL                  888
+                      COSH -> THE HTML5 SHELL                               888
                                                                             888
 
-![Screenshot](https://raw.githubusercontent.com/carlsmith/coffeeshop/master/images/props.png)
+![screenshot](https://raw.githubusercontent.com/carlsmith/coffeeshop/master/images/props.png)
 
 [CoffeeShop][1] is a Gist based environment for web scripting. It lets you make and
 publish HTML5 shell scripts using CoffeeScript and Markdown.
@@ -99,12 +99,9 @@ License
 
 CoffeeShop is Free Software. A lot of CoffeeShop's parts come from third party
 projects under their chosen [open source] licenses. All code and docs in this
-repository are bundled together under the [GPLv3][3] for convenience. Better
-licensing can be worked out.
+repository are bundled together under the [GPLv3][3] for convenience.
 
----
-
-- [shell-cosh.appspot.com][1] Our instance, hosted on Google App Engine.
+![logo](https://raw.githubusercontent.com/carlsmith/coffeeshop/master/images/skull_stamp.png)
 
 [1]: https://shell-cosh.appspot.com/ "CoffeeShop"
 [2]: https://gallery-cosh.appspot.com/#2527b9a1d347a747be49 "ES6 Rant"

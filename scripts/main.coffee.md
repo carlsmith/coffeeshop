@@ -1156,8 +1156,9 @@ the page is destroyed.
 
 ### The End
 
-All done. The odd looking comment at the bottom is a source URL directive that allows the
-shell to recognise this file in stacktraces, so the stack can be truncated correctly.
+All done; just focus the slate. The comment at the bottom is a source URL directive that
+allows the shell to recognise this file in stacktraces, so the stack can be filtered
+correctly.
 
     do slate.focus
 

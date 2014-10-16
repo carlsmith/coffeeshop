@@ -33,8 +33,6 @@ details { margin-right: 8px; outline: none }
     position: fixed; right: 0; left: 0; top: 0;
     z-index: 2 }
 
-#cover-logo { display: none }
-
 #shell-links { position: absolute; left: 277px }
 
 #editor-links {
