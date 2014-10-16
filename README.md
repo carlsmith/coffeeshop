@@ -1,32 +1,31 @@
-
-     .d8888b.          .d888 .d888                 .d8888b. 888                       888
-    d88P  Y88b        d88P" d88P"                 d88P  Y88b888                       888
-    888    888        888   888                   Y88b.     888                       888
-    888        .d88b. 888888888888 .d88b.  .d88b.  "Y888b.  88888b.  .d88b. 88888b.   888
-    888       d88""88b888   888   d8P  Y8bd8P  Y8b    "Y88b.888 "88bd88""88b888 "88b  888
-    888    888888  888888   888   8888888888888888      "888888  888888  888888  888  888
-    Y88b  d88PY88..88P888   888   Y8b.    Y8b.    Y88b  d88P888  888Y88..88P888 d88P   "
-     "Y8888P"  "Y88P" 888   888    "Y8888  "Y8888  "Y8888P" 888  888 "Y88P" 88888P"   888
-                                                                            888
-                      COSH -> THE HTML5 SHELL                               888
-                                                                            888
+```
+  .d8888b.          .d8888888888888888888888P" .d8888b. .d88888888888888888888888888
+ d88P  Y88b        d88Y  d88Y                 d88P  Y88Y88Y                      888
+ 888    888        888   888                  Y88b.    888                       888
+ 888        .d88b. 8888888888P".d88b.  .d88b. "Y888b.  88888b.  .d88b. 88888b.   888
+ 888       d88""88b888   888  d8P  Y8bd8P  Y8b   "Y88b.888 "88bd88""88b888 "88b  888
+ 888    888888  888888   888  8888888888888888     "888888  888888  888888  888  888
+ Y88b  d88PY88..88P888   888  Y8b.    Y8b.   Y88b  d88P888  888Y88..88P888 .d8P  
+  "Y8888P"  "Y88P" 888   888   "Y8888  "Y8888 "Y8888P" 888  888 "Y88P" 88888P"   GPL
+                   888   888                           888  888        888
+                  .d8Y  .d8Y  c[__] THE HTML5 SHELL   .d8Y .d8Y       .d8Y
+```
 
 ![screenshot](https://raw.githubusercontent.com/carlsmith/coffeeshop/master/images/props.png)
 
-[CoffeeShop][1] is a Gist based environment for web scripting. It lets you make and
+[CoffeeShop][1] is a gist based environment for web scripting. It lets you make and
 publish HTML5 shell scripts using CoffeeScript and Markdown.
 
 > "pretty bad ass" -- Jeremy Ashkenas
 
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/carlsmith/coffeeshop?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Big Bullets
------------
+### Main Awesomeness
 
 - **HTML5 Shell** Everything you can do in a browser, in a CoffeeScript shell.
 - **Ace Editing** The shell and editor are both based on Ace and easy to hack.
-- **Smart Tracebacks** Automatic source mapping lets you debug the code you wrote. Just
-click on any CoffeeScript in a traceback to see the compiled JS.
+- **Smart Tracebacks** Automatic source mapping. Just debug the code you wrote. Click
+on any CoffeeScript in a traceback to see the compiled JS.
 - **Extensible** Edit scripts in local storage, including code that gets executed each
 time the shell loads. Hack the shell from inside of itself and make it your own.
 - **Gist Integration** Publish, push and clone scripts through GitHub. All published
@@ -46,8 +45,7 @@ anywhere [including locally] and it'll work the same as ever.
 core without installing any dependencies, even on Windows.
 - **Free as in Free** GPL licensed and gratis.
 
-Set Up and Installation
------------------------
+### Getting Started
 
 [The Shell][1] and the Gallery are hosted on Google App Engine. You're welcome to use
 them, no problem. If you'd rather not share personal data with Google, or you just want
@@ -76,8 +74,7 @@ running your config file.
 If you want to publish or push to GitHub Gist, you'll need a GitHub account.
 CoffeeShop doesn't have an account system; it just uses local storage.
 
-Limitations
------------
+### Limitations
 
 Browsers suck a stack traces, especially in what they expose to webapps. Only
 Chrome and Opera currently have the features needed to create tracebacks well,
@@ -95,12 +92,13 @@ Other browsers are not likely to work well with CoffeeShop in the near future.
 TLDR: You'll soon be able to use any mix of CoffeeScript and JavaScript in
 Chrome, Opera and FireFox, but for now it's CoffeeScript in Chrome and Opera.
 
-License
--------
+### License
 
 CoffeeShop is Free Software. A lot of CoffeeShop's parts come from third party
 projects under their chosen [open source] licenses. All code and docs in this
 repository are bundled together under the [GPLv3][3] for convenience.
+
+> "legend tells of a legendary warrior whose kung fu skills were the stuff of legend" -- Po
 
 ![logo](https://raw.githubusercontent.com/carlsmith/coffeeshop/master/images/skull_stamp.png)
 
