@@ -818,8 +818,9 @@ assuming the doc hasn't been cached already. This speeds things up a lot.
 
 ## Execution and Exception Handling
 
-This stuff needs refactoring. It's where all the compilation, execution, source mapping,
-error handling currently lives.
+This stuff needs refactoring, badly. It's where all the compilation, execution, source
+mapping, error handling currently lives. Functions that return jQuery objects shouldn't
+have names that start with a dollar either.
 
     $highlightTrace = (source, lineNumber, charNumber) ->
 
@@ -859,12 +860,15 @@ error handling currently lives.
         </div>
         """
 
-    $coffeeErrorDiv = (item, map) ->
+    $coffeeErrorDiv = (item, map, trace) ->
+
+        $cs = $highlightTrace item.source, map.line-1, map.column
+        $js = $highlightTrace item.code, trace.lineNumber-1, trace.column-1
 
         jQuery "<div>"
             .css "display": "inline"
-            .append $highlightTrace item.source, map.line - 1, map.column
-
+            .append $cs.attr class: "error-input-cs"
+            .append $js.attr class: "error-compiled-js"
 
     $traceFooterDiv = (origin) ->
 
@@ -893,6 +897,10 @@ error handling currently lives.
         [key, date] = item.count.split "@"
 
         "#{key} #{locationString} [#{date}]"
+
+    jQuery("#board").on "click", ".error-input-cs", ->
+
+        jQuery(@).next().slideToggle(200).css display: "block"
 
 ### Execution
 
@@ -967,7 +975,7 @@ the `cosh.execute` function above.
             if item = inputs[trace.file]
                 map = doMap item, trace
                 origin = parseOrigin item, map
-                $traceDiv = $coffeeErrorDiv item, map
+                $traceDiv = $coffeeErrorDiv item, map, trace
             else
                 origin = trace.file
                 $traceDiv = $nativeErrorDiv trace

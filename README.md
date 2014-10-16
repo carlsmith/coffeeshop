@@ -25,7 +25,8 @@ Big Bullets
 
 - **HTML5 Shell** Everything you can do in a browser, in a CoffeeScript shell.
 - **Ace Editing** The shell and editor are both based on Ace and easy to hack.
-- **Smart Tracebacks** Automatic source mapping lets you just debug the code you wrote.
+- **Smart Tracebacks** Automatic source mapping lets you debug the code you wrote. Just
+click on any CoffeeScript in a traceback to see the compiled JS.
 - **Extensible** Edit scripts in local storage, including code that gets executed each
 time the shell loads. Hack the shell from inside of itself and make it your own.
 - **Gist Integration** Publish, push and clone scripts through GitHub. All published

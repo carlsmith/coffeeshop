@@ -148,6 +148,15 @@ details { margin-right: 8px; outline: none }
 
 #board .error-missing-char { border-bottom: 1px dotted #E18243 }
 
+#board .error-input-cs { color: #999999; cursor: pointer }
+
+#board .error-compiled-js { color: #4DBDBD;
+    display: none;
+    box-shadow: inset 0 0 15px #000;
+    background-color: rgba(0, 0, 0, 0.14);
+    margin-bottom: 0;
+    }
+
     /* Loose Ends */
 
 .cut:before { content: '|' }
