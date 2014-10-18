@@ -386,7 +386,7 @@ This API function sets the current chit, `currentFile`, to local storage.
         currentFile.description = $descriptionDiv.text() or "?"
         currentFile.content = do editor.getValue
         set currentFile
-        $nameDiv.css color: "#B2D019"
+        $nameDiv.css color: "#93A538"
         currentFile
 
 This function is used internally to trigger the editor's checks that allow it to keep the
@@ -402,7 +402,7 @@ chit status colour correct.
             ( editor.getValue() is currentFile.content )      and
             ( $descriptionDiv.text() is currentFile.description )
 
-        $nameDiv.css color: if inSync then "#B2D019" else "#E18243"
+        $nameDiv.css color: if inSync then "#93A538" else "#E18243"
 
 This function and the event handlers that follow it are used internally to update the
 `currentFile` using the copy in local storage. It has no effect when the hash isn't
@@ -1163,8 +1163,10 @@ the page is destroyed.
             description: "Run on boot unless in safe mode."
             content: 'print "/docs/home.md"'
 
-        $brand.css color: "#E18243"
-            .text if launchCode is "safemode" then "Safe Mode" else "CoffeeShop"
+        safemode = launchCode is "safemode"
+        $brand
+            .css( color: if safemode then "#D88E5C" else "#93A538" )
+            .text( if safemode then "Safe Mode" else "c[_]" )
 
         edit "config.coffee"
         if launchCode isnt "safemode"
