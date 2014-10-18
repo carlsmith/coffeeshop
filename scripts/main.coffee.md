@@ -847,7 +847,7 @@ have names that start with a dollar either.
         jQuery "<div>"
             .attr "class", "color-operator"
             .append $highlightTrace source, line, column
-            .append $traceFooterDiv "invalid input [#{line}:#{column}]"
+            .append $traceFooterDiv "invalid input [#{line+1}:#{column+1}]"
             .append $errorMessageDiv message
             .appendTo $board
 
