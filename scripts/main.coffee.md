@@ -898,7 +898,7 @@ have names that start with a dollar either.
 
         "#{key} #{locationString} [#{date}]"
 
-    jQuery("#board").on "click", ".error-input-cs", ->
+    jQuery("#board").on "click", ".error-input-cs, .input-cs", ->
 
         jQuery(@).next().slideToggle(200).css display: "block"
 
@@ -943,8 +943,14 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
 
         if shell
 
-            $source = jQuery("<xmp>").text(source).css color: "#4DBDBD"
-            $board.append $source
+            $csSource = jQuery "<xmp>"
+                .text source
+                .addClass "input-cs"
+                .appendTo $board
+            $jsSource = jQuery "<xmp>"
+                .text code.js
+                .addClass "compiled-js"
+                .appendTo $board
 
         try result = eval.call window, "#{code.js}\n//# sourceURL=#{url}"
         catch error
@@ -952,7 +958,9 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
             if error.stack.startsWith "SyntaxError"
                 $source.css color: "#999"
                 error.backtickedCode = true
-            else if shell then do $source.remove
+            else if shell
+                do $csSource.remove
+                do $jsSource.remove
             throw error
 
         return unless shell

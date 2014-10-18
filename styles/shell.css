@@ -6,7 +6,7 @@ body {
     margin: 0;
     color: #E6E0B9;
     font-size: 12px;
-    width: 640px }
+    width: 648px }
 
 a:hover { color: #FFBAF4; cursor: pointer }
 a:active { color: blue }
@@ -56,7 +56,7 @@ details { margin-right: 8px; outline: none }
 
 #slate { height: 16px; max-width: 648px }
 
-#footer { padding: 0 4px 2px 4px; width: 686px }
+#footer { padding: 0 4px 2px 4px; width: 644px }
 
 #spacer, #footer { cursor: text }
 
@@ -71,7 +71,9 @@ details { margin-right: 8px; outline: none }
     top: 27px;
     bottom: 0;
     left: 651px;
-    right: 0; }
+    right: 0;
+    z-index: 3;
+    }
 
     /* Board Only */
 
@@ -90,18 +92,18 @@ details { margin-right: 8px; outline: none }
 #board h1, #board h2, #board h3 { color: #4DBDBD }
 #board h1, #board h2, #board h3 { margin: 0 0 16px 0 }
 #board h4, #board h5, #board h6 { margin: 0 }
-#board h1:before, #board h2:before { color: #E18243; content: '::: ' }
+#board h1:before, #board h2:before { color: #D88E5C; content: '::: ' }
 
 #board ul { list-style: none; padding: 0; margin: 0 11px 16px }
 
 #board li { padding-left: 1em; text-indent: -.7em }
 
-#board li:before { color: #E18243; content: "+ " }
+#board li:before { color: #D88E5C; content: "+ " }
 
 #board blockquote { margin: 0 28px; color: #999; font-style: italic }
 
 #board hr {
-    border: 1px dashed #E18243;
+    border: 1px dashed #D88E5C;
     margin-bottom: 16px;
     margin-right: 7px; }
 
@@ -132,7 +134,7 @@ details { margin-right: 8px; outline: none }
 
 #board textarea { resize: none; height: 128px }
 
-#board button, #board input { color: #E18243 }
+#board button, #board input { color: #D88E5C }
 
 #board button:hover, #board input[type=submit]:hover {
     color: white;
@@ -146,14 +148,29 @@ details { margin-right: 8px; outline: none }
 
 #board .error { color: #999999 }
 
-#board .error-missing-char { border-bottom: 1px dotted #E18243 }
+#board .error-missing-char { border-bottom: 1px dotted #D88E5C }
 
 #board .error-input-cs { color: #999999; cursor: pointer }
 
-#board .error-compiled-js { color: #4DBDBD;
+#board .error-compiled-js {
+    color: #4D774A;
     display: none;
-    box-shadow: inset 0 0 15px #000;
-    background-color: rgba(0, 0, 0, 0.14);
+    box-shadow: inset 0 1px 12px #000;
+    border-bottom: 1px solid #222;
+    border-radius: 4px;
+    padding: 6px 7px 9px 7px;
+    }
+
+#board .input-cs { color: #4DBDBD; cursor: pointer }
+
+#board .compiled-js {
+    color: #4D774A;
+    display: none;
+    box-shadow: inset 0 1px 12px #000;
+    border-bottom: 1px solid #222;
+    border-radius: 4px;
+    padding: 6px 7px 9px 7px;
+    position: relative; top: -16px;
     margin-bottom: 0;
     }
 
@@ -179,7 +196,7 @@ details { margin-right: 8px; outline: none }
     a,
     #filename,
     #file-description:focus,
-    #file-description:hover { color: #B2D019 }
+    #file-description:hover { color: #93A538}
 
 .color-operator,
     blockquote:before,
@@ -188,10 +205,10 @@ details { margin-right: 8px; outline: none }
     #board input[type=password],
     #board input[type=submit],
     #board .error-message,
-    .cut:before { color: #E18243 }
+    .cut:before { color: #D88E5C }
 
 .color-code,
-    #board code { color: #EBBB00 }
+    #board code { color: #D0AA17 }
 
 .color-clock,
     #banner,
