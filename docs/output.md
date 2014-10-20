@@ -27,9 +27,10 @@ The `peg` Function appends DOM stuff to the board. It accepts Markdown strings.
         - some **bold text** and some `inline code`
         """
 
-In Markdown, anything within HTML tags is ignored by the compiler; it is a strict superset
-of HTML, so you can have canvases, web components or anything else in Markdown. You can put
-script and style tags in Markdown too, but there's cleaner ways to achieve the same thing.
+In Markdown, anything within HTML tags is ignored by the compiler. Markdown is a strict
+superset of HTML, so you can have canvases, web components or anything else in Markdown.
+You can put script and style tags in Markdown too, but there are cleaner ways to achieve
+the same thing.
 
 The `peg` function also accepts DOM nodes and jQuery objects.
 
@@ -74,7 +75,7 @@ The low-magic versions do not make the output `unspaced`, so they appear after a
 They also return the jQuery object they append.
 
     peg.low "Some `code` example."
-    .css color: "sienna"
+        .css color: "sienna"
 
 To make the low-magic versions append their outputs unspaced, just add the class yourself.
 

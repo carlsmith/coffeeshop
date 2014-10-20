@@ -1,28 +1,30 @@
-* { font-family: Droid Mono; outline-color: #4D774A; }
-
 ::-webkit-scrollbar { display: none }
 
 body {
     margin: 0;
-    color: #E6E0B9;
-    font-size: 12px;
     width: 648px }
 
 a:hover { color: #FFBAF4; cursor: pointer }
 a:active { color: blue }
 
-xmp, .error, .spaced, .error-message { margin: 0 0 16px 0 }
+#board xmp, #board .error,
+#board .spaced, #board .error-message { margin: 0 0 16px 0; font-family: Droid Mono }
 
 img, video { max-height: 256px; max-width: 642px; padding: 16px 14px; }
 
 iframe { height: 315px; width: 642px; border: 1px solid #000; }
 
-pre:hover {
+#board pre:hover {
     background: rgba(47, 75, 64, 0.28);
-    width: 614px;
     cursor: pointer }
 
 details { margin-right: 8px; outline: none }
+
+#banner, #board, #footer {
+    color: #E6E0B9;
+    font-size: 12px;
+    font-family: Droid Mono;
+    outline-color: #4D774A; }
 
 #banner {
     cursor: default;
@@ -75,9 +77,8 @@ details { margin-right: 8px; outline: none }
     z-index: 3;
     }
 
-    /* Board Only */
-
 #board {
+    outline-color: #4D774A;
     padding: 0 4px;
     margin-top: 27px;
     word-wrap: break-word;
@@ -107,10 +108,17 @@ details { margin-right: 8px; outline: none }
     margin-bottom: 16px;
     margin-right: 7px; }
 
-#board pre { padding-left: 28px; margin: 0 0 16px 0 }
+#board pre {
+    width: 614px;
+    padding-left: 28px;
+    margin: 0 0 16px 0;
+    font-family: Droid Mono; }
+
+#board code { font-family: Droid Mono }
 
 #board input[type=text], #board input[type=password],
 #board input[type=submit], #board textarea, #board select, #board button {
+    font-family: Droid Mono;
     width: 644px;
     margin-top: 4px;
     margin-bottom: 16px;
@@ -174,13 +182,91 @@ details { margin-right: 8px; outline: none }
     margin-bottom: 0;
     }
 
-    /* Loose Ends */
-
 .cut:before { content: '|' }
 
 #board .unspaced { margin: -16px 0 16px 0 }
 
-    /* Colors */
+#cover {
+    display: none;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 4;
+    }
+
+#viewer {
+    display: none;
+    overflow-y: scroll;
+    background-color: #FDFDFD;
+    position: relative;
+    top: 9px;
+    padding: 32px 64px 64px;
+    width: 738px;
+    margin: auto;
+    z-index: 4;
+    border: 7px solid #777;
+    box-shadow: 0 0 30px 10px #000;
+    }
+
+#viewer h1, #viewer h2, #viewer h3, #viewer pre {
+    padding: 8px 16px;
+    margin: 16px;
+    }
+
+#viewer h1, #viewer h2, #viewer h3 {
+    color: #222;
+    font-family: Times New Roman;
+    font-weight: 100;
+    }
+
+#viewer h1, #viewer pre {
+    background: white;
+    border: 1px solid #777;
+    box-shadow: 0 2px 8px -4px #730000;
+    color: #4A0000;
+    }
+
+#viewer h2 {
+    background: white;
+    padding: 4px 16px;
+    border: 1px solid #999;
+    box-shadow: 0 3px 4px -4px;
+    margin-top: 64px;
+    }
+
+#viewer a {
+    color: #143E98;
+    }
+
+#viewer a:hover, #viewer a:active { color: #3700FF }
+
+#viewer code {
+    font-size: 16px;
+    color: #840000;
+    }
+
+#viewer pre > code {
+    font-size: 14px;
+    color: black;
+    }
+
+#viewer pre {
+    box-shadow: inset 0 1px 8px -4px;
+    background: #FCFCFC;
+    }
+
+#viewer p, #viewer ul {
+    margin: 16px 32px;
+    font-size: 18px;
+    font-family: Times;
+    color: #1B1B1B;
+    }
+
+#viewer p {
+    }
 
 .bgcolor-main,
     body,

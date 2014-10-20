@@ -7,7 +7,7 @@ There are three functions for managing gists.
 - `push` Updates a published Gist from a gist chit.
 
 File chits always have at least three string properties, named `coshKey`, `description`
-and `content`. These properties map to [gists][1], where the cosh key is used the gist's
+and `content`. These properties map to [gists][1], where the cosh key is used as the gist's
 filename. Gist chits extend the file kind, adding three extra, required string properties,
 named `gistID`, `owner` and `galleryURL`. An example gist chit:
 

@@ -52,6 +52,8 @@ These are all local variables pointing to elements, most wrapped by jQuery.
     $slate = jQuery "#slate"
     $clock = jQuery "#clock"
     $board = jQuery "#board"
+    $cover = jQuery "#cover"
+    $viewer = jQuery "#viewer"
     $nameDiv = jQuery "#filename"
     $editorLinks = jQuery "#editor-links"
     $descriptionDiv = jQuery "#file-description"
@@ -522,7 +524,8 @@ The `peg` method from [the API](/docs/output.md).
                 $tree.attr id: options.id     if options.id
                 $tree.addClass options.class  if options.class
 
-        $board.append $tree
+        if options?.target then return jQuery(options.target).append $tree
+        else $board.append $tree
 
         if $tree[0].className isnt "page" then do clock.scrollIntoView
         else jQuery("html").animate { scrollTop: $tree.offset().top - 27 }, duration: 150
@@ -561,6 +564,20 @@ The `print` method from [the API](/docs/output.md).
         else peg.low target.content, "page"
 
         undefined
+
+The `view` function.
+
+    windowHeight = undefined
+    do setWindowHeight = -> windowHeight = jQuery(window).height()
+    jQuery(window).resize setWindowHeight
+
+    window.view = (content) ->
+
+        peg content, target: $viewer
+        $viewer.css maxHeight: windowHeight-127, display: "block"
+        $cover.css display: "block"
+        undefined
+
 
 The `clear` method from [the API](/docs/output.md).
 
@@ -956,7 +973,8 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
         catch error
 
             if error.stack.startsWith "SyntaxError"
-                $source.css color: "#999"
+                $csSource.css color: "#999"
+                $jsSource.css color: "#999"
                 error.backtickedCode = true
             else if shell
                 do $csSource.remove
