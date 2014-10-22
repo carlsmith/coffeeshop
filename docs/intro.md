@@ -9,7 +9,7 @@ shell running in 'gallery mode' ~ so it has no persistency. You can use it to sh
 gists as little web apps, a bit like JSFiddle, but more romantic.
 
 You can also clone a gist and use it in your own shell, but you need to trust it as it'll
-then have access to your own shells internals.
+then have access to your own shell's internals.
 
 ## Why CoffeeScript
 
