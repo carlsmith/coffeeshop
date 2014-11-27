@@ -76,7 +76,7 @@ CoffeeShop doesn't have an account system; it just uses local storage.
 
 ### Limitations
 
-Browsers suck a stack traces, especially in what they expose to webapps. Only
+Browsers suck at stack traces, especially in what they expose to webapps. Only
 Chrome and Opera currently have the features needed to create tracebacks well,
 so you'll need one of those browsers for now.
 
