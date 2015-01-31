@@ -93,7 +93,8 @@ details { margin-right: 8px; outline: none }
 #board h1, #board h2, #board h3 { color: #4DBDBD }
 #board h1, #board h2, #board h3 { margin: 0 0 16px 0 }
 #board h4, #board h5, #board h6 { margin: 0 }
-#board h1:before, #board h2:before { color: #D88E5C; content: '::: ' }
+#board h1:before { color: #D88E5C; content: '# ' }
+#board h2:before { color: #D88E5C; content: '::: ' }
 
 #board ul { list-style: none; padding: 0; margin: 0 11px 16px }
 

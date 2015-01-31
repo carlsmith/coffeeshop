@@ -530,10 +530,7 @@ The `peg` method from [the API](/docs/output.md).
         if $tree[0].className isnt "page" then do clock.scrollIntoView
         else jQuery("html").animate { scrollTop: $tree.offset().top - 27 }, duration: 150
 
-        $tree.children("h1").each ->
-
-            tail = ":".repeat 87 - this.innerText.length
-            this.innerHTML += "<span class=color-operator> #{tail}</span>"
+        $tree.children("h1").append "<hr>"
 
         $tree
 
