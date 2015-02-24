@@ -1,33 +1,18 @@
 # CoffeeShop
 
-CoffeeShop's a novel, HTML5 shell. It has a familiar interface, a command line and editor,
-but instead of just spitting out strings, you can interact with anything your browser can
-render.
+CoffeeShop is a simple, but capable, CoffeeScript shell. It is designed to
+be easy to use by people new to programming, but powerful too.
 
-CoffeeShop uses GitHub Gist to let you share stuff, and there's a hosted version of the
-shell running in 'gallery mode' ~ so it has no persistency. You can use it to share your
-gists as little web apps, a bit like JSFiddle, but more romantic.
+It has a familiar interface, a command line and text editor, but instead of
+just outputting strings like a terminal would, it can potentially output
+anything your browser can render.
 
-You can also clone a gist and use it in your own shell, but you need to trust it as it'll
-then have access to your own shell's internals.
+CoffeeShop uses gists to let you share stuff. There are a few different ways
+to share and use scripts, between users or as published scripts.
 
-## Why CoffeeScript
-
-CoffeeScript is a modern, highly expressive language that compiles to JavaScript, but
-doesn't try to replace JavaScript; it's the zen of JavaScript. Nothing from CoffeeScript
-exists at runtime; it's a direct translation. You use the same libraries and APIs and it's
-the same runtime. The only difference is that you now have a much more elegant language to
-express yourself with.
-
-For hacking a browser, the best language you can use is the subset of JavaScript that
-CoffeeScript sugars, but the syntax of JavaScript doesn't fit the programming style.
-CoffeeScript was literally made for it.
-
-CoffeeScript syntax is also pretty much ideal for interactive programming. Having light
-syntax with optional delimiters and significant whitespace, and where everything's an
-expression, is extra helpful in a shell.
-
----
+The goal is to develop an integrated, interactive programming environment
+that is ideal for new programmers, while also being something that serious
+hackers use and contribute to.
 
 [Return to the Front Page](/docs/front.md)
 
