@@ -1,8 +1,9 @@
+html { box-sizing: border-box }
+*, *:before, *:after { box-sizing: inherit }
+
 ::-webkit-scrollbar { display: none }
 
-body {
-    margin: 0;
-    width: 648px }
+body { margin: 0 }
 
 a:hover { color: #FFBAF4; cursor: pointer }
 a:active { color: blue }
@@ -12,7 +13,7 @@ a:active { color: blue }
 
 img, video { max-height: 256px; max-width: 642px; padding: 16px 14px; }
 
-iframe { height: 315px; width: 642px; border: 1px solid #000; }
+iframe { height: 315px; width: 576px; border: 1px solid #3A3A3A }
 
 #board pre:hover {
     background: rgba(47, 75, 64, 0.28);
@@ -24,7 +25,7 @@ details { margin-right: 8px; outline: none }
     color: #E6E0B9;
     font-size: 12px;
     font-family: Droid Mono;
-    outline-color: #4D774A; }
+    outline-color: #4D774A }
 
 #banner {
     cursor: default;
@@ -35,7 +36,7 @@ details { margin-right: 8px; outline: none }
     position: fixed; right: 0; left: 0; top: 0;
     z-index: 2 }
 
-#shell-links { position: absolute; left: 277px }
+#shell-links { position: absolute; left: 198px; }
 
 #editor-links {
     left: 696px;
@@ -56,9 +57,9 @@ details { margin-right: 8px; outline: none }
     position: fixed; top: 0; right: 0;
     width: 50px; height: 26px }
 
-#slate { height: 16px; max-width: 648px }
+#slate { height: 16px; max-width: 584px }
 
-#footer { padding: 0 4px 2px 4px; width: 644px }
+#footer { padding: 0 4px 2px 4px; width: 584px }
 
 #spacer, #footer { cursor: text }
 
@@ -72,7 +73,7 @@ details { margin-right: 8px; outline: none }
     position: fixed;
     top: 27px;
     bottom: 0;
-    left: 651px;
+    left: 584px;
     right: 0;
     z-index: 3;
     }
@@ -80,9 +81,9 @@ details { margin-right: 8px; outline: none }
 #board {
     outline-color: #4D774A;
     padding: 0 4px;
-    margin-top: 27px;
+    margin: 27px 0 0 0;
     word-wrap: break-word;
-    width: 644px; }
+    width: 584px }
 
 #board p { margin: 16px 0; }
 
@@ -93,7 +94,7 @@ details { margin-right: 8px; outline: none }
 #board h1, #board h2, #board h3 { color: #4DBDBD }
 #board h1, #board h2, #board h3 { margin: 0 0 16px 0 }
 #board h4, #board h5, #board h6 { margin: 0 }
-#board h1:before { color: #D88E5C; content: '# ' }
+#board h1 { border-bottom: 1px solid }
 #board h2:before { color: #D88E5C; content: '::: ' }
 
 #board ul { list-style: none; padding: 0; margin: 0 11px 16px }
@@ -120,7 +121,7 @@ details { margin-right: 8px; outline: none }
 #board input[type=text], #board input[type=password],
 #board input[type=submit], #board textarea, #board select, #board button {
     font-family: Droid Mono;
-    width: 644px;
+    width: 576px;
     margin-top: 4px;
     margin-bottom: 16px;
     -webkit-box-sizing: border-box;

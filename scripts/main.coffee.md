@@ -397,7 +397,7 @@ chit status colour correct.
     editor.updateStatus = ->
 
         lines = editor.session.getLength() + 1
-        $editorLinks.css left: 689 + 7 * lines.toString().length
+        $editorLinks.css left: 623 + 7 * lines.toString().length
 
         inSync =
             ( currentFile?.equals get currentFile.coshKey )   and
@@ -530,8 +530,6 @@ The `peg` method from [the API](/docs/output.md).
         if $tree[0].className isnt "page" then do clock.scrollIntoView
         else jQuery("html").animate { scrollTop: $tree.offset().top - 27 }, duration: 150
 
-        $tree.children("h1").append "<hr>"
-
         $tree
 
 The `load` method was an API method, and is no more. It's still used internally to make
@@ -634,10 +632,7 @@ to it.
             your GitHub username and password.
 
             ## Authorise This Browser
-            You credentials must be locally set to `coshGitHubAuth`. You
-            can do it by hand, or use the form provided here.
-
-                set "coshGitHubAuth", { username: "bob", password: "foo" }
+            You credentials must be locally set to `coshGitHubAuth`.
 
             <form id=#{formID}>
             <input id=#{formID}Username type=text placeholder=username>
@@ -647,10 +642,7 @@ to it.
 
             ## Deauthorise This Browser
             You can deauthorise this browser by removing your credentials
-            from local storage. The following command would work, or just
-            click the pop button.
-
-                pop "coshGitHubAuth"
+            from local storage.
 
             <button id=#{formID}Delete>pop coshGitHubAuth</button>
             """
@@ -682,7 +674,7 @@ to it.
 
 The `publish` function from the [API](/docs/gists.md).
 
-    window.publish = (target, published=true) ->
+    window.publish = (target) ->
 
         output = undefined
 
@@ -696,7 +688,7 @@ The `publish` function from the [API](/docs/gists.md).
 
         data =
             description: target.description
-            public: published
+            public: true
             files: {}
         data.files[target.coshKey] = content: target.content
 
@@ -710,7 +702,7 @@ The `publish` function from the [API](/docs/gists.md).
                 reason = JSON.parse(result.responseText).message
                 toastr.error reason, "Publishing failed"
             success: (data) ->
-                output = gist2chit data
+                output = set gist2chit data
                 toastr.success output.gistID, "Published Gist"
 
         output
