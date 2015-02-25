@@ -28,5 +28,5 @@ When executing the editor content, the source will be treated as Literate
 CoffeeScript if the chit key ends with `.coffee.md` or `.litcoffee`.
 
 Beyond these keyboard shortcuts, you control everything using a little API. If
-you're new to CoffeeShop, you should look at the [Builtins](/docs/builtins.md)
+you are new to CoffeeShop, you should look at the [Builtins](/docs/builtins.md)
 doc next.
