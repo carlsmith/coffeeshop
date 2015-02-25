@@ -10,9 +10,14 @@ anything your browser can render.
 CoffeeShop uses gists to let you share stuff. There are a few different ways
 to share and use scripts, between users or as published scripts.
 
-The goal is to develop an integrated, interactive programming environment
-that is ideal for new programmers, while also being something that serious
-hackers use and contribute to.
+The goal is to develop a fun, interactive, programming environment that is
+ideal for new programmers, while also being something that experienced
+programmers use and contribute to.
+
+---
+
+This book is being developed as a guide for hackers to get up to speed on how
+this shell works. Separate content will be created to learn programming from.
 
 [Return to the Front Page](/docs/front.md)
 

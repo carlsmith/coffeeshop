@@ -1,41 +1,45 @@
 # Storage Functions
 
-There are three storage functions, wrapping `localStorage` with JSON and a tiny
-bit of magic. You should use these three functions for all local persistency.
+These functions are used to store and retrieve JSON serialisable values from
+local storage.
 
-- `set` Sets a JSON value, which cloud be a hash, to localStorage, then returns it.
-- `get` Gets a JSON value from localStorage , then returns it.
-- `pop` Removes a JSON value from localStorage, then returns it.
+- `set` Set a value to local storage, then return it
+- `get` Get a value from local storage, then return it
+- `pop` Pop a value from local storage, then return it
 
 ## Function: `set`
 
-The `set` function sets objects to storage ~ it saves them. In the simplest
+The `set` function sets objects to storage - it saves them. In the simplest
 case, it takes two arguments, a key string and a JSON value.
 
     set "someKey", [0, 1, 2]
 
-You can also pass in a hash as the only argument. Hashes and introduced in [the
-next page][1].
+You can also pass a chit as the only argument. Chits are introduced on
+[the next page][1].
 
-The `set` function returns the value it set to storage.
-
-Keys can not contain any of these characters: `/ ! @ : + ( ) { } | $ *`. Keys starting
-with `cosh` are also currently reserved.
+The `set` function returns the value it sets to storage.
 
 ## Function: `get`
 
-The `get` function takes a single argument, always a key string, and returns the
-value stored with that key, or `null` if it doesn't exist.
+The `get` function takes a single argument, a key string, and returns the
+value stored with that key, or `null` if it does not exist.
 
     get "someKey"
 
 ## Function: `pop`
 
-The `pop` function takes a single argument, either a key string or a hash,
-deletes the object from storage, then returns the value or `null` if it
-doesn't exist.
+The `pop` function takes a key, and deletes the value from storage, then
+returns it. The function returns `null` if the key did not exist.
 
     pop "someKey"
+
+## Valid Key Values
+
+In CoffeeShop, local storage keys can not contain any of these characters:
+
+    " + - * / : ( ) { } @ $
+
+Keys starting with `cosh` are also reserved.
 
 Next Page: [Chits][1]
 

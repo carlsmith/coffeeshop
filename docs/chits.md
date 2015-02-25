@@ -1,55 +1,108 @@
-# Introducing Chits
+# Chits
 
-In CoffeeShop, chits are used everywhere. A chit is a JSON serialisable hash, so the
-most simple chit would be `{}`. This criterion is the only one that all chits will
-meet. Chits usually meet more criteria too.
+In CoffeeShop, chits are used everywhere. A chit is a JSON serialisable hash,
+with at least one property `coshKey`. The value of `coshKey`, a string, must
+be a valid key in local storage. A simple chit might look like...
 
-The purpose of chits is to allow data structures to be passed around easily, while
-ensuring that certain assumptions about the data are safe. You don't normally need to
-deal with chits very directly, as you'll just think of them as files, gists or whatever
-kind of data they represent. That said, it's useful to quickly breeze over what they are,
-so you don't find the functions that work with them too magical.
+    coshKey: "foo"
 
-## Abstract
+The purpose of chits is to allow data structures to be passed around easily,
+while ensuring that certain assumptions about the data are safe. You do not
+normally need to think about chits directly, as you will just think of them
+as files, gists or whatever kind of data they represent. That said, it is a
+good idea to quickly go over how they are used, so you do not find functions
+that work with them too magical.
 
-A chit is **always** a JSON serialisable hash. Chits are normally further defined by
-secondary criteria in a strict hierarchy...
+## Chit Basics
 
-Chits have *kinds*, with the most simple kind being `chit` itself. To define a new
-kind of chit, you define criteria it must meet. This is not done in code, you just
-define some criteria externally.
+To store a chit, you can just pass it to `set` as the only argument. The
+function will use the `coshKey` value as the key, and the entire chit as
+the value to set.
 
-All new kinds of chit are derived from one or more other kinds of chit, possibly just
-`chit`. The new kind must meet *every* criteria of *every one* of the kinds that it
-extends. It can not redefine something it inherits; this is what's meant here by a
-*strict* hierarchy.
+    foo = coshKey: "foo"
+    set foo
 
-A new kind of chit may use any new criteria.
+You could remove the above chit from local storage with `pop "foo"` or
+`pop foo`, as `pop` can take a key or chit argument too.
 
-Any object that meets all the criteria for a given kind is of that kind, and can be
-used wherever that kind can be used. Chits are duck typed data structures.
+Setting a key chit to storage with an explicit key argument will overwrite
+the chit's `coshKey` property. The following code sets `foo.coshKey` to
+`"bar"`, then sets `foo` to local storage.
 
-## Classroom Example
+    set "bar", foo
 
-Any hierarchy of chits starts with `chit`, defined as a JSON serialisable hash.
+## Files
 
-You could define a 'key chit' by stating the following criteria:
+CoffeeShop uses chits for files. File chits have two extra properties,
+named `description` and `content`. Both must be strings.
 
-- A key chit is a chit.
-- A key chit always has a property named `key`.
-- The `key` property must be a single-line string.
+The `coshKey` property that all chits have is used as the filename. The
+`content` property is used as the body of the file. The `description`
+property is displayed in the editor, and is used as the gist description
+on GitHub if the file is ever published.
 
-You could then define new kinds of chit that extend the key kind. For example you
-could define a 'file chit':
+The description should be short, on one line, and ideally, descriptive.
+A simple file chit might look like this:
 
-- A file chit is a key chit.
-- A file chit always has a property named `body`.
-- The `body` property must be a string.
+    coshKey: "foo.coffee"
+    description: "Let foo be true."
+    content: "foo = true"
 
-Now a function can be defined that accepts any key chit, and it would just work on
-a file chit too.
+## The Config File
 
-You could go on to define a 'gist chit' that extends the file kind, that could then
-be used anywhere you can use a chit, a key chit, a file chit or a gist chit.
+The configuration file, `config.coffee`, is an example of a file chit. It is
+loaded into the editor whenever the shell is launched, and is also executed
+automatically. You can override the automatic execution by using the safemode
+launch code.
 
-To learn how chits are used in cosh, see the [Chits as Files](/docs/files.md) page.
+    https://shell-cosh.appspot.com#safemode
+
+## Function `edit`
+
+You can open a file chit in the editor by passing it to the `edit` function.
+This does not set the chit to storage, but you can pass the chit to `set`,
+and pass the returned chit to `edit` if you like.
+
+    edit set
+        coshKey: "foo.coffee"
+        description: "Let foo be true."
+        content: "foo = true"
+
+Note that `edit` can also take a key string, and will open the file chit from
+storage, assuming the key exists.
+
+    edit "foo.coffee"
+
+## Function: `chit`
+
+The `chit` function is used to create chits, mostly file chits. It can be
+called in a number of ways. The first argument is always required and must
+be the chit's cosh key. If you only pass that first argument, the chit that
+is returned will have that key and empty strings for its `content` and
+`description` properties.
+
+The second arg, if it is provided *and it is a string*, sets the `description`
+property.
+
+An optional last argument, which will always be second or third, should be a
+chit. If provided, this chit will be used to build the new chit from.
+
+    chit "foo.coffee", "Let foo be true." # has empty content string
+    chit "foo.coffee", content: "foo = true" # has empty description
+
+The return value is always the newly created chit.
+
+## Function: `run`
+
+The `run` function takes a file chit, or a key for one, or a URL string.
+If the string is a URL, it is loaded, and the content is executed. If the
+argument resolves to a file chit, the chit's content is executed.
+
+    run "foo.coffee"
+
+The `run` function supports Literate CoffeeScript automatically if the chit's
+key or the resource's path ends with `.coffee.md` or `.litcoffee`.
+
+Note: URLs are distinct from storage keys as URLs must contain a slash.
+
+Next Page: [Gists](/docs/gists.md)

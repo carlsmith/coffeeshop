@@ -1,89 +1,79 @@
 # Builtins
 
-CoffeeScript is a really nice language, but languages needs libraries and stuff.
-CoffeeShop bundles some. This page offers a quick overview of everything you
-have; other docs explain how it all works.
+To be a nice programming environment, the browser needs some extras.
+CoffeeShop bundles some.
 
-## Extended Types
+## Main Libraries
 
 CoffeeShop takes some liberties with the global namespace. [This article][1]
-from the SugarJS developers helps explain why, though cosh goes a bit further.
-Enjoying the language and having fun is better than living in fear of things
-that'll probably never happen, and wont really matter to us even if they do.
-
-The entire [Sugar.js][2] library has been applied to *all objects*. Sugar gives
-all CoffeeScript types a large collection of methods, and your own classes
-inherit from them.
+from the SugarJS developers helps explain how. The [SugarJS][2] library has
+been applied wholesale, extending the builtin types with a large collection
+of methods.
 
     [].equals []
 
-Strings also have a [`compile`](/docs/string.compile.md) method you can
-use to compile strings of CoffeeScript and Markdown.
-
-As ever, [jQuery][3] is available globally as `jQuery` and `$`, and [toastr][4]
-is also available as `toastr`.
+As ever, [jQuery][3] is available globally as `jQuery` and `$`.
 
 ## Shell Functions
 
-Cosh adds a collection of functions that take advantage of CoffeeScript's
-optional brackets to allow for shell style, interactive programming. The
-following code clones a gist, sets it to local storage using its Gist file
-name, then opens it in the editor.
+Cosh adds a collection of functions that allow for shell style programming.
+For example, the following code clones a gist, sets it to local storage, then
+opens it in the editor.
 
     edit set clone "98f97a41924ca81c9863"
 
-The shell functions are listed below. chits are basically hashes and are
-explained properly later. For now, just think of them as files.
-
 [Output Functions](/docs/output.md)
 
-- `put` Appends a pretty printed evaluation of any expression to the board.
-- `peg` Appends a string of Markdown, a DOM node or a jQuery object to the board.
-- `print` Loads and appends a resource to the board.
-- `clear` Clears the board.
+These functions are used to render things to the board, and to clear it.
+
+- `put` Append a pretty printed evaluation of any expression to the board
+- `peg` Append Markdown, a DOM node or a jQuery object to the board
+- `print` Print a resource to the board as Markdown
+- `clear` Clear the board
 
 [Storage Functions](/docs/storage.md)
 
-- `set` Sets a value to localStorage, then returns it.
-- `get` Gets a value from localStorage , then returns it.
-- `pop` Removes a value from localStorage, then returns it.
+These functions are used to store and retrieve JSON serialisable values from
+local storage.
+
+- `set` Set a value to local storage, then return it
+- `get` Get a value from local storage, then return it
+- `pop` Pop a value from local storage, then return it
 
 [Chit Functions](/docs/chits.md)
 
-- `chit` Creates a chit from its arguments.
-- `edit` Open a chit in the editor.
-- `run` Runs a chit or remote resource as a shell script.
-- `clone` Creates a chit populated from a GitHub Gist.
-- `publish` Publishes a chit as a Gist on GitHub.
-- `push` Updates a published Gist from a chit.
+These functions are used to manage *chits*. Chits are basically just JSON
+serialisable hashes and are explained properly later. They serve the same
+purpose as files and gists.
+
+- `run` Run a chit
+- `edit` Open a chit in the editor
+- `chit` Create a new chit, then return it
+- `clone` Create a new chit from a gist ID
+- `publish` Publish a chit as a gist
+- `push` Update a published gist from a chit
 
 ## Shell Components
 
-The slate and editor are both instances of Ace, so you can use all of Ace's
+The slate and editor are both instances of Ace, so you can use all the Ace
 methods. A couple of extras have been added.
 
-- `slate` The slate's ACE instance.
-    - `slate.reset` Resets the input history.
-    - `slate.push`  Pushes a string to the slate.
-- `editor` The chit editor's ACE instance.
-    - `editor.set` Set the current chit to storage.
-    - `editor.run` Run the highlighted code or all the code.
-    - `editor.print` Print the highlighted code or all the code.
-
-## Builtin Libraries
-
-- `ace` Ace text editor.
-- `jQuery` & `$` jQuery awesome.
-- `toastr` Toastr notifications.
-- `require` Module loader [don't use yet, needs work].
+- `slate` The slate ACE instance:
+    - `slate.reset` Reset the input history
+    - `slate.push`  Push a string to the slate
+- `editor` The editor ACE instance:
+    - `editor.set` Set the current chit to local storage
+    - `editor.run` Run the highlighted code or all the code
+    - `editor.print` Print the highlighted code or all the code
 
 ## Loose Ends
 
-- `galleryMode` True if the app is in gallery mode, else false.
-- `uniquePIN` A function that returns an incremented integer each time it's called.
-- `cosh` App internals.
+Note that anything not defined in this document may change without notice.
+
+- `gallery` Function: Takes a gist ID and opens the gist in the Gallery
+- `galleryMode` Bool: `true` if the app is in Gallery Mode, else `false`
+- `uniquePIN` Function: Returns an incremented integer on each call
 
 [1]: http://sugarjs.com/native
-[2]: http://sugarjs.com/
-[3]: http://jquery.com/
-[4]: https://github.com/CodeSeven/toastr
+[2]: http://sugarjs.com
+[3]: http://jquery.com

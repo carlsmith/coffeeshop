@@ -15,10 +15,6 @@ img, video { max-height: 256px; max-width: 642px; padding: 16px 14px; }
 
 iframe { height: 315px; width: 576px; border: 1px solid #3A3A3A }
 
-#board pre:hover {
-    background: rgba(47, 75, 64, 0.28);
-    cursor: pointer }
-
 details { margin-right: 8px; outline: none }
 
 #banner, #board, #footer {
@@ -111,10 +107,14 @@ details { margin-right: 8px; outline: none }
     margin-right: 7px; }
 
 #board pre {
-    width: 614px;
+    width: 576px;
     padding-left: 28px;
     margin: 0 0 16px 0;
     font-family: Droid Mono; }
+
+#board pre:hover {
+    background: rgba(47, 75, 64, 0.28);
+    cursor: pointer }
 
 #board code { font-family: Droid Mono }
 
@@ -187,6 +187,13 @@ details { margin-right: 8px; outline: none }
 .cut:before { content: '|' }
 
 #board .unspaced { margin: -16px 0 16px 0 }
+
+#board kbd {
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #674912;
+    border-top: 1px solid #86714A;
+    border-bottom: 1px solid #422F0B }
 
 #cover {
     display: none;

@@ -1,10 +1,11 @@
 # Keyboard Shortcuts
 
-A few new terms: The shell's input field is called the *slate*; the output area above the
-slate, where this doc is rendered, is called the *board*, and the text editor on the right
-is just called the *editor*.
+There are three main components to the user interface. The input area is
+called the *slate*. The output area, above the slate, is called the *board*.
+The text editor on the right is just called the *editor*.
 
-Note: The *Meta* key refers to the *Cmd* key on OS X and the *Ctrl* key on everything else.
+Note: The <kbd>Meta</kbd> key refers to <kbd>Cmd</kbd> on OS X and
+<kbd>Ctrl</kbd> on everything else.
 
 ## Slate Only Keybindings
 
@@ -23,8 +24,9 @@ Note: The *Meta* key refers to the *Cmd* key on OS X and the *Ctrl* key on every
 - `Meta.Dot`: Toggle focus, between the slate and the editor
 - `Meta.Esc`: Clear the board, destroying everything on it
 
-When executing the editor content, the source will be treated as Literate CoffeeScript if
-the chit key ends with `.coffee.md` or `.litcoffee`.
+When executing the editor content, the source will be treated as Literate
+CoffeeScript if the chit key ends with `.coffee.md` or `.litcoffee`.
 
-Beyond these keyboard shortcuts, you control everything using a little API. If you're new
-to CoffeeShop, you should look at the [Builtins](/docs/builtins.md) doc next.
+Beyond these keyboard shortcuts, you control everything using a little API. If
+you're new to CoffeeShop, you should look at the [Builtins](/docs/builtins.md)
+doc next.

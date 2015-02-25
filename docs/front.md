@@ -1,22 +1,22 @@
 # The Book
 
-Welcome to the CoffeeShop documentation, known as the Book.
+Welcome to the CoffeeShop documentation, known as the Book. Everyone should
+at least read the Intro and Shortcuts pages.
 
-- [Intro](/docs/intro.md) An Introduction to CoffeeShop.
+- [Intro](/docs/intro.md) An Quick Introduction to CoffeeShop
 
-## Using CoffeeShop
+## Getting Started
 
-- [Shortcuts](/docs/shortcuts.md) The Application's Keyboard Shortcuts.
-- [Builtins](/docs/builtins.md) Introducing the CoffeeShop runtime.
+- [Shortcuts](/docs/shortcuts.md) The CoffeeShop Keybindings
+- [Builtins](/docs/builtins.md) Introducing the CoffeeShop Runtime
 
 ## Shell Functions
 
-- [Output Funtions](/docs/output.md) Using `put`, `peg`, `print` and `clear`.
-- [Storage Functions](/docs/storage.md) Using `set`, `get`, and `pop`.
+- [Output Funtions](/docs/output.md) Using `put`, `peg`, `print` and `clear`
+- [Storage Functions](/docs/storage.md) Using `set`, `get`, and `pop`
 
-## Data as Chits
+## Chits and Gists
 
-- [Chits](/docs/chits.md) Introducing chits ~ what they are and how they work.
-- [Chits as Files](/docs/files.md) Working with chits using `chit`, `edit` and `run`.
-- [Chits as Gists](/docs/gists.md) Using `clone`, `publish` and `push`.
-- [Publishing](/docs/publishing.md) Sharing gists as shell scripts and web apps.
+- [Chits](/docs/chits.md) Chits, and Using `chit`, `edit` and `run`
+- [Gists](/docs/gists.md) Gists, and Using `clone`, `publish` and `push`
+- [Publishing](/docs/publishing.md) Using the Gallery to Share Scripts
