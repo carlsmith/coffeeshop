@@ -628,7 +628,7 @@ to it.
 
         peg.low """
             # GitHub Auth
-            To publish or push to gists from cosh, you'll need to provide
+            To publish or push to gists from cosh, you will need to provide
             your GitHub username and password.
 
             ## Authorise This Browser
