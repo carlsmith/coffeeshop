@@ -1,3 +1,5 @@
+// don't ask...
+
 require ([
     "cosh/coffee-script",
     "cosh/marked",
@@ -12,13 +14,13 @@ require ([
         var coshSource = localStorage.getItem("coshSource")
         var lastBuilt  = Date.create(localStorage.getItem("coshBuilt"))
 
-        var stale = (
+        var stale = true; /*(
             !!! coshSource                       ||
             !!! lastBuilt                        ||
             launchCode == "build"                ||
             launchCode == "safemode"             ||
             lastBuilt < Date.create("12 hours ago")
-            )
+            )*/
 
         if (!stale) return eval(coshSource)
 

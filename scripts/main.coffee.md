@@ -1,20 +1,25 @@
 # CoffeeShop
 
-This is the main CoffeeShop file. It is loaded, compiled, cached and executed within a
-function inside `boot.js`. All of cosh's code, except for `index.html`, `shell.css` and
-`boot.js`, lives in this file. This file's dependencies, `coffee`, `marked`, `pprint` and
-`smc` (Source Map Consumer), are loaded by `boot.js`.
+This is the main CoffeeShop file. It is loaded, compiled, cached and
+executed within a function inside `boot.js`. All of cosh's code, except
+for `index.html`, `shell.css` and `boot.js`, lives in this file. This
+file's dependencies, `coffee`, `marked`, `pprint` and `smc`
+(Source Map Consumer), are loaded by `boot.js`.
 
 ## Set Up the Namespace
 
-First, just make sure `window.indexedDB` is the correct object or `undefined`. Users may
-arrive at the Gallery in any browser, so it's important to have this when nuking the DB.
+First, just make sure `window.indexedDB` is the correct object or `undefined`.
+Users may arrive at the Gallery in any browser, so it's important to have this
+when nuking the DB.
 
-    window.indexedDB = indexedDB or mozIndexedDB or webkitIndexedDB or msIndexedDB
+    window.indexedDB =
 
-This code creates a global named `cosh` that internal stuff can be bound to, but still be
-available to the user if they need it. If they often do, the API should be extended. The
-code also sets up the globals `uniquePIN` and `uniqueID`.
+        indexedDB or mozIndexedDB or webkitIndexedDB or msIndexedDB
+
+This code creates a global named `cosh` that internal stuff can be bound to,
+but still be available to the user if they need it. If they often do, the
+API should be extended. The code also sets up the globals `uniquePIN`
+and `uniqueID`.
 
     window.cosh = uniquePIN: 0, coffeeVersion: coffee.VERSION
 
@@ -22,7 +27,10 @@ code also sets up the globals `uniquePIN` and `uniqueID`.
 
     window.uniqueID = -> "coshID" + do uniquePIN
 
-Gallery mode is based on the URL. Port `9090` is supported on localhost for development.
+    window.cosh.coffee = coffee
+
+Gallery mode is based on the URL. Port `9090` is supported on localhost for
+development.
 
     window.galleryMode = location.host in [
         "gallery-cosh.appspot.com"
@@ -100,7 +108,9 @@ The rest of the HTML escape function.
 
 The `get` method from [the API](/docs/storage.md).
 
-    window.get = (key) -> if item = localStorage.getItem key then JSON.parse item
+    window.get = (key) ->
+
+        if item = localStorage.getItem key then JSON.parse item
 
 The `set` method from [the API](/docs/storage.md).
 
@@ -117,7 +127,7 @@ The `set` method from [the API](/docs/storage.md).
         return toastr.error "Bad args.", "Set Failed" unless key
         return toastr.error "Invalid key.", "Set Failed" if reserved key
 
-        value.coshKey = key if value.coshKey
+        value.coshKey = key if value.coshKey isnt undefined
 
         localStorage.setItem key, JSON.stringify value
         do editor.updateCurrentFile
@@ -129,15 +139,17 @@ The `pop` method from [the API](/docs/storage.md).
 
         return toastr.error "Not enough args.", "Pop Failed" unless target
         key = if target.isString?() then target else target.coshKey
-        return toastr.error "Nothing at #{target}.", "Pop Failed" unless item = get key
+        unless item = get key
+            return toastr.error "Nothing at #{target}.", "Pop Failed"
         localStorage.removeItem key
         do editor.updateStatus
         item
 
 ## The Slate
 
-This is a bunch of locals used by the slate, which manages the input history too. Clicking
-the footer focusses the slate to make it easier to click into when it's small.
+This is a bunch of locals used by the slate, which manages the input history
+too. Clicking the footer focusses the slate to make it easier to click into
+when it's small.
 
     inputs = {}
     inputCount = 0
@@ -171,8 +183,8 @@ This, using `doc`, resizes the slate on change.
         do slate.resize
         do clock.scrollIntoView
 
-This makes `pre` tags inside the board clickable, loading their content into the slate
-when clicked.
+This makes `pre` tags inside the board clickable, loading their content into
+the slate when clicked.
 
     jQuery("#board").on "click", "pre", (event) ->
 
@@ -203,12 +215,18 @@ This keybinding makes `Meta.Down` forward the input history.
         name: "forward_history"
         bindKey: win: "Ctrl-Down", mac: "Cmd-Down"
         exec: ->
+
             source = do slate.getValue
+
             if pointer isnt -1 and source isnt slate.history[pointer]
                 [stash, pointer] = [source, slate.history.length]
+
             pointer += 1
-            if pointer < slate.history.length then slate.setValue slate.history[pointer]
+
+            if pointer < slate.history.length
+                slate.setValue slate.history[pointer]
             else slate.setValue stash
+
             slate.clearSelection 1
             do clock.scrollIntoView
 
@@ -232,7 +250,8 @@ This keybinding makes `Meta.Enter` execute the slate content.
         name: "execute_slate"
         bindKey: win: "Ctrl-Enter", mac: "Cmd-Enter"
         exec: ->
-            source = ( slate.getValue().lines (line) -> do line.trimRight ).join "\n"
+            source = slate.getValue().lines (line) -> do line.trimRight
+            source = source.join "\n"
             cosh.execute source if source
 
 This keybinding makes `Meta.S` call `editor.set` to set the chit to storage.
@@ -249,13 +268,14 @@ This keybinding makes `Meta.P` call `slate.print` to print the slate.
         bindKey: win: "Ctrl-P", mac: "Cmd-P"
         exec: -> do editor.print
 
-This API function resets the line history. It actually just sets the history store and the
-volatile copy to empty arrays.
+This API function resets the line history. It actually just sets the history
+store and the volatile copy to empty arrays.
 
     slate.reset = -> set historyStore, slate.history = []
 
-This API function pushes a string to the slate, pushing the slate content to the input
-history. The push to the input history is actually done by `slate.updateHistory`.
+This API function pushes a string to the slate, pushing the slate content
+to the input history. The push to the input history is actually done by
+`slate.updateHistory`.
 
     slate.push = (source) ->
 
@@ -266,8 +286,8 @@ history. The push to the input history is actually done by `slate.updateHistory`
         slate.focus()
         value
 
-This API function is used to push inputs to the input history internally. It does some
-housekeeping to remove any older duplicate.
+This API function is used to push inputs to the input history internally. It
+does some housekeeping to remove any older duplicate.
 
     slate.updateHistory = (source) ->
 
@@ -277,9 +297,9 @@ housekeeping to remove any older duplicate.
 
 ## The Editor
 
-The editor is another instance of slate with a few extras for ensuring the hash status
-colour reflects whether or not the hash is different in local storage and executing the
-content.
+The editor is another instance of slate with a few extras for ensuring the
+hash status colour reflects whether or not the hash is different in local
+storage and executing the content.
 
     currentFile = {}
     window.editor = ace.edit "editor"
@@ -330,8 +350,8 @@ This keybinding makes `Meta.Dot` focus the slate.
             do slate.focus
             do clock.scrollIntoView
 
-This keybinding makes `Shift.Tab` move the focus to the description div, but only if no
-code is selected, else it indents the code as Ace normally would.
+This keybinding makes `Shift.Tab` move the focus to the description div, but
+only if no code is selected, else it indents the code as Ace normally would.
 
     editor.commands.addCommand
         name: "focus_description"
@@ -340,8 +360,9 @@ code is selected, else it indents the code as Ace normally would.
             if editor.getCopyText() then editor.blockOutdent()
             else do $descriptionDiv.focus
 
-This API function executes the currently selected text, or the whole content if nothing is
-selected, using the cosh key as the file name. It supports Literate CoffeeScript files.
+This API function executes the currently selected text, or the whole content
+if nothing is selected, using the cosh key as the file name. It supports
+Literate CoffeeScript files.
 
     editor.run = ->
 
@@ -351,8 +372,8 @@ selected, using the cosh key as the file name. It supports Literate CoffeeScript
         cosh.execute source, currentFile.coshKey
         do clock.scrollIntoView
 
-This API function renders the currently selected text, or the whole content if nothing is
-selected, to the board as Markdown.
+This API function renders the currently selected text, or the whole content
+if nothing is selected, to the board as Markdown.
 
     editor.print = ->
 
@@ -360,19 +381,22 @@ selected, to the board as Markdown.
         peg.low source, "page"
         undefined
 
-This API function opens a chit in the editor. It's available globally too as `edit`.
+This API function opens a chit in the editor. It's available globally too as
+`edit`.
 
     editor.edit = (target) ->
 
         item = if target.isString?() then get target else target
-        return toastr.error "Nothing at #{target}.", "Edit File Failed" unless item
+        return toastr.error "Nothing at #{target}.", "Edit Failed" unless item
 
-        md = item.coshKey.endsWith(".md") or item.coshKey.endsWith(".litcoffee")
+        key = item.coshKey
+        test = key.endsWith(".md") or key.endsWith(".litcoffee")
+        mode = if test then "markdown" else "coffee"
 
         currentFile = item
         $nameDiv.text currentFile.coshKey
         $descriptionDiv.text currentFile.description
-        editor.session.setMode "ace/mode/#{ if md then 'markdown' else 'coffee' }"
+        editor.session.setMode "ace/mode/#{ mode }"
         editor.setValue currentFile.content
         editor.updateStatus()
         editor.clearSelection 1
@@ -391,8 +415,8 @@ This API function sets the current chit, `currentFile`, to local storage.
         $nameDiv.css color: "#93A538"
         currentFile
 
-This function is used internally to trigger the editor's checks that allow it to keep the
-chit status colour correct.
+This function is used internally to trigger the editor's checks that allow it
+to keep the chit status colour correct.
 
     editor.updateStatus = ->
 
@@ -400,15 +424,15 @@ chit status colour correct.
         $editorLinks.css left: 623 + 7 * lines.toString().length
 
         inSync =
-            ( currentFile?.equals get currentFile.coshKey )   and
-            ( editor.getValue() is currentFile.content )      and
-            ( $descriptionDiv.text() is currentFile.description )
+            ( currentFile?.equals get currentFile.coshKey )    and
+            ( do editor.getValue is currentFile.content   )    and
+            ( do $descriptionDiv.text is currentFile.description )
 
         $nameDiv.css color: if inSync then "#93A538" else "#E18243"
 
-This function and the event handlers that follow it are used internally to update the
-`currentFile` using the copy in local storage. It has no effect when the hash isn't
-found in local storage.
+This function and the event handlers that follow it are used internally to
+update the `currentFile` using the copy in local storage. It has no effect
+when the hash isn't found in local storage.
 
     editor.updateCurrentFile = ->
 
@@ -418,7 +442,8 @@ found in local storage.
     editor.on "change", editor.updateStatus
     $descriptionDiv.on "input", editor.updateStatus
 
-This event handler is bound to the description div, and gives it all it's keybindings.
+This event handler is bound to the description div, and gives it all it's
+keybindings.
 
     $descriptionDiv.bind "keydown", (event) ->
 
@@ -434,13 +459,14 @@ This event handler is bound to the description div, and gives it all it's keybin
             do slate.focus
             return
 
-        if String.fromCharCode(event.which).toLowerCase() is 's'
+        if do String.fromCharCode(event.which).toLowerCase is "s"
             do event.preventDefault
             do editor.set
 
 ## The Shell API
 
-The `editor.edit` method is also a global, `edit`, and is part of the shell API.
+The `editor.edit` method is also a global, `edit`, and is part of the shell
+API.
 
     window.edit = editor.edit
 
@@ -452,9 +478,12 @@ The `run` method from [the API](/docs/files.md).
 
     window.run = (target) ->
 
-        [path, content] =
-            if not target.isString() then [target.coshKey, target.content]
-            else [target, if remote target then load target else get(target)?.content]
+        if do target.isString
+            path = target
+            content =
+                if remote target then load target
+                else get(target)?.content
+        else [path, content] = [target.coshKey, target.content]
 
         if path and content?
             toastr.info path, "Running Chit", timeOut: 1000
@@ -467,7 +496,7 @@ The `put` method from [the API](/docs/output.md).
 
     window.put = (args...) ->
 
-        boardWasNotEmpty = bool $board.text()
+        boardWasNotEmpty = bool do $board.text
         output = put.low args...
         output?.addClass "unspaced" if boardWasNotEmpty
         undefined
@@ -507,12 +536,16 @@ The `peg` method from [the API](/docs/output.md).
 
     peg.low = (tree, options) ->
 
-        $tree = \
+        $tree =
 
-            if tree instanceof jQuery then tree
-            else if tree instanceof HTMLElement then jQuery tree
-            else if tree?.isString?() then jQuery("<div>").html tree.compile "md"
-            else jQuery("<xmp>").html tree?.toString() or jQuery "<div>"
+            if tree instanceof jQuery
+                tree
+            else if tree instanceof HTMLElement
+                jQuery tree
+            else if tree?.isString?()
+                jQuery("<div>").html tree.compile "md"
+            else
+                jQuery("<xmp>").html tree?.toString() or jQuery "<div>"
 
         if options isnt undefined
 
@@ -528,7 +561,10 @@ The `peg` method from [the API](/docs/output.md).
         else $board.append $tree
 
         if $tree[0].className isnt "page" then do clock.scrollIntoView
-        else jQuery("html").animate { scrollTop: $tree.offset().top - 27 }, duration: 150
+        else jQuery("html").animate(
+            { scrollTop: $tree.offset().top - 27 }
+            { duration: 150 }
+            )
 
         $tree
 

@@ -70,9 +70,11 @@ methods. A couple of extras have been added.
 
 Note that anything not defined in this document may change without notice.
 
+- `coffee` The CoffeeScript Compiler.
 - `gallery` Function: Takes a gist ID and opens the gist in the Gallery
 - `galleryMode` Bool: `true` if the app is in Gallery Mode, else `false`
-- `uniquePIN` Function: Returns an incremented integer on each call
+- `uniquePIN` Function: No args, returns an incremented integer per call
+- `uniqueID` Function: No args, returns `"coshID#{ do uniquePIN }"`
 
 [1]: http://sugarjs.com/native
 [2]: http://sugarjs.com
