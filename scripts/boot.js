@@ -14,13 +14,14 @@ require ([
         var coshSource = localStorage.getItem("coshSource")
         var lastBuilt  = Date.create(localStorage.getItem("coshBuilt"))
 
-        var stale = true; /*(
+        var stale = (
             !!! coshSource                       ||
             !!! lastBuilt                        ||
             launchCode == "build"                ||
             launchCode == "safemode"             ||
             lastBuilt < Date.create("12 hours ago")
-            )*/
+            )
+
 
         if (!stale) return eval(coshSource)
 

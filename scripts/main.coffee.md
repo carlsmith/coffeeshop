@@ -71,9 +71,14 @@ These are all local variables pointing to elements, most wrapped by jQuery.
 
 These are the links above the board.
 
-    jQuery("#home-link").click -> print "/docs/home.md"
     jQuery("#more-link").click -> print "/docs/external.md"
+
     jQuery("#book-link").click -> print "/docs/front.md"
+
+    jQuery("#home-link").click ->
+
+        print "/docs/home.md"
+        do slate.focus
 
 This is a simple webworker that updates the time on the clock in the footer.
 

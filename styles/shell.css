@@ -99,7 +99,9 @@ details { margin-right: 8px; outline: none }
     margin: 0px 16px 16px 16px;
     text-indent: -1.2em }
 
-#board li { padding-left: 14px; }
+#board ul ul { margin: 0 1px }
+
+#board li { padding-left: 14px; text-indent: -13px }
 
 #board li:before { color: #E18243; content: "▫ " }
 
