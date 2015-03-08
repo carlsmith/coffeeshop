@@ -1,18 +1,21 @@
 # External Resources
 
-A collection of useful links.
+Just a collection of hopefully useful links.
 
-## Language
+## CoffeeScript
 
-- [CoffeeScript](http://coffeescript.org/) CoffeeScript's official site.
-- [The CoffeeScript Cookbook](http://coffeescriptcookbook.com) CoffeeScript recipes from the community.
+- [Website](http://coffeescript.org/) CoffeeScript Home Page
+- [Development](https://github.com/jashkenas/coffeescript) CoffeeScript on GiHub
+- [Google Plus](https://plus.google.com/u/0/communities/115680924999104028081) CoffeeScript Google+ Community
 
-## Libraries
+## Cosh Libraries
 
-- [jQuery](http://jquery.com/) jQuery's official site.
-- [Sugar](http://sugarjs.com/) Sugar's official site.
+- [jQuery](http://jquery.com) jQuery Home Pae
+- [SugarJS](http://sugarjs.com) SugarJS Home Page
 
-## Community
+## Books and Documentation
 
-- [GitHub](https://github.com/jashkenas/coffeescript) Core CoffeeScript Development.
-- [Google+](https://plus.google.com/u/0/communities/115680924999104028081) CoffeeScript Google Plus Community.
+- [The Cookbook](http://coffeescriptcookbook.com) The CoffeeScript Cookbook
+- [The Little Book](http://arcturo.github.io/library/coffeescript) The Little Book on CoffeeScript
+- [Smooth CoffeeScript](http://autotelicum.github.io/Smooth-CoffeeScript) Smooth CoffeeScript
+-
