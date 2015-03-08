@@ -93,11 +93,15 @@ details { margin-right: 8px; outline: none }
 #board h1 { border-bottom: 1px solid }
 #board h2:before { color: #D88E5C; content: '::: ' }
 
-#board ul { list-style: none; padding: 0; margin: 0 11px 16px }
+#board ul {
+    padding: 0px;
+    list-style: none;
+    margin: 0px 16px 16px 16px;
+    text-indent: -1.2em }
 
-#board li { padding-left: 1em; text-indent: -.7em }
+#board li { padding-left: 14px; }
 
-#board li:before { color: #D88E5C; content: "+ " }
+#board li:before { color: #E18243; content: "▫ " }
 
 #board blockquote { margin: 0 28px; color: #999; font-style: italic }
 
