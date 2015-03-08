@@ -25,6 +25,6 @@
 @media all and (min-width: 769px) {
 	#toast-container > div {
 		padding: 15px 15px 15px 50px;
-		width: 300px;
+		width: 400px;
 	}
 }
