@@ -1,16 +1,21 @@
 # CoffeeShop
 
 This is the main CoffeeShop file. It is loaded, compiled, cached and
-executed within a function inside `boot.js`. All of cosh's code, except
-for `index.html`, `shell.css` and `boot.js`, lives in this file. This
-file's dependencies, `coffee`, `marked`, `pprint` and `smc`
-(Source Map Consumer), are loaded by `boot.js`.
+executed within a function inside `boot.js`.
 
-## Set Up the Namespace
+All the code, except for the code in `index.html`, `shell.css` and `boot.js`,
+lives in this file.
 
-First, just make sure `window.indexedDB` is the correct object or `undefined`.
-Users may arrive at the Gallery in any browser, so it's important to have this
-when nuking the DB.
+This file's dependencies, `coffee`, `marked`, `pprint` and `smc` (Source Map
+Consumer), are loaded by `boot.js`.
+
+## Initialise the Global Namespace
+
+This stuff is all exposed to users, and used internally.
+
+First, make sure `window.indexedDB` is the correct object or `undefined`.
+Users may arrive at the Gallery in any browser, so it is important to have
+this when nuking the DB.
 
     window.indexedDB =
 
@@ -18,16 +23,19 @@ when nuking the DB.
 
 This code creates a global named `cosh` that internal stuff can be bound to,
 but still be available to the user if they need it. If they often do, the
-API should be extended. The code also sets up the globals `uniquePIN`
-and `uniqueID`.
+API should be extended.
 
-    window.cosh = uniquePIN: 0, coffeeVersion: coffee.VERSION
+    window.cosh =
+
+        uniquePIN: 0
+        coffee: coffee
+        coffeeVersion: coffee.VERSION
+
+This code sets up the API functions `uniquePIN` and `uniqueID`.
 
     window.uniquePIN = -> cosh.uniquePIN++
 
     window.uniqueID = -> "coshID" + do uniquePIN
-
-    window.cosh.coffee = coffee
 
 Gallery mode is based on the URL. Port `9090` is supported on localhost for
 development.
@@ -37,22 +45,13 @@ development.
         "localhost:9090"
         ]
 
-Set jQuery to not cache ajax requests, and disable the
-[Marked parser](https://github.com/chjj/marked)'s `sanitize` option.
+## Initialise the Internal Namespace
+
+Set jQuery to not cache ajax requests, and disable the [Marked parser][1]'s
+`sanitize` option.
 
     jQuery.ajaxSetup cache: no
     marked.setOptions sanitize: no
-
-This needs changing so the method isn't iterable. The method is documented
-[here](/docs/string.compile.md).
-
-    String::compile = (lang, options={}) ->
-
-        if lang in ["cs", "coffee", "coffeescript"]
-            options.merge bare: true if options.bare is undefined
-            try return coffee.compile this, options
-            catch error then return error
-        if lang in ["md", "markdown"] then return marked this, options
 
 These are all local variables pointing to elements, most wrapped by jQuery.
 
@@ -69,38 +68,39 @@ These are all local variables pointing to elements, most wrapped by jQuery.
     clock = document.getElementById "clock"
     slateDiv = document.getElementById "slate"
 
-These are the links above the board.
+This code sets up the links above the board, the *shell links*.
 
-    jQuery("#more-link").click -> print "/docs/external.md"
+    jQuery("#home-link").click -> print "/docs/home.md"
 
     jQuery("#book-link").click -> print "/docs/front.md"
 
-    jQuery("#home-link").click ->
+    jQuery("#more-link").click -> print "/docs/external.md"
 
-        print "/docs/home.md"
-        do slate.focus
-
-This is a simple webworker that updates the time on the clock in the footer.
+This launches a little webworker that updates the time on the clock in
+the footer div.
 
     worker = new Worker "/scripts/cosh/clock_worker.js"
     worker.onmessage = (event) -> $clock.text event.data
 
-The board should only scroll if the mouse is over it...
+The board should only scroll while the mouse is over it.
 
     $board
         .on "mouseover", -> jQuery("body").css overflow: "scroll"
         .on "mouseout",  -> jQuery("body").css overflow: "hidden"
 
-This is used internally for sane truthiness tests.
+Sane truthiness test.
 
     bool = (thing) ->
 
         if thing in [undefined, null, NaN] then false
-        else if thing.equals([]) or thing.equals({}) then false
-        else if thing is "false" then true
+        else if (thing.equals []) or (thing.equals {}) then false
         else !! thing
 
-The rest of the HTML escape function.
+Test if a filename is Literate CoffeeScript or not.
+
+    isLiterate = (key) -> (key.endsWith ".md") or (key.endsWith ".litcoffee")
+
+The other half of the HTML escape function.
 
     escape = (line) ->
 
@@ -109,64 +109,92 @@ The rest of the HTML escape function.
             .split("\n").join "<br>"
             .split("\t").join "&nbsp;&nbsp;&nbsp;&nbsp;"
 
-## The Output Functions
+## The Custom Error Types
 
-The `get` method from [the API](/docs/storage.md).
+This first takes the `UserError` implementation from [this SO answer][2] and
+creates a `CoreError` constructor from it, adding a `BaseError` decorator
+for enclosing the custom error type names.
+
+    CoreError = (@message) ->
+
+        @constructor.prototype.__proto__ = Error.prototype
+        Error.captureStackTrace(@, @constructor)
+        @name = @constructor.name
+
+    BaseError = (type) ->
+
+        (message) -> new CoreError "#{ type }Error: #{ message }"
+
+Now it is simple to create new error types.
+
+    StorageError   = BaseError "Storage"
+    SignatureError = BaseError "Signature"
+
+## The Storage Functions
+
+These are the three storage functions from [the API](/docs/storage.md). They
+are exposed to users, so they all have rich error handling.
+
+The `get` method.
 
     window.get = (key) ->
 
-        if item = localStorage.getItem key then JSON.parse item
+        throw SignatureError "too few args"  if arguments.length < 1
+        throw SignatureError "too many args" if arguments.length > 1
+        throw TypeError "key must be a String" unless do key.isString
 
-The `set` method from [the API](/docs/storage.md).
+        if item = localStorage.getItem key then JSON.parse item
+        else throw StorageError "no key named #{ key }"
+
+The `set` method.
 
     window.set = (args...) ->
-
-        return if undefined in args
 
         reserved = (key) -> bool key.each /[*/!@:+(){}|$]/
 
         switch args.length
+
             when 2 then [key, value] = args
             when 1 then [key, value] = [args[0].coshKey, args[0]]
-            else return toastr.error "Wrong number of args.", "Set Failed"
-        return toastr.error "Bad args.", "Set Failed" unless key
-        return toastr.error "Invalid key.", "Set Failed" if reserved key
+            when 0 then throw SignatureError "too few args"
+            else throw SignatureError "too many args"
+
+        throw SignatureError "did not find coshKey" if key is undefined
+        throw SignatureError "key must be a String" unless do key.isString
+        throw StorageError "invalid key `#{ key }`" if reserved key
 
         value.coshKey = key if value.coshKey isnt undefined
-
         localStorage.setItem key, JSON.stringify value
         do editor.updateCurrentFile
-        value
 
-The `pop` method from [the API](/docs/storage.md).
+        return value
+
+The `pop` method.
 
     window.pop = (target) ->
 
-        return toastr.error "Not enough args.", "Pop Failed" unless target
-        key = if target.isString?() then target else target.coshKey
-        unless item = get key
-            return toastr.error "Nothing at #{target}.", "Pop Failed"
+        throw SignatureError "too few args"  if arguments.length < 1
+        throw SignatureError "too many args" if arguments.length > 1
+        throw TypeError "arg must be a key string or chit" if not target
+
+        if target.isString?() then key = target
+        else if target.coshKey then key = target.coshKey
+        else throw TypeError "arg must be a key string or chit"
+
+        item = get key
         localStorage.removeItem key
         do editor.updateStatus
-        item
+
+        return item
 
 ## The Slate
 
-This is a bunch of locals used by the slate, which manages the input history
-too. Clicking the footer focusses the slate to make it easier to click into
-when it's small.
+This section sets up the slate, an instance of Ace. This is also where the
+code lives that allows the slate manages its input history.
 
-    inputs = {}
-    inputCount = 0
+First, create and configure the slate.
+
     window.slate = ace.edit "slate"
-    historyStore = "coshHistoryStore"
-    slate.history = get(historyStore) or []
-    pointer = slate.history.length
-    stash = ""
-
-    jQuery('#footer').click -> do slate.focus
-
-Configure the slate, an instance of Ace.
 
     slate.setShowPrintMargin false
     slate.getSession().setTabSize 4
@@ -178,9 +206,10 @@ Configure the slate, an instance of Ace.
     slate.getSession().setUseSoftTabs true
     slate.setTheme "ace/theme/vibrant_ink"
     slate.session.setMode "ace/mode/coffee"
-    doc = slate.getSession().getDocument()
 
-This, using `doc`, resizes the slate on change.
+This just resizes the slate on changes.
+
+    doc = slate.getSession().getDocument()
 
     slate.on "change", ->
 
@@ -188,8 +217,31 @@ This, using `doc`, resizes the slate on change.
         do slate.resize
         do clock.scrollIntoView
 
+Create the `inputs` hash that stores user input hashes, which includes source
+maps, compiled JavaScript and so on. The `inputCount` just tallies the number
+of user inputs.
+
+    inputs = {}
+    inputCount = 0
+
+The `slate.history` array holds a copy of the original user inputs, and is
+managed by the slate functions to remove duplicates. The `pointer` is used
+to track the position in the history array during scrolls. The `stash` is
+used to keep hold of what the slate buffer held before the user began
+scrolling through the history array so the user can return to it.
+
+    historyStore = "coshHistoryStore"
+    slate.history = (get historyStore) or []
+    pointer = slate.history.length
+    stash = ""
+
+Clicking the footer element focusses the slate, just to make it easier to
+click 'on' the slate when it is small.
+
+    jQuery('#footer').click -> do slate.focus
+
 This makes `pre` tags inside the board clickable, loading their content into
-the slate when clicked.
+the slate.
 
     jQuery("#board").on "click", "pre", (event) ->
 
@@ -200,23 +252,32 @@ the slate when clicked.
 This keybinding makes `Meta.Up` rewind the input history.
 
     slate.commands.addCommand
+
         name: "rewind_history"
         bindKey: win: "Ctrl-Up", mac: "Cmd-Up"
         exec: ->
+
             source = do slate.getValue
+
             if pointer >= 0 and source isnt slate.history[pointer]
+
                 [stash, pointer] = [source, slate.history.length]
+
             pointer -= 1
+
             if pointer >= 0 then slate.setValue slate.history[pointer]
             else
+
                 slate.setValue "# THE END OF HISTORY..."
                 pointer = -1
+
             slate.clearSelection 1
             do clock.scrollIntoView
 
 This keybinding makes `Meta.Down` forward the input history.
 
     slate.commands.addCommand
+
         name: "forward_history"
         bindKey: win: "Ctrl-Down", mac: "Cmd-Down"
         exec: ->
@@ -224,6 +285,7 @@ This keybinding makes `Meta.Down` forward the input history.
             source = do slate.getValue
 
             if pointer isnt -1 and source isnt slate.history[pointer]
+
                 [stash, pointer] = [source, slate.history.length]
 
             pointer += 1
@@ -238,6 +300,7 @@ This keybinding makes `Meta.Down` forward the input history.
 This keybinding makes `Meta.Escape` clear the board.
 
     slate.commands.addCommand
+
         name: "clear_board"
         bindKey: win: "Ctrl-Esc", mac: "Cmd-Esc"
         exec: -> board.innerHTML = ""
@@ -245,6 +308,7 @@ This keybinding makes `Meta.Escape` clear the board.
 This keybinding makes `Meta.Dot` focus the editor.
 
     slate.commands.addCommand
+
         name: "focus_editor"
         bindKey: win: "Ctrl-.", mac: "Cmd-."
         exec: -> do editor.focus
@@ -252,35 +316,39 @@ This keybinding makes `Meta.Dot` focus the editor.
 This keybinding makes `Meta.Enter` execute the slate content.
 
     slate.commands.addCommand
+
         name: "execute_slate"
         bindKey: win: "Ctrl-Enter", mac: "Cmd-Enter"
         exec: ->
+
             source = slate.getValue().lines (line) -> do line.trimRight
             source = source.join "\n"
             cosh.execute source if source
 
-This keybinding makes `Meta.S` call `editor.set` to set the chit to storage.
+This keybinding makes `Meta.S` set the *editor* content to storage.
 
     slate.commands.addCommand
+
         name: "set_editor_chit"
         bindKey: win: "Ctrl-S", mac: "Cmd-S"
         exec: -> do editor.set
 
-This keybinding makes `Meta.P` call `slate.print` to print the slate.
+This keybinding makes `Meta.P` print the *editor* content.
 
     slate.commands.addCommand
+
         name: "print_editor"
         bindKey: win: "Ctrl-P", mac: "Cmd-P"
         exec: -> do editor.print
 
-This API function resets the line history. It actually just sets the history
-store and the volatile copy to empty arrays.
+This API function resets the line history by setting the history store and
+the runtime copy to empty arrays.
 
     slate.reset = -> set historyStore, slate.history = []
 
 This API function pushes a string to the slate, pushing the slate content
 to the input history. The push to the input history is actually done by
-`slate.updateHistory`.
+`slate.updateHistory` below.
 
     slate.push = (source) ->
 
@@ -289,10 +357,11 @@ to the input history. The push to the input history is actually done by
         slate.setValue source
         slate.clearSelection 1
         slate.focus()
-        value
 
-This API function is used to push inputs to the input history internally. It
-does some housekeeping to remove any older duplicate.
+        return value
+
+This API function is used to push inputs to the input history. It does some
+housekeeping to remove an older duplicate if it exists.
 
     slate.updateHistory = (source) ->
 
@@ -302,12 +371,14 @@ does some housekeeping to remove any older duplicate.
 
 ## The Editor
 
-The editor is another instance of slate with a few extras for ensuring the
-hash status colour reflects whether or not the hash is different in local
-storage and executing the content.
+The editor is another instance of ACE, with a few extras for displaying the
+filename and description, highlighting the filename based on whether or not
+the chit is different in local storage, and for executing the content.
 
-    currentFile = {}
+First, create and configure the editor.
+
     window.editor = ace.edit "editor"
+
     editor.session.setMode "ace/mode/coffee"
     editor.setTheme "ace/theme/vibrant_ink"
     editor.getSession().setTabSize 4
@@ -318,23 +389,33 @@ storage and executing the content.
     editor.getSession().setUseWrapMode true
     editor.getSession().setUseSoftTabs true
 
-This keybinding makes `Meta.Enter` call `editor.run` to execute some code.
+This hash will be updated when changes happen that could cause the file in
+the editor to have changed on disk. The editor can then use this copy of the
+file chit to keep the save status colour correct without worrying about the
+state of localStorage.
+
+    editor.currentFile = {}
+
+This keybinding makes `Meta.Enter` execute the editor content.
 
     editor.commands.addCommand
+
         name: "execute_editor"
         bindKey: win: "Ctrl-Enter", mac: "Cmd-Enter"
         exec: -> do editor.run
 
-This keybinding makes `Meta.P` call `editor.print` to print some Markdown.
+This keybinding makes `Meta.P` print the editor content as Markdown.
 
     editor.commands.addCommand
+
         name: "print_chit"
         bindKey: win: "Ctrl-P", mac: "Cmd-P"
         exec: -> do editor.print
 
-This keybinding makes `Meta.S` call `editor.set` to set the chit to storage.
+This keybinding makes `Meta.S` save the editor content to storage.
 
     editor.commands.addCommand
+
         name: "set_chit"
         bindKey: win: "Ctrl-s", mac: "Cmd-s"
         exec: -> do editor.set
@@ -342,6 +423,7 @@ This keybinding makes `Meta.S` call `editor.set` to set the chit to storage.
 This keybinding makes `Meta.Escape` clear the board.
 
     editor.commands.addCommand
+
         name: "clear_board"
         bindKey: win: "Ctrl-Esc", mac: "Cmd-Esc"
         exec: -> board.innerHTML = ""
@@ -349,9 +431,11 @@ This keybinding makes `Meta.Escape` clear the board.
 This keybinding makes `Meta.Dot` focus the slate.
 
     editor.commands.addCommand
+
         name: "focus_slate"
         bindKey: win: "Ctrl-.", mac: "Cmd-."
         exec: ->
+
             do slate.focus
             do clock.scrollIntoView
 
@@ -359,69 +443,95 @@ This keybinding makes `Shift.Tab` move the focus to the description div, but
 only if no code is selected, else it indents the code as Ace normally would.
 
     editor.commands.addCommand
+
         name: "focus_description"
         bindKey: win: "Shift-Tab", mac: "Shift-Tab"
         exec: ->
+
             if editor.getCopyText() then editor.blockOutdent()
             else do $descriptionDiv.focus
 
-This API function executes the currently selected text, or the whole content
-if nothing is selected, using the cosh key as the file name. It supports
-Literate CoffeeScript files.
+This function just gets the currently selected text, or all of the text if
+nothing is currently selected, and strips any trailing whitespace.
+
+    editor.getSource = ->
+
+        source = do editor.getCopyText or do editor.getValue
+        source = source.lines (line) -> do line.trimRight
+
+        return source.join "\n"
+
+This API function executes the content of the editor.
 
     editor.run = ->
 
-        source = editor.getCopyText() or editor.getValue()
-        source = ( source.lines (line) -> do line.trimRight ).join "\n"
-        toastr.info currentFile.coshKey, "Editor Running", timeOut: 1000
-        cosh.execute source, currentFile.coshKey
+        source = do editor.getSource
+
+        toastr.info editor.currentFile.coshKey, "Running...", timeOut: 1000
+        cosh.execute source, editor.currentFile.coshKey
         do clock.scrollIntoView
 
-This API function renders the currently selected text, or the whole content
-if nothing is selected, to the board as Markdown.
+This API function renders the content of the editor as Markdown.
 
     editor.print = ->
 
-        source = editor.getCopyText() or editor.getValue()
+        source = do editor.getSource
         peg.low source, "page"
-        undefined
 
-This API function opens a chit in the editor. It's available globally too as
-`edit`.
+        return undefined
+
+This API function opens a chit in the editor. It is also assigned to
+`window.edit` elsewhere.
 
     editor.edit = (target) ->
 
-        item = if target.isString?() then get target else target
-        return toastr.error "Nothing at #{target}.", "Edit Failed" unless item
+        throw SignatureError "too few args"  if arguments.length < 1
+        throw SignatureError "too many args" if arguments.length > 1
+        throw TypeError "arg must be a key string or chit" if not target
 
-        key = item.coshKey
-        test = key.endsWith(".md") or key.endsWith(".litcoffee")
-        mode = if test then "markdown" else "coffee"
+        if target.isString?() then item = get target
+        else if target.coshKey then item = get target.coshKey
+        else throw TypeError "arg must be a key string or chit"
 
-        currentFile = item
-        $nameDiv.text currentFile.coshKey
-        $descriptionDiv.text currentFile.description
+        throw TypeError "target must be a file chit" unless item.coshKey
+
+        editor.currentFile = item
+        $nameDiv.text editor.currentFile.coshKey
+        $descriptionDiv.text editor.currentFile.description
+
+        mode = if isLiterate item.coshKey then "markdown" else "coffee"
         editor.session.setMode "ace/mode/#{ mode }"
-        editor.setValue currentFile.content
-        editor.updateStatus()
+        editor.setValue editor.currentFile.content
+        do editor.updateStatus
         editor.clearSelection 1
         editor.gotoLine 1
         editor.getSession().setScrollTop 1
-        editor.focus()
-        undefined
+        do editor.focus
 
-This API function sets the current chit, `currentFile`, to local storage.
+        return undefined
+
+This API function sets the editor content to local storage.
 
     editor.set = ->
 
-        currentFile.description = $descriptionDiv.text() or "?"
-        currentFile.content = do editor.getValue
-        set currentFile
+        editor.currentFile.description = do $descriptionDiv.text
+        editor.currentFile.content = do editor.getValue
+        set editor.currentFile
         $nameDiv.css color: "#93A538"
-        currentFile
 
-This function is used internally to trigger the editor's checks that allow it
-to keep the chit status colour correct.
+        return editor.currentFile
+
+Little helper function for doing what `get` does without the exception
+handling, and always on the local copy of `currentFile`.
+
+    editor.getCopyFromDisk = ->
+
+        item = localStorage.getItem editor.currentFile.coshKey
+        JSON.parse item if item
+
+This function updates the editor state, keeping the chit status colour
+correct, and keep the filename aligned with the left-hand side of the
+editor when the gutter grows or shrinks.
 
     editor.updateStatus = ->
 
@@ -429,53 +539,57 @@ to keep the chit status colour correct.
         $editorLinks.css left: 623 + 7 * lines.toString().length
 
         inSync =
-            ( currentFile?.equals get currentFile.coshKey )    and
-            ( do editor.getValue is currentFile.content   )    and
-            ( do $descriptionDiv.text is currentFile.description )
+
+            ( editor.currentFile ) and
+            ( do editor.getValue is editor.currentFile.content ) and
+            ( editor.currentFile.equals do editor.getCopyFromDisk ) and
+            ( do $descriptionDiv.text is editor.currentFile.description )
 
         $nameDiv.css color: if inSync then "#93A538" else "#E18243"
 
-This function and the event handlers that follow it are used internally to
-update the `currentFile` using the copy in local storage. It has no effect
-when the hash isn't found in local storage.
+This is a little function that is called by the `set` and `pop` functions, as
+they mutate local storage, to trigger a sync between editor and disk.
 
     editor.updateCurrentFile = ->
 
-        if update = get currentFile.coshKey then currentFile = update
+        if copy = do editor.getCopyFromDisk then editor.currentFile = copy
         do editor.updateStatus
+
+A couple of event handlers that watch the editor and description divs, just
+calling `editor.updateStatus` on changes.
 
     editor.on "change", editor.updateStatus
     $descriptionDiv.on "input", editor.updateStatus
 
-This event handler is bound to the description div, and gives it all it's
-keybindings.
+This handles keydown events in the description div, giving the div its
+keybindings. It is a bit hacky: Control and Command key works on OS X.
 
     $descriptionDiv.bind "keydown", (event) ->
 
         if event.which is 9 or event.which is 13
-            do editor.focus
-            do event.preventDefault
-            return
 
-        return if not (event.ctrlKey or event.metaKey)
+            do event.preventDefault
+            return do editor.focus
+
+        return unless (event.ctrlKey or event.metaKey)
 
         if event.which is 190
+
             do event.preventDefault
-            do slate.focus
-            return
+            return do slate.focus
 
         if do String.fromCharCode(event.which).toLowerCase is "s"
+
             do event.preventDefault
             do editor.set
 
 ## The Shell API
 
-The `editor.edit` method is also a global, `edit`, and is part of the shell
-API.
+Make `editor.edit` a global as the API `edit` function.
 
     window.edit = editor.edit
 
-This function is used internally to decide whether a string is a URL or not.
+This function is used to decide whether a string is a URL or not.
 
     remote = (path) -> "/" in path
 
@@ -548,7 +662,7 @@ The `peg` method from [the API](/docs/output.md).
             else if tree instanceof HTMLElement
                 jQuery tree
             else if tree?.isString?()
-                jQuery("<div>").html tree.compile "md"
+                jQuery("<div>").html marked tree
             else
                 jQuery("<xmp>").html tree?.toString() or jQuery "<div>"
 
@@ -573,8 +687,8 @@ The `peg` method from [the API](/docs/output.md).
 
         $tree
 
-The `load` method was an API method, and is no more. It's still used internally to make
-blocking requests for remote resources.
+The `load` method was an API method, and is no more. It's still used internally
+to make blocking requests for remote resources.
 
     load = (path, callback=undefined) ->
 
@@ -621,15 +735,15 @@ The `clear` method from [the API](/docs/output.md).
 
 ## The GitHub Gist API
 
-This section extends the shell API to work with gists. It starts by just defining a couple
-of helpful locals.
+This section extends the shell API to work with gists. It starts by just
+defining a couple of helpful locals.
 
     authStore = "coshGitHubAuth"
     gistEndpoint = (path) -> "https://api.github.com#{path}"
 
-This function can be called with no arguments and it'll attempt to return the GitHub
-credentials for the browser, else `null`. I can be called with two arguments, a username
-and password, and it'll save them to local storage.
+This function can be called with no arguments and it'll attempt to return the
+GitHub credentials for the browser, else `null`. I can be called with two
+arguments, a username and password, and it'll save them to local storage.
 
     auth = (args...) ->
 
@@ -638,8 +752,8 @@ and password, and it'll save them to local storage.
             if authHash?.isString() then JSON.parse authHash else authHash
         else set authStore, { username: args[0], password: args[1] }
 
-This function is called to create a basic auth header string. It'll return `null` if no
-credentials are found.
+This function is called to create a basic auth header string. It'll return
+`null` if no credentials are found.
 
     authHeader = ->
 
@@ -660,8 +774,8 @@ This function creates a gist chit from the JSON returned by the GitHub API.
             owner: gistHash.owner.login
             galleryURL: "https://gallery-cosh.appspot.com/##{gistHash.id}"
 
-This makes the auth banner link load the form defined here and binds a couple of handlers
-to it.
+This makes the auth banner link load the form defined here and binds a couple
+of handlers to it.
 
     jQuery("#auth-link").click ->
 
@@ -820,7 +934,8 @@ The `chit` function from the [API](/docs/files.md).
 
             if args.length is 1
 
-                if args[0].isString?() then [args[0], {description: "", content: ""}]
+                if args[0].isString?()
+                    [args[0], {description: "", content: ""}]
                 else [args[0].coshKey, args[0]]
 
             else if args.length is 2
@@ -836,8 +951,9 @@ The `chit` function from the [API](/docs/files.md).
 
         options.merge coshKey: key
 
-The following code pre-loads docs into a cache when the user mouses over a link to them,
-assuming the doc hasn't been cached already. This speeds things up a lot.
+The following code pre-loads docs into a cache when the user mouses over a
+link to them, assuming the doc hasn't been cached already. This speeds things
+up a lot.
 
     pageCache = {}
 
@@ -845,9 +961,12 @@ assuming the doc hasn't been cached already. This speeds things up a lot.
 
         target = event.target
         do event.preventDefault
+
         href = target.href or target.parentNode.href
-        href = href.slice location.origin.length if href.startsWith location.origin
-        href
+
+        if href.startsWith location.origin
+            return href = href.slice location.origin.length
+        else return href
 
     $board.on "click", "a", (event) ->
         path = getHref event
@@ -865,9 +984,9 @@ assuming the doc hasn't been cached already. This speeds things up a lot.
 
 ## Execution and Exception Handling
 
-This stuff needs refactoring, badly. It's where all the compilation, execution, source
-mapping, error handling currently lives. Functions that return jQuery objects shouldn't
-have names that start with a dollar either.
+This stuff needs refactoring, badly. It's where all the compilation, execution,
+source mapping, error handling currently lives. Functions that return jQuery
+objects shouldn't have names that start with a dollar either.
 
     $highlightTrace = (source, lineNumber, charNumber) ->
 
@@ -881,7 +1000,9 @@ have names that start with a dollar either.
 
         lines[lineNumber] = "#{start}<span class=#{look}>#{char}</span>#{end}"
 
-        for line, index in lines then lines[index] = escape line if index isnt lineNumber
+        for line, index in lines
+
+            lines[index] = escape line if index isnt lineNumber
 
         jQuery("<span class=error>").html lines.join "<br>"
 
@@ -951,9 +1072,10 @@ have names that start with a dollar either.
 
 ### Execution
 
-The `cosh.execute` function handles all execution of CoffeeScript code. It stashes the
-source maps and other input data on successful compilation. It also handles CoffeeScript
-compilation errors. Runtime errors are handled in `window.onerror` below.
+The `cosh.execute` function handles all execution of CoffeeScript code. It
+stashes the source maps and other input data on successful compilation. It
+also handles CoffeeScript compilation errors. Runtime errors are handled in
+`window.onerror` below.
 
     cosh.execute = (source, url) ->
 
@@ -1017,8 +1139,8 @@ compilation errors. Runtime errors are handled in `window.onerror` below.
 
 ### Exception Handling
 
-This is where runtime errors get caught and stacktaces are generated from data stashed by
-the `cosh.execute` function above.
+This is where runtime errors get caught and stacktaces are generated from data
+stashed by the `cosh.execute` function above.
 
     window.onerror = (message, url, line, column, error) ->
 
@@ -1045,10 +1167,11 @@ the `cosh.execute` function above.
         $board.append $stackDiv
         do clock.scrollIntoView
 
-This parses the stacktrace string that `window.onerror` knows as `error.stack`, converting
-it into an array of items from the stack, as hashes. It returns an array of two objects,
-the stack array it creates, and a bool, truthy if the stacktrace fails to reach the
-`limit`, which is essentially this file. Traces are truncated at the borders of userland.
+This parses the stacktrace string that `window.onerror` knows as `error.stack`,
+converting it into an array of items from the stack, as hashes. It returns an
+array of two objects, the stack array it creates, and a bool, truthy if the
+stacktrace fails to reach the `limit`, which is essentially this file.
+Traces are truncated at the borders of userland.
 
     parseTrace = (traceback) ->
 
@@ -1107,86 +1230,30 @@ the stack array it creates, and a bool, truthy if the stacktrace fails to reach 
         timeOut: 1600
         )
 
-## Cascading Coffee Scripts
-
-This is the `CCS` function. It is currently undocumented. The `CCS` function is written
-to be used outside of cosh, but functions bound to it don't need to be.
-
-    window.CCS = (args...) ->
-
-        anArray = (obj) -> obj instanceof Array
-
-        aRealm = (obj) -> !!(obj and obj.constructor and obj.call and obj.apply)
-
-        aNumber = (obj) -> (not anArray obj) and obj - parseFloat(obj) + 1 >= 0
-
-        aString = (obj) -> typeof obj is "string" or obj instanceof String
-
-        conquer = (realm) -> realm.apply CCS
-
-        hyphenate = (key) ->
-
-            if key is "font" then "font-family"
-            else key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
-
-        toHash = (realm) ->
-
-            output = {}
-            for key, value of conquer realm then output[hyphenate key] =
-                if aRealm value then toHash value
-                else if value is 0 then "0"
-                else if aNumber value then "#{value}px"
-                else if aString value then value
-                else "none"
-            output
-
-        toCSS = (realm) ->
-
-            output = ""
-            for key, value of conquer realm then output +=
-                if aRealm value then "\n#{hyphenate key} {#{toCSS value}\n}"
-                else if value is 0 then "\n#{hyphenate key}: #{value};"
-                else if aNumber value then "\n#{hyphenate key}: #{value}px;"
-                else if aString value then "\n#{hyphenate key}: #{value};"
-                else "\n#{hyphenate key}: none;"
-            output
-
-        [realm, outputType] = \
-            if args.length is 1 then [args[0].apply(CCS), "css"]
-            else [args[1].apply(CCS), args[0].toLowerCase()]
-
-        if outputType is "map"
-
-            output = {}
-            output[key] = toHash realm[key] for key of realm
-            return output
-
-        output = ""
-        output += "\n#{key} { #{toCSS realm[key]} \n}\n" for key of realm
-        output
-
 ## Launch Shell
 
 This is the last bit of code to run on boot.
 
 ### Gallery Mode
 
-If the shell is in gallery mode, then storage needs nuking. This is done now and again on
-unload so that if the `onunload` function gets edited, nothing will persist beyond the next
-boot, making it pointless to hack `onunload`.
+If the shell is in gallery mode, then storage needs nuking. This is done now
+and again on unload so that if the `onunload` function gets edited, nothing
+will persist beyond the next boot, making it pointless to hack `onunload`.
 
-Then the gist specified in the launch code is cloned ~ a fallback gist used if a valid gist
-id is not provided. The gist is then loaded into the editor and run.
+Then the gist specified in the launch code is cloned ~ a fallback gist is used
+if a valid gist id is not provided. The gist is then loaded into the editor
+and executed.
 
     if galleryMode
 
         do window.onunload = ->
+
             do localStorage?.clear
             do sessionStorage?.clear
             indexedDB?.deleteDatabase "*"
 
         fallback = "9419b50cdaa7238725d8"
-        window.mainFile = clone(launchCode or fallback) or clone(fallback)
+        window.mainFile = (clone launchCode or fallback) or (clone fallback)
         edit set mainFile
         do editor.run
 
@@ -1194,39 +1261,50 @@ id is not provided. The gist is then loaded into the editor and run.
 
 ### Shell Mode
 
-If the shell is not in gallery mode, then it needs to check that `config.coffee` exists,
-and create it otherwise. It'll then open the config file in the editor and execute it. If
-the launch code `safemode` is used, the config is loaded into the editor, but not run.
+If the shell is not in gallery mode, it needs to check that the config file
+exists, and create it otherwise. It then opens the config file in the editor
+and executes it.
 
-The `onunload` function is also set up to write the input history to local storage when
-the page is destroyed.
+If the launch code `safemode` is used, the config is loaded into the editor,
+but not executed.
+
+The `onunload` function is also set up to write the input history to local
+storage when the page is destroyed.
 
     if not galleryMode
 
         window.onunload = ->
+
             set historyStore, slate.history.last 400
             undefined
 
-        unless get "config.coffee" then set chit "config.coffee",
+        try get "config.coffee"
+        catch then set chit
+
+            coshKey: "config.coffee",
             description: "Run on boot unless in safe mode."
             content: 'print "/docs/home.md"'
 
         safemode = launchCode is "safemode"
+
         $brand
             .css( color: if safemode then "#D88E5C" else "#93A538" )
             .text( if safemode then "Safe Mode" else "c[_]" )
 
         edit "config.coffee"
-        if launchCode isnt "safemode"
-            cosh.execute get("config.coffee").content, "config.coffee"
+
+        if launchCode isnt "safemode" then run "config.coffee"
 
 ### The End
 
-All done; just focus the slate. The comment at the bottom is a source URL directive that
-allows the shell to recognise this file in stacktraces, so the stack can be filtered
-correctly.
+All done; just focus the slate. The comment at the bottom is a source URL
+directive that allows the shell to recognise this file in stacktraces, so
+the stack can be filtered correctly.
 
     do slate.focus
 
     `//# sourceURL=/cosh/main.js
     `
+
+[1]: https://github.com/chjj/marked
+[2]: http://stackoverflow.com/a/8460753/1253428
