@@ -360,7 +360,7 @@ to the input history. The push to the input history is actually done by
         slate.updateHistory value if value
         slate.setValue source
         slate.clearSelection 1
-        slate.focus()
+        do slate.focus
 
         return value
 
@@ -370,7 +370,7 @@ housekeeping to remove an older duplicate if it exists.
     slate.updateHistory = (source) ->
 
         index = slate.history.indexOf source
-        slate.history.splice(index, 1) if index isnt -1
+        slate.history.splice index, 1 if index isnt -1
         pointer = slate.history.push source
 
 ## The Editor
@@ -452,7 +452,7 @@ only if no code is selected, else it indents the code as Ace normally would.
         bindKey: win: "Shift-Tab", mac: "Shift-Tab"
         exec: ->
 
-            if editor.getCopyText() then editor.blockOutdent()
+            if do editor.getCopyText then do editor.blockOutdent
             else do $descriptionDiv.focus
 
 This function just gets the currently selected text, or all of the text if
