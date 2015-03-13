@@ -56,10 +56,11 @@ Set jQuery to not cache ajax requests, and disable the [Marked parser][1]'s
 These are all local variables pointing to elements, most wrapped by jQuery.
 
     $brand = jQuery "#brand"
-    $slate = jQuery "#slate"
-    $clock = jQuery "#clock"
     $board = jQuery "#board"
+    $slate = jQuery "#slate"
     $cover = jQuery "#cover"
+    $clock = jQuery "#clock"
+    $footer = jQuery "#footer"
     $viewer = jQuery "#viewer"
     $nameDiv = jQuery "#filename"
     $editorLinks = jQuery "#editor-links"
@@ -118,7 +119,7 @@ for enclosing the custom error type names.
     CoreError = (@message) ->
 
         @constructor.prototype.__proto__ = Error.prototype
-        Error.captureStackTrace(@, @constructor)
+        Error.captureStackTrace @, @constructor
         @name = @constructor.name
 
     BaseError = (type) ->
@@ -207,15 +208,18 @@ First, create and configure the slate.
     slate.setTheme "ace/theme/vibrant_ink"
     slate.session.setMode "ace/mode/coffee"
 
-This just resizes the slate on changes.
+This invokes an event handler assignment that encloses a hook to the slate
+document, and just resizes the slate whenever it changes.
 
-    doc = slate.getSession().getDocument()
+    do ->
 
-    slate.on "change", ->
+        doc = slate.getSession().getDocument()
 
-        slateDiv.style.height = "#{ 16 * do doc.getLength }px"
-        do slate.resize
-        do clock.scrollIntoView
+        slate.on "change", ->
+
+            slateDiv.style.height = "#{ 16 * do doc.getLength }px"
+            do slate.resize
+            do clock.scrollIntoView
 
 Create the `inputs` hash that stores user input hashes, which includes source
 maps, compiled JavaScript and so on. The `inputCount` just tallies the number
@@ -238,12 +242,12 @@ scrolling through the history array so the user can return to it.
 Clicking the footer element focusses the slate, just to make it easier to
 click 'on' the slate when it is small.
 
-    jQuery('#footer').click -> do slate.focus
+    $footer.click -> do slate.focus
 
 This makes `pre` tags inside the board clickable, loading their content into
 the slate.
 
-    jQuery("#board").on "click", "pre", (event) ->
+    $board.on "click", "pre", (event) ->
 
         source = event.target.innerText.slice 0, -1
         if slate.getValue() isnt source then slate.push source
@@ -521,13 +525,14 @@ This API function sets the editor content to local storage.
 
         return editor.currentFile
 
-Little helper function for doing what `get` does without the exception
-handling, and always on the local copy of `currentFile`.
+Little helper function for doing what `get` does, but without the exception
+handling, returning `undefined` on bad keys, and always acting on the
+local copy of `currentFile`.
 
     editor.getCopyFromDisk = ->
 
         item = localStorage.getItem editor.currentFile.coshKey
-        JSON.parse item if item
+        if item then JSON.parse item else undefined
 
 This function updates the editor state, keeping the chit status colour
 correct, and keep the filename aligned with the left-hand side of the
