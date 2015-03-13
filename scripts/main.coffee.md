@@ -110,6 +110,14 @@ The other half of the HTML escape function.
             .split("\n").join "<br>"
             .split("\t").join "&nbsp;&nbsp;&nbsp;&nbsp;"
 
+Get the user platform (mac, win, linux), and create a `mac` bool for help
+with defining platform specific keybindings.
+
+    platform = navigator.platform.match(/mac|win|linux/i) or ["other"]
+    platform = do platform[0].toLowerCase
+
+    mac = platform is "mac"
+
 ## The Custom Error Types
 
 This first takes the `UserError` implementation from [this SO answer][2] and
@@ -567,7 +575,7 @@ calling `editor.updateStatus` on changes.
     $descriptionDiv.on "input", editor.updateStatus
 
 This handles keydown events in the description div, giving the div its
-keybindings. It is a bit hacky: Control and Command key works on OS X.
+keybindings.
 
     $descriptionDiv.bind "keydown", (event) ->
 
@@ -576,7 +584,7 @@ keybindings. It is a bit hacky: Control and Command key works on OS X.
             do event.preventDefault
             return do editor.focus
 
-        return unless (event.ctrlKey or event.metaKey)
+        return unless (event.ctrlKey and not mac) or (event.metaKey and mac)
 
         if event.which is 190
 
@@ -610,7 +618,7 @@ The `run` method from [the API](/docs/files.md).
         else [path, content] = [target.coshKey, target.content]
 
         if path and content?
-            toastr.info path, "Running Chit", timeOut: 1000
+            toastr.info path, "Running...", timeOut: 1000
             cosh.execute content, path
         else toastr.error "No file hash at #{target}.", "Run Failed"
 
