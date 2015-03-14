@@ -303,7 +303,9 @@ This keybinding makes `Meta.Down` forward the input history.
             pointer += 1
 
             if pointer < slate.history.length
+
                 slate.setValue slate.history[pointer]
+
             else slate.setValue stash
 
             slate.clearSelection 1
@@ -574,8 +576,12 @@ calling `editor.updateStatus` on changes.
     editor.on "change", editor.updateStatus
     $descriptionDiv.on "input", editor.updateStatus
 
-This handles keydown events in the description div, giving the div its
-keybindings.
+## General Keybindings
+
+These are all the keybindings for outside of the slate and editor.
+
+This function handles keydown events in the description div, giving the div
+its keybindings.
 
     $descriptionDiv.bind "keydown", (event) ->
 
@@ -596,13 +602,25 @@ keybindings.
             do event.preventDefault
             do editor.set
 
+This handles keydown events outside of the slate and editor, making
+<kbd>Meta.Dot</kbd> work everywhere.
+
+    jQuery("body").bind "keydown", (event) ->
+
+        return unless (event.ctrlKey and not mac) or (event.metaKey and mac)
+        return unless event.which is 190
+
+        do event.preventDefault
+        do clock.scrollIntoView
+        do slate.focus
+
 ## The Shell API
 
 Make `editor.edit` a global as the API `edit` function.
 
     window.edit = editor.edit
 
-This function is used to decide whether a string is a URL or not.
+A bool function that tests whether a string is a URL or not.
 
     remote = (path) -> "/" in path
 
