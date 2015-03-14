@@ -91,7 +91,9 @@ are actually appending.
 
 ## Function: `clear`
 
-The `clear` function clears the board. It destroys everything on there.
+The `clear` function clears the board. It destroys everything on there. It
+also returns the board as a jQuery object. Just use <kbd>Meta.Esc</kbd> in
+the shell or editor.
 
 ## Function: `print`
 

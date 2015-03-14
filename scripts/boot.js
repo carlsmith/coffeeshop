@@ -22,7 +22,6 @@ require ([
             lastBuilt < Date.create("12 hours ago")
             )
 
-
         if (!stale) return eval(coshSource)
 
         $brand.text("building...")

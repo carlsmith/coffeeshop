@@ -55,6 +55,7 @@ Set jQuery to not cache ajax requests, and disable the [Marked parser][1]'s
 
 These are all local variables pointing to elements, most wrapped by jQuery.
 
+    $html = jQuery "html"
     $brand = jQuery "#brand"
     $board = jQuery "#board"
     $slate = jQuery "#slate"
@@ -110,6 +111,17 @@ The other half of the HTML escape function.
             .split("\n").join "<br>"
             .split("\t").join "&nbsp;&nbsp;&nbsp;&nbsp;"
 
+Little helper to test if a value is a file chit. Probably needs breaking into
+one for chits, one for file chits and one for gist chits, at some point.
+
+    isFileChit = (arg) ->
+
+        ( arg.coshKey?.isString?()            ) and
+        ( arg.coshKey.length                  ) and
+        ( arg.coshKey.find("\n") is undefined ) and
+        ( arg.content?.isString?()            ) and
+        ( arg.description?.isString?()        ) or false
+
 Get the user platform (mac, win, linux), and create a `mac` bool for help
 with defining platform specific keybindings.
 
@@ -134,15 +146,19 @@ for enclosing the custom error type names.
 
         (message) -> new CoreError "#{ type }Error: #{ message }"
 
-Now it is simple to create new error types.
+Now, we can essentially just name any new error type we need. Note that this
+all depends on V8. Other engines lack the `captureStackTrace` method used
+by `CoreError`.
 
-    StorageError   = BaseError "Storage"
+    AJAXError = BaseError "AJAX"
+    StorageError = BaseError "Storage"
     SignatureError = BaseError "Signature"
 
 ## The Storage Functions
 
 These are the three storage functions from [the API](/docs/storage.md). They
-are exposed to users, so they all have rich error handling.
+are exposed to users, so they all have rich error handling. See the API docs
+for explanations of how they work.
 
 The `get` method.
 
@@ -317,7 +333,7 @@ This keybinding makes `Meta.Escape` clear the board.
 
         name: "clear_board"
         bindKey: win: "Ctrl-Esc", mac: "Cmd-Esc"
-        exec: -> board.innerHTML = ""
+        exec: -> $board.html ""
 
 This keybinding makes `Meta.Dot` focus the editor.
 
@@ -440,7 +456,7 @@ This keybinding makes `Meta.Escape` clear the board.
 
         name: "clear_board"
         bindKey: win: "Ctrl-Esc", mac: "Cmd-Esc"
-        exec: -> board.innerHTML = ""
+        exec: -> $board.html ""
 
 This keybinding makes `Meta.Dot` focus the slate.
 
@@ -553,14 +569,14 @@ editor when the gutter grows or shrinks.
         lines = editor.session.getLength() + 1
         $editorLinks.css left: 623 + 7 * lines.toString().length
 
-        inSync =
+        inSyncWithDisk =
 
-            ( editor.currentFile ) and
-            ( do editor.getValue is editor.currentFile.content ) and
+            ( editor.currentFile                                  ) and
+            ( do editor.getValue is editor.currentFile.content    ) and
             ( editor.currentFile.equals do editor.getCopyFromDisk ) and
             ( do $descriptionDiv.text is editor.currentFile.description )
 
-        $nameDiv.css color: if inSync then "#93A538" else "#E18243"
+        $nameDiv.css color: if inSyncWithDisk then "#93A538" else "#E18243"
 
 This is a little function that is called by the `set` and `pop` functions, as
 they mutate local storage, to trigger a sync between editor and disk.
@@ -578,37 +594,45 @@ calling `editor.updateStatus` on changes.
 
 ## General Keybindings
 
-These are all the keybindings for outside of the slate and editor.
+These is where all the keybindings for outside of the slate and editor live. A
+few of the common character codes are assigned to names for readability.
+
+    [tabKey, enterKey, dotKey] = [9, 13, 190]
+
+This is a little helper that tests whether the Meta key was active.
+
+    modifiedKey = (event) ->
+
+        (event.ctrlKey and not mac) or (event.metaKey and mac)
 
 This function handles keydown events in the description div, giving the div
 its keybindings.
 
     $descriptionDiv.bind "keydown", (event) ->
 
-        if event.which is 9 or event.which is 13
+        if event.which is tabKey or event.which is enterKey
 
             do event.preventDefault
             return do editor.focus
 
-        return unless (event.ctrlKey and not mac) or (event.metaKey and mac)
+        return unless modifiedKey event
 
-        if event.which is 190
+        if event.which is dotKey
 
             do event.preventDefault
-            return do slate.focus
+            do slate.focus
 
-        if do String.fromCharCode(event.which).toLowerCase is "s"
+        else if do String.fromCharCode(event.which).toLowerCase is "s"
 
             do event.preventDefault
             do editor.set
 
 This handles keydown events outside of the slate and editor, making
-<kbd>Meta.Dot</kbd> work everywhere.
+<kbd>Meta.Dot</kbd> focus the slate from anywhere.
 
     jQuery("body").bind "keydown", (event) ->
 
-        return unless (event.ctrlKey and not mac) or (event.metaKey and mac)
-        return unless event.which is 190
+        return unless (event.which is dotKey and modifiedKey event)
 
         do event.preventDefault
         do clock.scrollIntoView
@@ -616,86 +640,108 @@ This handles keydown events outside of the slate and editor, making
 
 ## The Shell API
 
+This is where the bulk of the shell functions are defined. The `get`, `set`
+and `pop` functions are defined earlier, as they are needed sooner.
+
+This is just a little internal function that just tests whether a string is
+a URL or not.
+
+    remote = (path) -> "/" in path
+
+This function just does a jQuery `scrollTop` animation to slide the top of
+an element to the top of the board.
+
+    scrollTop = ($element) ->
+
+        animation = scrollTop: $element.offset().top - 27
+        $html.animate animation, duration: 150
+
 Make `editor.edit` a global as the API `edit` function.
 
     window.edit = editor.edit
 
-A bool function that tests whether a string is a URL or not.
-
-    remote = (path) -> "/" in path
-
-The `run` method from [the API](/docs/files.md).
+The `run` method from [the API](/docs/chits.md).
 
     window.run = (target) ->
 
-        if do target.isString
-            path = target
-            content =
-                if remote target then load target
-                else get(target)?.content
-        else [path, content] = [target.coshKey, target.content]
+        resolve = (target) ->
 
-        if path and content?
-            toastr.info path, "Running...", timeOut: 1000
-            cosh.execute content, path
-        else toastr.error "No file hash at #{target}.", "Run Failed"
+            return [target.coshKey, target.content] unless do target.isString
+            return [target, load target] if remote target
+            return [target, get(target).content]
 
-        undefined
+        [path, content] = resolve target
 
-The `put` method from [the API](/docs/output.md).
+        toastr.info path, "Running...", timeOut: 1000
+        cosh.execute content, path
+
+The `put` and `put.low` methods from [the API](/docs/output.md). The `put`
+function just effects the spacing of the output. The `put.low` function
+does all the work, pretty printing and highlighting different types. The
+output is then `peg`ged to the board (see below).
 
     window.put = (args...) ->
 
         boardWasNotEmpty = bool do $board.text
-        output = put.low args...
-        output?.addClass "unspaced" if boardWasNotEmpty
-        undefined
 
-    put.low = (args...) ->
+        $output = put.low args...
+        $output?.addClass "unspaced" if boardWasNotEmpty
 
-        arg = args[0]
-        color = "color-object"
+        return undefined
 
-        if arg is null then arg = "null"
-        else if arg is undefined then return do clock.scrollIntoView
-        else if arg.isDate?() then arg = arg.format()
-        else if arg.isString?()
-            if arg is "" then arg = "empty string"
-            else if arg.isBlank() then arg = "invisible string"
-            else color = "color-string"
-        else
-            try arg = pprint.parse(arg)
-            catch error then arg = arg.toString()
+    put.low = ->
 
-        peg.low jQuery("<div>"), args[1]
-            .addClass color
-            .addClass "spaced"
-            .html escape arg
+        [output, callback] = arguments
 
-The `peg` method from [the API](/docs/output.md).
+        return do clock.scrollIntoView if output is undefined
+
+        cssClass = "color-object"
+
+        if output is null then output = "null"
+
+        else if output.isDate?() then output = do output.format
+
+        else if output.isString?()
+
+            if output is "" then output = "empty string"
+            else if do output.isBlank then output = "invisible string"
+            else cssClass = "color-string"
+
+        else output =
+
+            try pprint.parse output
+            catch then do output.toString
+
+        peg.low jQuery("<div>"), callback
+            .html escape output
+            .addClass "spaced #{ cssClass }"
+
+The `peg` and `peg.low` methods from [the API](/docs/output.md). These are
+both used directy, and by other functions, notably `put` and `put.low`, to
+put markup strings, DOM nodes and jQuery arrays to the board.
 
     window.peg = (args...) ->
 
-        heightBeforePeg = $board.height()
-        boardWasNotEmpty = bool $board.text()
+        heightBeforePeg = do $board.height
+        boardWasNotEmpty = bool do $board.text
+
         output = peg.low args...
         output.addClass "unspaced" if boardWasNotEmpty
-        return if heightBeforePeg isnt $board.height()
+
+        return unless heightBeforePeg is do $board.height
+
         peg.low("invisible element").attr class: "color-object"
-        undefined
+
+        return undefined
 
     peg.low = (tree, options) ->
 
         $tree =
 
-            if tree instanceof jQuery
-                tree
-            else if tree instanceof HTMLElement
-                jQuery tree
-            else if tree?.isString?()
-                jQuery("<div>").html marked tree
-            else
-                jQuery("<xmp>").html tree?.toString() or jQuery "<div>"
+            if tree instanceof jQuery then tree
+            else if tree instanceof HTMLElement then jQuery tree
+            else if tree?.isString?() then jQuery("<div>").html marked tree
+            else jQuery("<xmp>").html tree?.toString() or jQuery "<div>"
 
         if options isnt undefined
 
@@ -710,59 +756,50 @@ The `peg` method from [the API](/docs/output.md).
         if options?.target then return jQuery(options.target).append $tree
         else $board.append $tree
 
-        if $tree[0].className isnt "page" then do clock.scrollIntoView
-        else jQuery("html").animate(
-            { scrollTop: $tree.offset().top - 27 }
-            { duration: 150 }
-            )
+        if $tree[0].className is "page" then scrollTop $tree
+        else do clock.scrollIntoView
 
-        $tree
+        return $tree
 
-The `load` method was an API method, and is no more. It's still used internally
-to make blocking requests for remote resources.
+The `load` method was an API method, and was removed. It is still used
+internally to make *blocking* requests for remote resources.
 
-    load = (path, callback=undefined) ->
-
-        output = undefined
+    load = (path, output=undefined) ->
 
         jQuery.ajax
-            url: path
-            async: bool callback
-            success: (response) ->
-                if callback then callback response else output = response
 
-        output
+            url: path
+            async: false
+            error: (error) -> throw AJAXError do error.statusText.toLowerCase
+            success: (goods) -> output = goods
+
+        return output
 
 The `print` method from [the API](/docs/output.md).
 
     window.print = (target) ->
 
+        throw SignatureError "too few args"  if arguments.length < 1
+        throw SignatureError "too many args" if arguments.length > 1
+
         if target.isString()
-            if remote target
-                if data = load target then peg.low data, "page"
-                else toastr.error "#{target} not found", "View Failed"
-            else if data = get target then peg.low data.content, "page"
-        else peg.low target.content, "page"
 
-        undefined
+            throw SignatureError "arg was an empty string" unless target
 
-The `view` function.
+            if remote target then peg.low (load target), "page"
+            else peg.low get(target).content, "page"
 
-    windowHeight = undefined
-    do setWindowHeight = -> windowHeight = jQuery(window).height()
-    jQuery(window).resize setWindowHeight
+            return undefined
 
-    window.view = (content) ->
+        throw SignatureError "invalid argument" unless isFileChit target
 
-        peg content, target: $viewer
-        $viewer.css maxHeight: windowHeight-127, display: "block"
-        $cover.css display: "block"
-        undefined
+        peg.low target.content, "page"
 
+        return undefined
 
 The `clear` method from [the API](/docs/output.md).
 
-    window.clear = -> $board.html("").shush
+    window.clear = -> $board.html ""
 
 ## The GitHub Gist API
 
