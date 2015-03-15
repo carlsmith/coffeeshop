@@ -150,7 +150,9 @@ Now, we can essentially just name any new error type we need. Note that this
 all depends on V8. Other engines lack the `captureStackTrace` method used
 by `CoreError`.
 
-    AJAXError = BaseError "AJAX"
+    NetError = BaseError "Net"
+    AuthError = BaseError "Auth"
+    GitHubError = BaseError "GitHub"
     StorageError = BaseError "Storage"
     SignatureError = BaseError "Signature"
 
@@ -166,7 +168,7 @@ The `get` method.
 
         throw SignatureError "too few args"  if arguments.length < 1
         throw SignatureError "too many args" if arguments.length > 1
-        throw TypeError "key must be a String" unless do key.isString
+        throw TypeError "key must be a string" unless do key.isString
 
         if item = localStorage.getItem key then JSON.parse item
         else throw StorageError "no key named #{ key }"
@@ -185,7 +187,7 @@ The `set` method.
             else throw SignatureError "too many args"
 
         throw SignatureError "did not find coshKey" if key is undefined
-        throw SignatureError "key must be a String" unless do key.isString
+        throw SignatureError "key must be a string" unless do key.isString
         throw StorageError "invalid key `#{ key }`" if reserved key
 
         value.coshKey = key if value.coshKey isnt undefined
@@ -672,8 +674,8 @@ internally to make *blocking* requests for remote resources.
 
             url: path
             async: false
-            error: (error) -> throw AJAXError do error.statusText.toLowerCase
             success: (goods) -> output = goods
+            error: (error) -> throw NetError do error.statusText.toLowerCase
 
         return output
 
@@ -811,17 +813,20 @@ This section extends the shell API to work with gists. It starts by just
 defining a couple of helpful locals.
 
     authStore = "coshGitHubAuth"
-    gistEndpoint = (path) -> "https://api.github.com#{path}"
 
-This function can be called with no arguments and it'll attempt to return the
-GitHub credentials for the browser, else `null`. I can be called with two
-arguments, a username and password, and it'll save them to local storage.
+    gistEndpoint = (path) -> "https://api.github.com#{ path }"
+
+This function can be called with no arguments and it will attempt to return
+the GitHub credentials from storage, else `null`. It can be called with two
+arguments, a username and password, and it will save them to local storage.
 
     auth = (args...) ->
 
         if args.length is 0
-            authHash = get(authStore) or sessionStorage.getItem(authStore)
-            if authHash?.isString() then JSON.parse authHash else authHash
+
+            try authHash = get authStore
+            catch then throw AuthError "no GitHub credentials found"
+
         else set authStore, { username: args[0], password: args[1] }
 
 This function is called to create a basic auth header string. It'll return
@@ -830,21 +835,31 @@ This function is called to create a basic auth header string. It'll return
     authHeader = ->
 
         return unless authData = do auth
+
         authData = btoa "#{authData.username}:#{authData.password}"
-        Authorization: "Basic #{authData}"
+
+        return Authorization: "Basic #{authData}"
 
 This function creates a gist chit from the JSON returned by the GitHub API.
 
     gist2chit = (gistHash) ->
 
         core = gistHash.files[gistHash.files.keys()[0]]
-        chit
+
+        return chit
+
             coshKey: core.filename
             description: gistHash.description
             content: core.content
             gistID: gistHash.id
             owner: gistHash.owner.login
-            galleryURL: "https://gallery-cosh.appspot.com/##{gistHash.id}"
+            galleryURL: "https://gallery-cosh.appspot.com/##{ gistHash.id }"
+
+Extract a GitHub error message from a error response.
+
+    parseGitHubError = (error) ->
+
+        do JSON.parse(error.responseText).message.toLowerCase
 
 This makes the auth banner link load the form defined here and binds a couple
 of handlers to it.
@@ -874,8 +889,14 @@ of handlers to it.
             <button id=#{formID}Delete>pop coshGitHubAuth</button>
             """
 
-        jQuery("##{formID}Delete").click -> if pop authStore
-            toastr.success "Popped coshGitHubAuth.", "Deauthorised"
+        jQuery("##{formID}Delete").click ->
+
+            if localStorage.getItem authStore
+
+                localStorage.removeItem authStore
+                toastr.success "Popped coshGitHubAuth.", "Deauthorised"
+
+            else toastr.error "Nothing at coshGitHubAuth", "Failed"
 
         jQuery("##{formID}").submit (event) ->
 
@@ -884,119 +905,102 @@ of handlers to it.
             $username = jQuery "##{formID}Username"
             $password = jQuery "##{formID}Password"
 
-            unless $username.val()
-                toastr.error "Username can't be empty.", "Auth Failed"
-                do $username.focus
-                return
+            unless username = do $username.val
 
-            unless $password.val()
-                toastr.error "Password can't be empty.", "Auth Failed"
-                do $password.focus
-                return
+                toastr.error "Username can not be empty.", "Auth Failed"
+                return do $username.focus
 
-            auth $username.val(), $password.val()
+            unless password = do $password.val
+
+                toastr.error "Password can not be empty.", "Auth Failed"
+                return do $password.focus
+
+            auth username, password
             toastr.success "Credentials set to coshGitHubAuth.", "Authorised"
-
-        undefined
 
 The `publish` function from the [API](/docs/gists.md).
 
     window.publish = (target) ->
 
-        output = undefined
+        throw SignatureError "too few args"  if arguments.length < 1
+        throw SignatureError "too many args" if arguments.length > 1
+        throw TypeError "key must be a string" unless do target.isString
 
-        if target.isString?() then target = get target
-        unless target
-            toastr.error "Hash not found.", "Publishing Failed"
-            return
-        unless authData = do authHeader
-            toastr.error "Couldn't find credentials.", "Publishing Failed"
-            return
+        unless target = get target then throw SignatureError "arg is not a key"
 
-        data =
-            description: target.description
-            public: true
-            files: {}
+        authData = do authHeader
+
+        data = description: target.description, public: true, files: {}
         data.files[target.coshKey] = content: target.content
 
         jQuery.ajax
+
             type: "POST"
-            data: JSON.stringify data
-            async: false
-            url: gistEndpoint "/gists"
             headers: authData
-            error: (result) ->
-                reason = JSON.parse(result.responseText).message
-                toastr.error reason, "Publishing failed"
-            success: (data) ->
-                output = set gist2chit data
+            data: JSON.stringify data
+            url: gistEndpoint "/gists"
+            error: (error) -> throw GitHubError parseGitHubError error
+            success: (goods) ->
+
+                output = set gist2chit goods
                 toastr.success output.gistID, "Published Gist"
 
-        output
+        return undefined
 
 The `push` function from the [API](/docs/gists.md).
 
     window.push = (target) ->
 
-        output = undefined
+        throw SignatureError "too few args"  if arguments.length < 1
+        throw SignatureError "too many args" if arguments.length > 1
+        throw TypeError "key must be a string" unless do target.isString
 
-        if target.isString?() then target = get target
+        unless hash = get target then throw SignatureError "arg is not a key"
 
-        unless target
-            toastr.error "Hash not found.", "Push Failed"
-            return
+        throw GitHubError "#{ target } is unpublished" unless hash.gistID
 
-        unless target.gistID
-            toastr.error "#{target.coshKey} is unpublished.", "Push Failed"
-            return
+        authData = do authHeader
 
-        unless authData = do authHeader
-            toastr.error "No credentials.", "Push Failed"
-            return
+        data = description: hash.description, files: {}
 
-        data = description: target.description, files: {}
-        data.files[target.coshKey] =
-            filename: target.coshKey
-            content: target.content
+        data.files[hash.coshKey] =
+
+            filename: hash.coshKey, content: hash.content
 
         jQuery.ajax
-            type: "PATCH"
-            data: JSON.stringify data
-            async: false
-            url: gistEndpoint "/gists/#{target.gistID}"
-            headers: authData
-            error: (result) ->
-                reason = JSON.parse(result.responseText).message
-                toastr.error reason, "Push Failed"
-            success: (data) ->
-                output = gist2chit data
-                toastr.success target.coshKey, "Pushed Gist"
 
-        output
+            type: "PATCH"
+            headers: authData
+            data: JSON.stringify data
+            url: gistEndpoint "/gists/#{ hash.gistID }"
+            error: (error) -> throw GitHubError parseGitHubError error
+            success: (goods) -> toastr.success goods.gistID, "Pushed Gist"
+
+        return undefined
 
 The `publish` function from the [API](/docs/gists.md).
 
-    window.clone = (gistID) ->
-
-        output = undefined
+    window.clone = (gistID, output=undefined) ->
 
         jQuery.ajax
+
             type: "GET"
             async: false
-            url: gistEndpoint "/gists/#{gistID}"
+            url: gistEndpoint "/gists/#{ gistID }"
+            error: (data) -> throw GitHubError parseGitHubError error
             success: (data) -> output = gist2chit data
-            error: (data) -> toastr.error "Gist not found.", "Clone Failed"
 
-        output
+        return output
 
 The `gallery` function from the [API](/docs/publishing.md).
 
     window.gallery = (gistID) ->
 
-        open "https://gallery-cosh.appspot.com/##{gistID}"
-        undefined
+        open "https://gallery-cosh.appspot.com/##{ gistID }"
 
-The `chit` function from the [API](/docs/files.md).
+        return undefined
+
+The `chit` function from the [API](/docs/chits.md).
 
     window.chit = (args...) ->
 
