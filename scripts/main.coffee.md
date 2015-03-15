@@ -656,9 +656,23 @@ an element to the top of the board.
         animation = scrollTop: $element.offset().top - 27
         $html.animate animation, duration: 150
 
-Make `editor.edit` a global as the API `edit` function.
+Make `editor.edit` available as the API `edit` function.
 
     window.edit = editor.edit
+
+The `load` method was an API method, and was removed. It is still used
+internally to make *blocking* requests for remote resources.
+
+    load = (path, output=undefined) ->
+
+        jQuery.ajax
+
+            url: path
+            async: false
+            error: (error) -> throw AJAXError do error.statusText.toLowerCase
+            success: (goods) -> output = goods
+
+        return output
 
 The `run` method from [the API](/docs/chits.md).
 
@@ -689,9 +703,10 @@ output is then `peg`ged to the board (see below).
 
         return undefined
 
-    put.low = ->
+The `put.low` function wraps `peg.low`, pretty printing the `output` arg. It
+does nothing if the output is `undefined`. Undefined values are never put.
 
-        [output, callback] = arguments
+    put.low = (output, callback=undefined) ->
 
         return do clock.scrollIntoView if output is undefined
 
@@ -760,20 +775,6 @@ put markup strings, DOM nodes and jQuery arrays to the board.
         else do clock.scrollIntoView
 
         return $tree
-
-The `load` method was an API method, and was removed. It is still used
-internally to make *blocking* requests for remote resources.
-
-    load = (path, output=undefined) ->
-
-        jQuery.ajax
-
-            url: path
-            async: false
-            error: (error) -> throw AJAXError do error.statusText.toLowerCase
-            success: (goods) -> output = goods
-
-        return output
 
 The `print` method from [the API](/docs/output.md).
 
