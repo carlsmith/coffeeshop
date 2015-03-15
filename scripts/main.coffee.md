@@ -259,7 +259,10 @@ used to keep hold of what the slate buffer held before the user began
 scrolling through the history array so the user can return to it.
 
     historyStore = "coshHistoryStore"
-    slate.history = (get historyStore) or []
+
+    try slate.history = (get historyStore) or []
+    catch then slate.history = []
+
     pointer = slate.history.length
     stash = ""
 
