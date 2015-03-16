@@ -72,6 +72,15 @@ CoffeeShop doesn't have an account system; it just uses local storage.
 You must use a V8 based browser (Chromium, Chrome or Opera). FireFox support
 is also possible and is planned.
 
+### Status
+
+Everything works, and is pretty stable, but a couple of minor bits may change
+before things properly settle down. The version on App Engine is always in
+sync with this repo, for better or worse, so expect the occasional fail.
+
+Experienced programmers should find CoffeeShop useful now. The support for
+new programmers is being worked on.
+
 ### License
 
 CoffeeShop is Free Software. A lot of CoffeeShop's parts come from third party

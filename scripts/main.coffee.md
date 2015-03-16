@@ -9,8 +9,6 @@ lives in this file.
 This file's dependencies, `coffee`, `marked`, `pprint` and `smc` (Source Map
 Consumer), are loaded by `boot.js`.
 
-    window.smc = smc
-
 ## Initialise the Global Namespace
 
 This stuff is all exposed to users, and used internally.
