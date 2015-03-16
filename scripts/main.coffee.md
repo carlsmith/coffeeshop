@@ -9,6 +9,8 @@ lives in this file.
 This file's dependencies, `coffee`, `marked`, `pprint` and `smc` (Source Map
 Consumer), are loaded by `boot.js`.
 
+    window.smc = smc
+
 ## Initialise the Global Namespace
 
 This stuff is all exposed to users, and used internally.
@@ -77,6 +79,12 @@ This code sets up the links above the board, the *shell links*.
     jQuery("#book-link").click -> print "/docs/front.md"
 
     jQuery("#more-link").click -> print "/docs/external.md"
+
+Make CoffeeScript code clickable, to toggle compiled JavaScript code.
+
+    jQuery("#board").on "click", ".error-input-cs, .input-cs", ->
+
+        jQuery(@).next().slideToggle(200).css display: "block"
 
 This launches a little webworker that updates the time on the clock in
 the footer div.
@@ -1000,7 +1008,8 @@ The `gallery` function from the [API](/docs/publishing.md).
 
         return undefined
 
-The `chit` function from the [API](/docs/chits.md).
+The `chit` function from the [API](/docs/chits.md). This needs rethinking,
+then either rewriting or replacing.
 
     window.chit = (args...) ->
 
@@ -1027,124 +1036,64 @@ The `chit` function from the [API](/docs/chits.md).
 
         options.merge coshKey: key
 
-The following code pre-loads docs into a cache when the user mouses over a
-link to them, assuming the doc hasn't been cached already. This speeds things
-up a lot.
+## The Page Cache
+
+The shell preefetches docs into a cache when the user mouses over a link to
+them, assuming the doc has not been cached already. This speeds things up a
+lot when the user is browsing pages.
+
+This hash is the actual cache.
 
     pageCache = {}
 
+This helper gets the `href` attribute for the doc, which may end up being of
+the parent node.
+
     getHref = (event) ->
 
-        target = event.target
         do event.preventDefault
 
+        target = event.target
         href = target.href or target.parentNode.href
 
         if href.startsWith location.origin
-            return href = href.slice location.origin.length
-        else return href
 
-    $board.on "click", "a", (event) ->
-        path = getHref event
-        if path.endsWith ".md"
-            if file = pageCache[path] then peg.low file, "page"
-            else jQuery.get path, (file) ->
-                pageCache[path] = file
-                peg.low file, "page"
-        else open path
+            return href.slice location.origin.length
+
+        return href
+
+This helper sets up the logic for caching pages on hover. It will only cache
+Markdown documents, and bases everything on the extension.
 
     $board.on "mouseover", "a", (event) ->
+
         path = getHref event
+
         return if not path.endsWith(".md") or pageCache[path]
+
         jQuery.get path, (page) -> pageCache[path] = page
+
+This sets up the logic for when the user clicks a link, loading it from the
+cache if it is ready, else just fetching it directly as a fallback (this is
+probably not the best way to do it, but is simple and works in practice).
+
+    $board.on "click", "a", (event) ->
+
+        path = getHref event
+
+        return open path unless path.endsWith ".md"
+
+        if file = pageCache[path] then return peg.low file, "page"
+
+        jQuery.get path, (file) ->
+
+            pageCache[path] = file
+            peg.low file, "page"
 
 ## Execution and Exception Handling
 
-This stuff needs refactoring, badly. It's where all the compilation, execution,
-source mapping, error handling currently lives. Functions that return jQuery
-objects shouldn't have names that start with a dollar either.
-
-    $highlightTrace = (source, lineNumber, charNumber) ->
-
-        lines = do source.lines
-        line  = lines[lineNumber]
-        start = escape line.slice 0, charNumber
-        end   = escape line.slice charNumber + 1
-        char  = line[charNumber]
-        look  = if char then "color-operator" else "error-missing-char"
-        char  = if char then escape char else "&nbsp;"
-
-        lines[lineNumber] = "#{start}<span class=#{look}>#{char}</span>#{end}"
-
-        for line, index in lines
-
-            lines[index] = escape line if index isnt lineNumber
-
-        jQuery("<span class=error>").html lines.join "<br>"
-
-    reportCompilationError = (source, error) ->
-
-        line = error.location.first_line
-        column = error.location.first_column
-        message = "Caught CoffeeScript #{error.name}: #{error.message}"
-
-        jQuery "<div>"
-            .attr "class", "color-operator"
-            .append $highlightTrace source, line, column
-            .append $traceFooterDiv "invalid input [#{line+1}:#{column+1}]"
-            .append $errorMessageDiv message
-            .appendTo $board
-
-    $nativeErrorDiv = (trace) -> jQuery \
-        """
-        <div>
-        <span class=error>JavaScriptError in
-        <span class=color-operator>#{trace.methodName}</span>
-        [#{trace.lineNumber}:#{trace.column}]</span>
-        </div>
-        """
-
-    $coffeeErrorDiv = (item, map, trace) ->
-
-        $cs = $highlightTrace item.source, map.line-1, map.column
-        $js = $highlightTrace item.code, trace.lineNumber-1, trace.column-1
-
-        jQuery "<div>"
-            .css "display": "inline"
-            .append $cs.attr class: "error-input-cs"
-            .append $js.attr class: "error-compiled-js"
-
-    $traceFooterDiv = (origin) ->
-
-        jQuery """
-            <div class=trace_footer>
-            <span class=trace-counter>#{origin}</span><br><br>
-            </div>
-            """
-
-    $errorMessageDiv = (message) ->
-
-        jQuery("<xmp>").text(message).addClass "error-message unspaced"
-
-    doMap = (item, trace) ->
-
-        (new smc.SourceMapConsumer do item.map.generate).originalPositionFor
-            line: trace.lineNumber
-            column: trace.column - 1 or 1
-
-    parseOrigin = (item, map) ->
-
-        locationString = "[#{map.line}:#{map.column + 1}]"
-
-        if item.shell then return "#{item.count} #{locationString}"
-
-        [key, date] = item.count.split "@"
-
-        "#{key} #{locationString} [#{date}]"
-
-    jQuery("#board").on "click", ".error-input-cs, .input-cs", ->
-
-        jQuery(@).next().slideToggle(200).css display: "block"
+This stuff needs refactoring. It is where all the compilation, execution,
+source mapping and error handling currently lives.
 
 ### Execution
 
@@ -1165,9 +1114,20 @@ also handles CoffeeScript compilation errors. Runtime errors are handled in
         try code = coffee.compile source, options
         catch error
 
-            reportCompilationError source, error
+            line = error.location.first_line
+            column = error.location.first_column
+            message = "Caught CoffeeScript #{error.name}: #{error.message}"
+
+            jQuery "<div>"
+                .attr "class", "color-operator"
+                .append hilite source, line, column
+                .append makeOriginDiv "invalid input [#{line+1}:#{column+1}]"
+                .append makeErrorMessageDiv message
+                .appendTo $board
+
             slate.updateHistory source if shell
             slate.setValue ""
+
             return do clock.scrollIntoView
 
         if shell
@@ -1179,6 +1139,7 @@ also handles CoffeeScript compilation errors. Runtime errors are handled in
             slate.setValue ""
 
         inputs[url] =
+
             name: url
             code: code.js
             shell: shell
@@ -1192,6 +1153,7 @@ also handles CoffeeScript compilation errors. Runtime errors are handled in
                 .text source
                 .addClass "input-cs"
                 .appendTo $board
+
             $jsSource = jQuery "<xmp>"
                 .text code.js
                 .addClass "compiled-js"
@@ -1201,15 +1163,20 @@ also handles CoffeeScript compilation errors. Runtime errors are handled in
         catch error
 
             if error.stack.startsWith "SyntaxError"
+
                 $csSource.css color: "#999"
                 $jsSource.css color: "#999"
                 error.backtickedCode = true
+
             else if shell
-                do $csSource.remove
+
+                $csSource.attr id: inputCount
                 do $jsSource.remove
+
             throw error
 
         return unless shell
+
         put.low result, "unspaced"
         do clock.scrollIntoView
 
@@ -1218,45 +1185,129 @@ also handles CoffeeScript compilation errors. Runtime errors are handled in
 This is where runtime errors get caught and stacktaces are generated from data
 stashed by the `cosh.execute` function above.
 
+This is the error highlighter. It takes a string of source code, and a line
+and column number, and returns a jQuery element for the source code with the
+offending character wrapped in the correct class. Missing characters, like a
+closing paren, are replaced with an underlined space.
+
+    hilite = (source, lineNumber, charNumber) ->
+
+        lines = do source.lines
+        line  = lines[lineNumber]
+        start = escape line.slice 0, charNumber
+        end   = escape line.slice charNumber + 1
+        char  = line[charNumber]
+        look  = if char then "color-operator" else "error-missing-char"
+        char  = if char then escape char else "&nbsp;"
+
+        lines[lineNumber] = "#{start}<span class=#{look}>#{char}</span>#{end}"
+
+        for line, index in lines
+
+            lines[index] = escape line if index isnt lineNumber
+
+        jQuery("<span class=error>").html lines.join "<br>"
+
+This takes an item and a map of line and column numbers, and creates the
+origin banner that goes at the bottom of each item in a traceback. It
+handles executed files and shell inputs differently.
+
+    parseOrigin = (item, line, column) ->
+
+        locationString = "[#{ line + 1 }:#{ column + 1 }]"
+
+        return "#{ item.count } #{ locationString }" if item.shell
+
+        [key, date] = item.count.split "@"
+
+        return "#{ key } #{ locationString } [ #{date} ]"
+
+This is a helper that takes an error's origin, basically a path to a file or
+shell input, and returns a jQuery div. Every item in a rendered error has one
+of these divs beneath it.
+
+    makeOriginDiv = (origin) ->
+
+        jQuery "<div><span class=trace-counter>#{origin}</span><br><br></div>"
+
+This helper is for making a jQuery div for a JavaScript error item. Because
+the JavaScript errors generally do not have source code available, untill
+workarounds are implemented, JavaScript items in tracebacks do not include
+source code.
+
+    makeErrorMessageDiv = (message) ->
+
+        jQuery("<xmp>").text(message).addClass "error-message unspaced"
+
+The `window.onerror` function. This is where all runtime errors end up.
+
     window.onerror = (message, url, line, column, error) ->
 
         if error.backtickedCode then message = "Lost #{message}"
 
-        traceDivs = []
+        divStack = []
 
         for trace in parseTrace error.stack
 
-            if item = inputs[trace.file]
-                map = doMap item, trace
-                origin = parseOrigin item, map
-                $traceDiv = $coffeeErrorDiv item, map, trace
-            else
-                origin = trace.file
-                $traceDiv = $nativeErrorDiv trace
+            if item = inputs[trace.file] # ================= # if coffee source
 
-            $traceDiv.append $traceFooterDiv origin
-            traceDivs.push $traceDiv
+                mapper = new smc.SourceMapConsumer do item.map.generate
+                jsPosition = line: trace.lineNumber, column: trace.column - 1
+                csPosition = mapper.originalPositionFor jsPosition
+                csPosition = [csPosition.line - 1, csPosition.column]
+
+                origin = parseOrigin item, csPosition...
+
+                $cs = hilite item.source, csPosition...
+                $js = hilite item.code, trace.lineNumber - 1, trace.column - 1
+
+                $item = jQuery "<div>"
+                    .css "display": "inline"
+                    .append $cs.addClass "error-input-cs"
+                    .append $js.addClass "error-compiled-js"
+
+            else # ===================================== # if javascript source
+
+                origin = trace.file
+
+                $item = jQuery """
+                    <div><span class=error>JavaScriptError in
+                    <span class=color-operator>#{ trace.methodName }</span>
+                    [#{ trace.lineNumber }:#{ trace.column }]
+                    </span></div>
+                    """
+
+            $item.append makeOriginDiv origin
+            divStack.push $item
 
         $stackDiv = jQuery "<div>"
-        $stackDiv.append traceDivs.reverse()
-        $stackDiv.append $errorMessageDiv message
-        $board.append $stackDiv
+            .append do divStack.reverse
+            .append makeErrorMessageDiv message
+
+        jQuery("##{ inputCount }").replaceWith $stackDiv
+
         do clock.scrollIntoView
 
-This parses the stacktrace string that `window.onerror` knows as `error.stack`,
-converting it into an array of items from the stack, as hashes. It returns an
-array of two objects, the stack array it creates, and a bool, truthy if the
-stacktrace fails to reach the `limit`, which is essentially this file.
-Traces are truncated at the borders of userland.
+### The Traceback Parser
+
+This parses the stacktrace string that is passed to `window.onerror` as
+`error.stack`, converting it into an array of hashes, each an item from the
+stack. It returns an array of two objects, the stack array it creates, and a
+bool, which is truthy if the stacktrace fails to reach the `limit`, which is
+basically this file, and false otherwise. Traces are truncated to remove any
+internal cruft.
+
+This code is taken from [StackTrace-Parser][3] by `errwischt` on GitHub.
 
     parseTrace = (traceback) ->
 
         stack = []
         lines = traceback.split "\n"
 
-        ignore = (url) -> bool \
-            url is "/cosh/main.js" or
-            url.startsWith "#{location.origin}/scripts"
+        ignore = (url) ->
+
+            ( url is "/cosh/main.js" ) or
+            ( url.startsWith "#{ location.origin }/scripts" )
 
         gecko = /^(?:\s*(\S*)(?:\((.*?)\))?@)?((?:file|http|https).*?):(\d+)(?::(\d+))?\s*$/i
         node = /^\s*at (?:((?:\[object object\])?\S+(?: \[as \S+\])?) )?\(?(.*?):(\d+)(?::(\d+))?\)?\s*$/i
@@ -1269,6 +1320,7 @@ Traces are truncated at the borders of userland.
                 continue if ignore parts[2]
 
                 element =
+
                     file: parts[2].remove /[()]/g
                     methodName: parts[1] or "<unknown>"
                     lineNumber: +parts[3]
@@ -1279,6 +1331,7 @@ Traces are truncated at the borders of userland.
                 continue if ignore parts[2]
 
                 element =
+
                     file: parts[2].remove /[()]/g
                     methodName: parts[1] or "<unknown>"
                     lineNumber: +parts[3]
@@ -1289,26 +1342,33 @@ Traces are truncated at the borders of userland.
                 continue if ignore parts[3]
 
                 element =
+
                     file: parts[3].remove /[()]/g
                     methodName: parts[1] or "<unknown>"
                     lineNumber: +parts[4]
                     column: (if parts[5] then +parts[5] else null)
 
             else continue
+
             stack.push element
 
-        stack
-
-    jQuery("#favicon").attr href: "/images/skull_up.png"
-    toastr.info(
-        "Powered by CoffeeScript (#{coffee.VERSION})"
-        "CoffeeShop: The HTML5 Shell"
-        timeOut: 1600
-        )
+        return stack
 
 ## Launch Shell
 
-This is the last bit of code to run on boot.
+This is the last section of cosh code to run as the shell boots. It will run
+any config or user script once it is set up.
+
+First, light up the favicon's eyes, and raise a toast. Everything after this
+depends on the mode.
+
+    jQuery("#favicon").attr href: "/images/skull_up.png"
+
+    toastr.info(
+        "Powered by CoffeeScript (#{ coffee.VERSION })"
+        "CoffeeShop: The HTML5 Shell"
+        timeOut: 1600
+        )
 
 ### Gallery Mode
 
@@ -1384,3 +1444,4 @@ the stack can be filtered correctly.
 
 [1]: https://github.com/chjj/marked
 [2]: http://stackoverflow.com/a/8460753/1253428
+[3]: https://github.com/errwischt/stacktrace-parser

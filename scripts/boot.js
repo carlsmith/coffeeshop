@@ -1,5 +1,3 @@
-// don't ask...
-
 require ([
     "cosh/coffee-script",
     "cosh/marked",
@@ -31,7 +29,10 @@ require ([
             url: "/scripts/main.coffee.md",
             success: function (main) {
                 var options = {bare: true, literate: true}
-                var js = coffee.compile(main, options)
+
+                try { var js = coffee.compile(main, options) }
+                catch (error) { console.log(error); return }
+
                 localStorage.setItem("coshSource", js)
                 localStorage.setItem("coshBuilt", new Date().toString())
                 eval(js)
