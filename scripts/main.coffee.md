@@ -1405,7 +1405,7 @@ storage when the page is destroyed.
         window.onunload = ->
 
             set historyStore, slate.history.last 400
-            undefined
+            return undefined
 
         try get "config.coffee"
         catch then set
@@ -1421,8 +1421,7 @@ storage when the page is destroyed.
             .text( if safemode then "Safe Mode" else "c[_]" )
 
         edit "config.coffee"
-
-        if launchCode isnt "safemode" then run "config.coffee"
+        run "config.coffee" unless launchCode is "safemode"
 
 ### The End
 
