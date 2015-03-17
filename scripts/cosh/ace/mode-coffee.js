@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2010, Ajax.org B.V.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -14,7 +14,7 @@
  *     * Neither the name of Ajax.org B.V. nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -52,17 +52,17 @@ oop.inherits(Mode, TextMode);
     var commentLine = /^(\s*)#/;
     var hereComment = /^\s*###(?!#)/;
     var indentation = /^\s*/;
-    
+
     this.getNextLineIndent = function(state, line, tab) {
         var indent = this.$getIndent(line);
         var tokens = this.getTokenizer().getLineTokens(line, state).tokens;
-    
+
         if (!(tokens.length && tokens[tokens.length - 1].type === 'comment') &&
             state === 'start' && indenter.test(line))
             indent += tab;
         return indent;
     };
-    
+
     this.toggleCommentLines = function(state, doc, startRow, endRow){
         console.log("toggle");
         var range = new Range(0, 0, 0, 0);
@@ -70,38 +70,38 @@ oop.inherits(Mode, TextMode);
             var line = doc.getLine(i);
             if (hereComment.test(line))
                 continue;
-                
+
             if (commentLine.test(line))
                 line = line.replace(commentLine, '$1');
             else
                 line = line.replace(indentation, '$&#');
-    
+
             range.end.row = range.start.row = i;
             range.end.column = line.length + 1;
             doc.replace(range, line);
         }
     };
-    
+
     this.checkOutdent = function(state, line, input) {
         return this.$outdent.checkOutdent(line, input);
     };
-    
+
     this.autoOutdent = function(state, doc, row) {
         this.$outdent.autoOutdent(doc, row);
     };
-    
+
     this.createWorker = function(session) {
         var worker = new WorkerClient(["ace"], "ace/mode/coffee_worker", "Worker");
         worker.attachToDocument(session.getDocument());
-        
+
         worker.on("error", function(e) {
             session.setAnnotations([e.data]);
         });
-        
+
         worker.on("ok", function(e) {
             session.clearAnnotations();
         });
-        
+
         return worker;
     };
 
@@ -127,7 +127,7 @@ ace.define('ace/mode/coffee_highlight_rules', ['require', 'exports', 'module' , 
             "this|throw|then|try|typeof|super|switch|return|break|by|continue|" +
             "catch|class|in|instanceof|is|isnt|if|else|extends|for|own|" +
             "finally|function|while|when|new|no|not|delete|debugger|do|loop|of|off|" +
-            "or|on|unless|until|and|yes"
+            "or|on|unless|until|and|yield|yes"
         );
 
         var langConstant = (
@@ -136,7 +136,7 @@ ace.define('ace/mode/coffee_highlight_rules', ['require', 'exports', 'module' , 
 
         var illegal = (
             "case|const|default|function|var|void|with|enum|export|implements|" +
-            "interface|let|package|private|protected|public|static|yield|" +
+            "interface|let|package|private|protected|public|static|" +
             "__hasProp|slice|bind|indexOf"
         );
 
@@ -259,8 +259,8 @@ ace.define('ace/mode/coffee_highlight_rules', ['require', 'exports', 'module' , 
                 }, {
                     token : ["entity.name.function", "text", "keyword.operator", "text"].concat(functionRule.token),
                     regex : "(" + identifier + ")(\\s*)([=:])(\\s*)" + functionRule.regex
-                }, 
-                functionRule, 
+                },
+                functionRule,
                 {
                     token : "variable",
                     regex : "@(?:" + identifier + ")?"
