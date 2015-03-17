@@ -104,10 +104,6 @@ Sane truthiness test.
         else if (thing.equals []) or (thing.equals {}) then false
         else !! thing
 
-Test if a filename is Literate CoffeeScript or not.
-
-    isLiterate = (key) -> (key.endsWith ".md") or (key.endsWith ".litcoffee")
-
 The other half of the HTML escape function.
 
     escape = (line) ->
@@ -116,6 +112,10 @@ The other half of the HTML escape function.
             .split(" ").join  "&nbsp;"
             .split("\n").join "<br>"
             .split("\t").join "&nbsp;&nbsp;&nbsp;&nbsp;"
+
+Test if a filename is Literate CoffeeScript or not.
+
+    isLiterate = (key) -> (key.endsWith ".md") or (key.endsWith ".litcoffee")
 
 Little helper to test if a value is a file chit. Probably needs breaking into
 one for chits, one for file chits and one for gist chits, at some point.
@@ -1006,33 +1006,21 @@ The `gallery` function from the [API](/docs/publishing.md).
 
         return undefined
 
-The `chit` function from the [API](/docs/chits.md). This needs rethinking,
-then either rewriting or replacing.
+The `chit` function from the [API](/docs/chits.md).
 
-    window.chit = (args...) ->
+    window.chit = ->
 
-        return if undefined in args
+        throw SignatureError "too few args" if arguments.length is 0
+        throw SignatureError "too many args" if arguments.length > 3
 
-        [key, options] = \
+        hash =
+            coshKey: arguments[0]
+            description: arguments[1] or ""
+            content: arguments[2] or ""
 
-            if args.length is 1
+        return hash if isFileChit hash
 
-                if args[0].isString?()
-                    [args[0], {description: "", content: ""}]
-                else [args[0].coshKey, args[0]]
-
-            else if args.length is 2
-
-                if args[1].isString?()
-                    [args[0], {description: args[1] or "", content: ""}]
-                else [args[0], args[1].merge
-                    description: args[1].description or ""
-                    content: args[1].content or ""
-                    ]
-
-            else [args[0], args[2].merge description: args[1]]
-
-        options.merge coshKey: key
+        throw SignatureError "args produced an invalid chit"
 
 ## The Page Cache
 

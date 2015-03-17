@@ -75,22 +75,20 @@ storage, assuming the key exists.
 
 ## Function: `chit`
 
-The `chit` function is used to create chits, mostly file chits. It can be
-called in a number of ways. The first argument is always required and must
-be the chit's cosh key. If you only pass that first argument, the chit that
-is returned will have that key and empty strings for its `content` and
-`description` properties.
+The `chit` function is used to create file chits.
 
-The second arg, if it is provided *and it is a string*, sets the `description`
-property.
+The first argument is always required and is the key. The second arg sets the
+`description` property and defaults to an empty string. The third arg sets the
+`content` property and defaults to an empty string too.
 
-An optional last argument, which will always be second or third, should be a
-chit. If provided, this chit will be used to build the new chit from.
+    chit "pacman.coffee", "A PAC-MAN Clone"
 
-    chit "foo.coffee", "Let foo be true." # has empty content string
-    chit "foo.coffee", content: "foo = true" # has empty description
+The return value is always the newly created chit. The following code
+evaluates to the same object as the last example.
 
-The return value is always the newly created chit.
+    coshKey: "pacman.coffee"
+    description: "A PAC-MAN Clone"
+    content: ""
 
 ## Function: `run`
 
