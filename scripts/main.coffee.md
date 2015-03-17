@@ -56,6 +56,7 @@ Set jQuery to not cache ajax requests, and disable the [Marked parser][1]'s
 These are all local variables pointing to elements, most wrapped by jQuery.
 
     $html = jQuery "html"
+
     $brand = jQuery "#brand"
     $board = jQuery "#board"
     $slate = jQuery "#slate"
@@ -830,7 +831,7 @@ arguments, a username and password, and it will save them to local storage.
 
         if args.length is 0
 
-            try authHash = get authStore
+            try get authStore
             catch then throw AuthError "no GitHub credentials found"
 
         else set authStore, { username: args[0], password: args[1] }
@@ -852,14 +853,12 @@ This function creates a gist chit from the JSON returned by the GitHub API.
 
         core = gistHash.files[gistHash.files.keys()[0]]
 
-        return chit
-
-            coshKey: core.filename
-            description: gistHash.description
-            content: core.content
-            gistID: gistHash.id
-            owner: gistHash.owner.login
-            galleryURL: "https://gallery-cosh.appspot.com/##{ gistHash.id }"
+        coshKey: core.filename
+        description: gistHash.description
+        content: core.content
+        gistID: gistHash.id
+        owner: gistHash.owner.login
+        galleryURL: "https://gallery-cosh.appspot.com/##{ gistHash.id }"
 
 Extract a GitHub error message from a error response.
 
@@ -924,9 +923,28 @@ of handlers to it.
             auth username, password
             toastr.success "Credentials set to coshGitHubAuth.", "Authorised"
 
+Helper for publishing and pushing gists. This makes *blocking* requests, and
+returns the results.
+
+    gistUpdate = (type, url, data) ->
+
+        [output, fail] = [undefined, false]
+
+        jQuery.ajax
+
+            async: false
+            headers: do authHeader
+            data: JSON.stringify data
+            url: gistEndpoint url
+            type: if type is "publish" then "POST" else "PATCH"
+            error: (error) -> fail = error
+            success: (goods) -> output = goods
+
+        return [output, fail]
+
 The `publish` function from the [API](/docs/gists.md).
 
-    window.publish = (target) ->
+    window.publish = (target, output=undefined) ->
 
         throw SignatureError "too few args"  if arguments.length < 1
         throw SignatureError "too many args" if arguments.length > 1
@@ -934,24 +952,15 @@ The `publish` function from the [API](/docs/gists.md).
 
         unless target = get target then throw SignatureError "arg is not a key"
 
-        authData = do authHeader
-
         data = description: target.description, public: true, files: {}
         data.files[target.coshKey] = content: target.content
 
-        jQuery.ajax
+        [result, error] = gistUpdate "publish", "/gists", data
 
-            type: "POST"
-            headers: authData
-            data: JSON.stringify data
-            url: gistEndpoint "/gists"
-            error: (error) -> throw GitHubError parseGitHubError error
-            success: (goods) ->
+        throw GitHubError parseGitHubError error if error
 
-                output = set gist2chit goods
-                toastr.success output.gistID, "Published Gist"
-
-        return undefined
+        toastr.success target.coshKey, "Published Chit"
+        return set gist2chit result
 
 The `push` function from the [API](/docs/gists.md).
 
@@ -965,38 +974,35 @@ The `push` function from the [API](/docs/gists.md).
 
         throw GitHubError "#{ target } is unpublished" unless hash.gistID
 
-        authData = do authHeader
-
         data = description: hash.description, files: {}
 
         data.files[hash.coshKey] =
 
             filename: hash.coshKey, content: hash.content
 
-        jQuery.ajax
+        [result, error] = gistUpdate "push", "/gists/#{ hash.gistID }", data
 
-            type: "PATCH"
-            headers: authData
-            data: JSON.stringify data
-            url: gistEndpoint "/gists/#{ hash.gistID }"
-            error: (error) -> throw GitHubError parseGitHubError error
-            success: (goods) -> toastr.success goods.gistID, "Pushed Gist"
+        throw GitHubError parseGitHubError error if error
 
-        return undefined
+        toastr.success target.coshKey, "Pushed Chit"
+        return gist2chit result
 
 The `publish` function from the [API](/docs/gists.md).
 
-    window.clone = (gistID, output=undefined) ->
+    window.clone = (gistID) ->
+
+        [output, fail] = [undefined, false]
 
         jQuery.ajax
 
             type: "GET"
             async: false
             url: gistEndpoint "/gists/#{ gistID }"
-            error: (data) -> throw GitHubError parseGitHubError error
-            success: (data) -> output = gist2chit data
+            error: (error) -> fail = error
+            success: (goods) -> output = goods
 
-        return output
+        return gist2chit output unless fail
+        throw GitHubError parseGitHubError fail
 
 The `gallery` function from the [API](/docs/publishing.md).
 
@@ -1014,6 +1020,7 @@ The `chit` function from the [API](/docs/chits.md).
         throw SignatureError "too many args" if arguments.length > 3
 
         hash =
+
             coshKey: arguments[0]
             description: arguments[1] or ""
             content: arguments[2] or ""
@@ -1401,7 +1408,7 @@ storage when the page is destroyed.
             undefined
 
         try get "config.coffee"
-        catch then set chit
+        catch then set
 
             coshKey: "config.coffee",
             description: "Run on boot unless in safe mode."
