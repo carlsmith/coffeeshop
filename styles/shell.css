@@ -175,6 +175,7 @@ details { margin-right: 8px; outline: none }
     border-bottom: 1px solid #222;
     border-radius: 4px;
     padding: 6px 7px 9px 7px;
+    margin-bottom: 0;
     }
 
 #board .input-cs { color: #4DBDBD; cursor: pointer }
@@ -200,88 +201,6 @@ details { margin-right: 8px; outline: none }
     border: 1px solid #674912;
     border-top: 1px solid #86714A;
     border-bottom: 1px solid #422F0B }
-
-#cover {
-    display: none;
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 4;
-    }
-
-#viewer {
-    display: none;
-    overflow-y: scroll;
-    background-color: #FDFDFD;
-    position: relative;
-    top: 9px;
-    padding: 32px 64px 64px;
-    width: 738px;
-    margin: auto;
-    z-index: 4;
-    border: 7px solid #777;
-    box-shadow: 0 0 30px 10px #000;
-    }
-
-#viewer h1, #viewer h2, #viewer h3, #viewer pre {
-    padding: 8px 16px;
-    margin: 16px;
-    }
-
-#viewer h1, #viewer h2, #viewer h3 {
-    color: #222;
-    font-family: Times New Roman;
-    font-weight: 100;
-    }
-
-#viewer h1, #viewer pre {
-    background: white;
-    border: 1px solid #777;
-    box-shadow: 0 2px 8px -4px #730000;
-    color: #4A0000;
-    }
-
-#viewer h2 {
-    background: white;
-    padding: 4px 16px;
-    border: 1px solid #999;
-    box-shadow: 0 3px 4px -4px;
-    margin-top: 64px;
-    }
-
-#viewer a {
-    color: #143E98;
-    }
-
-#viewer a:hover, #viewer a:active { color: #3700FF }
-
-#viewer code {
-    font-size: 16px;
-    color: #840000;
-    }
-
-#viewer pre > code {
-    font-size: 14px;
-    color: black;
-    }
-
-#viewer pre {
-    box-shadow: inset 0 1px 8px -4px;
-    background: #FCFCFC;
-    }
-
-#viewer p, #viewer ul {
-    margin: 16px 32px;
-    font-size: 18px;
-    font-family: Times;
-    color: #1B1B1B;
-    }
-
-#viewer p {
-    }
 
 .bgcolor-main,
     body,

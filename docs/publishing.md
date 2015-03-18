@@ -20,9 +20,10 @@ in as a launch code. For example, here is [a link][1] to the following URL:
     https://gallery-cosh.appspot.com/#98f97a41924ca81c9863
 
 Note that all gist chits have a link to their gallery URL as a property named
-`galleryURL`.
+`galleryURL`. You can use the `gallery` function to open any published gist
+in a new tab.
 
-    open clone("98f97a41924ca81c9863").galleryURL
+    gallery "98f97a41924ca81c9863"
 
 ## Shell Scripts & Naming
 

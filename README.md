@@ -41,7 +41,7 @@ goodness of HTML5.
 ### Getting Started
 
 CoffeeShop is a purely in-browser application. You only need a server to
-serve the files to your browser. We host [an instance the shell server][1]
+serve the files to your browser. We host [an instance of the shell server][1]
 on Google App Engine. You are welcome to use that URL.
 
 If you would like to publish or push to GitHub Gist, you will need a GitHub
@@ -75,28 +75,16 @@ is possible and planned, but not a priority.
 
 ### Status
 
-Everything works, and is pretty stable, but a couple of minor bits may change
-before things properly settle down. The version on App Engine is always in
-sync with this repo, for better or worse, so expect the occasional fail.
+All of the main features are implemented, documented and stable.
 
-The design is complete and pretty much fully implemented, so from here the
-focus is on refining the implementation. CoffeeShop is a shell, so you can
-easily extend it without hacking the core.
+The version on App Engine is always in sync with this repo, for better or
+worse, so expect the occasional fail in practice.
 
 Experienced programmers should find CoffeeShop useful now. Support for
 new programmers is being worked on.
 
 Currently, this is more or less a solo effort, but contributions are welcome,
 and there are plans to do bigger things with CoffeeShop once it is ready.
-
-### Goals
-
-The idea is to make something useful, a HTML5 shell, for people who already
-use CoffeeScript. Then, by porting the *Little Book on CoffeeScript*, make
-CoffeeShop ideal for programmers who are new to CoffeeScript.
-
-Longer term, by porting *Smooth CoffeeScript*, the shell will become useful
-to people who are new to programming, and people teaching it.
 
 ### License
 

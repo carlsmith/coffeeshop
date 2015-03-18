@@ -18,7 +18,6 @@ Users may arrive at the Gallery in any browser, so it is important to have
 this when nuking the DB.
 
     window.indexedDB =
-
         indexedDB or mozIndexedDB or webkitIndexedDB or msIndexedDB
 
 This code creates a global named `cosh` that internal stuff can be bound to,
@@ -26,7 +25,6 @@ but still be available to the user if they need it. If they often do, the
 API should be extended.
 
     window.cosh =
-
         uniquePIN: 0
         coffee: coffee
         coffeeVersion: coffee.VERSION
@@ -65,6 +63,7 @@ These are all local variables pointing to elements, most wrapped by jQuery.
     $footer = jQuery "#footer"
     $viewer = jQuery "#viewer"
     $nameDiv = jQuery "#filename"
+    $slateCount = jQuery "#slate-count"
     $editorLinks = jQuery "#editor-links"
     $descriptionDiv = jQuery "#file-description"
 
@@ -195,7 +194,7 @@ The `set` method.
 
         throw SignatureError "did not find coshKey" if key is undefined
         throw SignatureError "key must be a string" unless do key.isString
-        throw StorageError "invalid key `#{ key }`" if reserved key
+        throw StorageError "#{ key } is not a valid key" if reserved key
 
         value.coshKey = key if value.coshKey isnt undefined
         localStorage.setItem key, JSON.stringify value
@@ -365,7 +364,7 @@ This keybinding makes `Meta.Enter` execute the slate content.
 
             source = slate.getValue().lines (line) -> do line.trimRight
             source = source.join "\n"
-            cosh.execute source if source
+            executeSlate source if source
 
 This keybinding makes `Meta.S` set the *editor* content to storage.
 
@@ -510,7 +509,7 @@ This API function executes the content of the editor.
         source = do editor.getSource
 
         toastr.info editor.currentFile.coshKey, "Running...", timeOut: 1000
-        cosh.execute source, editor.currentFile.coshKey
+        executeFile source, editor.currentFile.coshKey
         do clock.scrollIntoView
 
 This API function renders the content of the editor as Markdown.
@@ -699,7 +698,7 @@ The `run` method from [the API](/docs/chits.md).
         [path, content] = resolve target
 
         toastr.info path, "Running...", timeOut: 1000
-        cosh.execute content, path
+        executeFile content, path
 
 The `put` and `put.low` methods from [the API](/docs/output.md). The `put`
 function just effects the spacing of the output. The `put.low` function
@@ -834,7 +833,7 @@ arguments, a username and password, and it will save them to local storage.
             try get authStore
             catch then throw AuthError "no GitHub credentials found"
 
-        else set authStore, { username: args[0], password: args[1] }
+        else set authStore, username: args[0], password: args[1]
 
 This function is called to create a basic auth header string. It'll return
 `null` if no credentials are found.
@@ -843,9 +842,9 @@ This function is called to create a basic auth header string. It'll return
 
         return unless authData = do auth
 
-        authData = btoa "#{authData.username}:#{authData.password}"
+        authData = btoa "#{ authData.username }:#{ authData.password }"
 
-        return Authorization: "Basic #{authData}"
+        return Authorization: "Basic #{ authData }"
 
 This function creates a gist chit from the JSON returned by the GitHub API.
 
@@ -881,9 +880,9 @@ of handlers to it.
             ## Authorise This Browser
             You credentials must be locally set to `coshGitHubAuth`.
 
-            <form id=#{formID}>
-            <input id=#{formID}Username type=text placeholder=username>
-            <input id=#{formID}Password type=password placeholder=password>
+            <form id=#{ formID }>
+            <input id=#{ formID }Username type=text placeholder=username>
+            <input id=#{ formID }Password type=password placeholder=password>
             <input type=submit value="set coshGitHubAuth">
             </form>
 
@@ -891,10 +890,10 @@ of handlers to it.
             You can deauthorise this browser by removing your credentials
             from local storage.
 
-            <button id=#{formID}Delete>pop coshGitHubAuth</button>
+            <button id=#{ formID }Delete>pop coshGitHubAuth</button>
             """
 
-        jQuery("##{formID}Delete").click ->
+        jQuery("##{ formID }Delete").click ->
 
             if localStorage.getItem authStore
 
@@ -903,12 +902,12 @@ of handlers to it.
 
             else toastr.error "Nothing at coshGitHubAuth", "Failed"
 
-        jQuery("##{formID}").submit (event) ->
+        jQuery("##{ formID }").submit (event) ->
 
             do event.preventDefault
 
-            $username = jQuery "##{formID}Username"
-            $password = jQuery "##{formID}Password"
+            $username = jQuery "##{ formID }Username"
+            $password = jQuery "##{ formID }Password"
 
             unless username = do $username.val
 
@@ -1020,7 +1019,6 @@ The `chit` function from the [API](/docs/chits.md).
         throw SignatureError "too many args" if arguments.length > 3
 
         hash =
-
             coshKey: arguments[0]
             description: arguments[1] or ""
             content: arguments[2] or ""
@@ -1083,28 +1081,33 @@ probably not the best way to do it, but is simple and works in practice).
             pageCache[path] = file
             peg.low file, "page"
 
-## Execution and Exception Handling
+## Execution
 
-This stuff needs refactoring. It is where all the compilation, execution,
-source mapping and error handling currently lives.
+This section is where all the compilation and evaluation lives.
 
-### Execution
+This function evaluates compiled JavaScript code, setting a flag on syntax
+errors, which must be inside backticked code, as the CoffeeScript compiler
+does not generate code with syntax errors in.
 
-The `cosh.execute` function handles all execution of CoffeeScript code. It
-stashes the source maps and other input data on successful compilation. It
-also handles CoffeeScript compilation errors. Runtime errors are handled in
-`window.onerror` below.
+    evaluate = (slug) ->
 
-    cosh.execute = (source, url) ->
+        try return [true, eval.call window, slug]
+        catch error
 
-        shell = if url then false else true
-        literate = url?.endsWith(".coffee.md") or url?.endsWith(".litcoffee")
+            error.backtickedCode = true if error.stack.startsWith "Syntax"
 
-        url += "@#{new Date().format '{dd}:{MM}:{yyyy}:{HH}:{mm}:{ss}'}" if url
+        return [false, error]
+
+This function compiles CoffeeScript source code to a compilation object,
+which includes the source map. The function handles any compilation errors
+itself. The return value is the compilation object (truthy) on success,
+else `undefined`.
+
+    compile = (source, literate=false) ->
 
         options = bare: true, sourceMap: true, literate: literate
 
-        try code = coffee.compile source, options
+        try return coffee.compile source, options
         catch error
 
             line = error.location.first_line
@@ -1118,65 +1121,83 @@ also handles CoffeeScript compilation errors. Runtime errors are handled in
                 .append makeErrorMessageDiv message
                 .appendTo $board
 
-            slate.updateHistory source if shell
-            slate.setValue ""
+            do clock.scrollIntoView
 
+This function handles slate inputs. It creates the UI elements for the input
+and hidden element for the compiled JavaScript too.
+
+    window.executeSlate = (source) ->
+
+        slate.updateHistory source
+        slate.setValue ""
+
+        return unless compilation = compile source
+
+        inputCount++
+        $slateCount.html inputCount + 1
+
+        origin = "slate#{ inputCount }.js"
+
+        inputs[origin] =
+            shell: true
+            source: source
+            origin: inputCount
+            native: compilation.js
+            map: compilation.sourceMap
+
+        $csSource = jQuery "<xmp>"
+            .text source
+            .addClass "input-cs"
+            .appendTo $board
+
+        $jsSource = jQuery "<xmp>"
+            .text compilation.js
+            .addClass "compiled-js"
+            .appendTo $board
+
+        slug = "#{ compilation.js }\n//# sourceURL=slate#{ inputCount }.js"
+
+        [success, result] = evaluate slug
+
+        if success
+
+            put.low result, "unspaced"
             return do clock.scrollIntoView
 
-        if shell
+        $csSource.attr id: inputCount
+        do $jsSource.remove
 
-            inputCount++
-            slate.updateHistory source
-            url = "slate#{inputCount}.js"
-            jQuery("#slate-count").html inputCount + 1
-            slate.setValue ""
+        throw result
 
-        inputs[url] =
+This function executes files, including the editor content when that is
+executed. Note that files are timestamped, as they can be edited between
+the time of the evaluation and the exception.
 
-            name: url
-            code: code.js
-            shell: shell
+    executeFile = (source, url) ->
+
+        literate = (url?.endsWith ".coffee.md") or (url?.endsWith ".litcoffee")
+
+        date = new Date().format "{dd}:{MM}:{yyyy}@{HH}:{mm}:{ss}"
+        origin = "#{ url }|#{ date }"
+
+        return unless compilation = compile source, literate
+
+        inputs[origin] =
+            shell: false
             source: source
-            count: if shell then inputCount else url
-            map: code.sourceMap
+            origin: origin
+            native: compilation.js
+            map: compilation.sourceMap
 
-        if shell
+        slug = "#{ compilation.js }\n//# sourceURL=#{ origin }"
 
-            $csSource = jQuery "<xmp>"
-                .text source
-                .addClass "input-cs"
-                .appendTo $board
+        [success, result] = evaluate slug
 
-            $jsSource = jQuery "<xmp>"
-                .text code.js
-                .addClass "compiled-js"
-                .appendTo $board
+        throw result unless success
 
-        try result = eval.call window, "#{code.js}\n//# sourceURL=#{url}"
-        catch error
+## Exception Handling
 
-            if error.stack.startsWith "SyntaxError"
-
-                $csSource.css color: "#999"
-                $jsSource.css color: "#999"
-                error.backtickedCode = true
-
-            else if shell
-
-                $csSource.attr id: inputCount
-                do $jsSource.remove
-
-            throw error
-
-        return unless shell
-
-        put.low result, "unspaced"
-        do clock.scrollIntoView
-
-### Exception Handling
-
-This is where runtime errors get caught and stacktaces are generated from data
-stashed by the `cosh.execute` function above.
+This section is where runtime errors get caught and stacktaces are generated.
 
 This is the error highlighter. It takes a string of source code, and a line
 and column number, and returns a jQuery element for the source code with the
@@ -1209,11 +1230,11 @@ handles executed files and shell inputs differently.
 
         locationString = "[#{ line + 1 }:#{ column + 1 }]"
 
-        return "#{ item.count } #{ locationString }" if item.shell
+        return "#{ item.origin } #{ locationString }" if item.shell
 
-        [key, date] = item.count.split "@"
+        [key, date] = item.origin.split "|"
 
-        return "#{ key } #{ locationString } [ #{date} ]"
+        return "#{ key } #{ locationString } [#{ date }]"
 
 This is a helper that takes an error's origin, basically a path to a file or
 shell input, and returns a jQuery div. Every item in a rendered error has one
@@ -1221,7 +1242,8 @@ of these divs beneath it.
 
     makeOriginDiv = (origin) ->
 
-        jQuery "<div><span class=trace-counter>#{origin}</span><br><br></div>"
+        jQuery "<div>"
+            .html "<span class=trace-counter>#{ origin }</span><br><br>"
 
 This helper is for making a jQuery div for a JavaScript error item. Because
 the JavaScript errors generally do not have source code available, untill
@@ -1236,7 +1258,7 @@ The `window.onerror` function. This is where all runtime errors end up.
 
     window.onerror = (message, url, line, column, error) ->
 
-        if error.backtickedCode then message = "Lost #{message}"
+        if error.backtickedCode then message = "Lost #{ message }"
 
         divStack = []
 
@@ -1245,14 +1267,14 @@ The `window.onerror` function. This is where all runtime errors end up.
             if item = inputs[trace.file] # ================= # if coffee source
 
                 mapper = new smc.SourceMapConsumer do item.map.generate
-                jsPosition = line: trace.lineNumber, column: trace.column - 1
+                jsPosition = line: trace.lineNumber, column: trace.column-1
                 csPosition = mapper.originalPositionFor jsPosition
-                csPosition = [csPosition.line - 1, csPosition.column]
+                csPosition = [csPosition.line-1, csPosition.column]
 
                 origin = parseOrigin item, csPosition...
 
                 $cs = hilite item.source, csPosition...
-                $js = hilite item.code, trace.lineNumber - 1, trace.column - 1
+                $js = hilite item.native, trace.lineNumber-1, trace.column-1
 
                 $item = jQuery "<div>"
                     .css "display": "inline"
@@ -1277,7 +1299,10 @@ The `window.onerror` function. This is where all runtime errors end up.
             .append do divStack.reverse
             .append makeErrorMessageDiv message
 
-        jQuery("##{ inputCount }").replaceWith $stackDiv
+        $input = jQuery "##{ inputCount }"
+
+        if $input.length then $input.replaceWith $stackDiv
+        else $board.append $stackDiv
 
         do clock.scrollIntoView
 
@@ -1313,7 +1338,6 @@ This code is taken from [StackTrace-Parser][3] by `errwischt` on GitHub.
                 continue if ignore parts[2]
 
                 element =
-
                     file: parts[2].remove /[()]/g
                     methodName: parts[1] or "<unknown>"
                     lineNumber: +parts[3]
@@ -1324,7 +1348,6 @@ This code is taken from [StackTrace-Parser][3] by `errwischt` on GitHub.
                 continue if ignore parts[2]
 
                 element =
-
                     file: parts[2].remove /[()]/g
                     methodName: parts[1] or "<unknown>"
                     lineNumber: +parts[3]
@@ -1335,7 +1358,6 @@ This code is taken from [StackTrace-Parser][3] by `errwischt` on GitHub.
                 continue if ignore parts[3]
 
                 element =
-
                     file: parts[3].remove /[()]/g
                     methodName: parts[1] or "<unknown>"
                     lineNumber: +parts[4]

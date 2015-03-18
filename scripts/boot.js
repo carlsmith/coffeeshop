@@ -31,7 +31,7 @@ require ([
                 var options = {bare: true, literate: true}
 
                 try { var js = coffee.compile(main, options) }
-                catch (error) { console.log(error); return }
+                catch (error) { return console.log(error) }
 
                 localStorage.setItem("coshSource", js)
                 localStorage.setItem("coshBuilt", new Date().toString())
