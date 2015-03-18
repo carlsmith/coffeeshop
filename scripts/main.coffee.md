@@ -1461,4 +1461,4 @@ the stack can be filtered correctly.
 [3]: https://github.com/errwischt/stacktrace-parser
 
 <img src=/images/skull_up.png style=padding:0>
-<span style=vertical-align:4px>PS84 &copy; 2015 GPLv3</span>
+<span style=vertical-align:4px;margin-left:-1px>PS84 &copy; 2015 GPLv3</span>
