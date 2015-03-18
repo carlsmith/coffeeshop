@@ -148,9 +148,9 @@ for enclosing the custom error type names.
         Error.captureStackTrace @, @constructor
         @name = @constructor.name
 
-    BaseError = (type) ->
+    BaseError = (type) -> (message) ->
 
-        (message) -> new CoreError "#{ type }Error: #{ message }"
+        new CoreError "#{ type }Error: #{ message }"
 
 Now, we can essentially just name any new error type we need. Note that this
 all depends on V8. Other engines lack the `captureStackTrace` method used
@@ -681,7 +681,7 @@ internally to make *blocking* requests for remote resources.
             url: path
             async: false
             success: (goods) -> output = goods
-            error: (error) -> throw NetError do error.statusText.toLowerCase
+            error: (error) -> throw NetError "failed to load #{ path }"
 
         return output
 
@@ -1459,3 +1459,6 @@ the stack can be filtered correctly.
 [1]: https://github.com/chjj/marked
 [2]: http://stackoverflow.com/a/8460753/1253428
 [3]: https://github.com/errwischt/stacktrace-parser
+
+<img src=/images/skull_up.png style=padding:0>
+<span style=vertical-align:4px>PS84 &copy; 2015 GPLv3</span>

@@ -3,12 +3,16 @@
 Welcome to **CoffeeShop**, a better [CoffeeScript][1] shell.
 Look through the [the Book][2] to get started.
 
+## Stable At Last
+
+The CoffeeShop features are all implemented and stable now.
+
 ## Finished Refactoring
 
-Just finished a complete rewrite of the CoffeeScript source, and brought the
-new docs up to date. Please [report issues][3].
+Just finished a complete rewrite of the CoffeeScript source.
+Please [report issues][3].
 
-The documented features are stable now.
+    print "/scripts/main.coffee.md"
 
 ## Language Upgrade
 
