@@ -80,7 +80,7 @@ This code sets up the links above the board, the *shell links*.
 
 Make CoffeeScript code clickable, to toggle compiled JavaScript code.
 
-    jQuery("#board").on "click", ".error-input-cs, .input-cs", ->
+    $board.on "click", ".error-input-cs, .input-cs", ->
 
         jQuery(@).next().slideToggle(200).css display: "block"
 
@@ -681,7 +681,7 @@ internally to make *blocking* requests for remote resources.
             url: path
             async: false
             success: (goods) -> output = goods
-            error: (error) -> throw NetError "failed to load #{ path }"
+            error: -> throw NetError "failed to load #{ path }"
 
         return output
 
@@ -976,7 +976,6 @@ The `push` function from the [API](/docs/gists.md).
         data = description: hash.description, files: {}
 
         data.files[hash.coshKey] =
-
             filename: hash.coshKey, content: hash.content
 
         [result, error] = gistUpdate "push", "/gists/#{ hash.gistID }", data
