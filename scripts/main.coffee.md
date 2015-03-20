@@ -11,7 +11,7 @@ Consumer), are loaded by `boot.js`.
 
 ## Initialise the Global Namespace
 
-This stuff is all exposed to users, and used internally.
+This stuff is all exposed to users, and also used internally.
 
 First, make sure `window.indexedDB` is the correct object or `undefined`.
 Users may arrive at the Gallery in any browser, so it is important to have
@@ -44,6 +44,8 @@ development.
         ]
 
 ## Initialise the Internal Namespace
+
+This is all the stuff used throughout this file.
 
 Set jQuery to not cache ajax requests, and disable the [Marked parser][1]'s
 `sanitize` option.
@@ -144,7 +146,7 @@ for enclosing the custom error type names.
 
     CoreError = (@message) ->
 
-        @constructor.prototype.__proto__ = Error.prototype
+        @constructor::__proto__ = Error::
         Error.captureStackTrace @, @constructor
         @name = @constructor.name
 
@@ -813,7 +815,7 @@ The `clear` method from [the API](/docs/output.md).
 
     window.clear = -> $board.html ""
 
-## The GitHub Gist API
+## The Gist API
 
 This section extends the shell API to work with gists. It starts by just
 defining a couple of helpful locals.
